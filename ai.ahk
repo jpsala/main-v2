@@ -212,7 +212,7 @@ AIEnsurePromptsFile() {
 
 AILoadPrompts() {
   global AI_PROMPTS, AI_PROMPT_PROVIDERS, AI_PROMPT_MODELS, AI_PROMPT_HOTKEYS, AI_PROMPT_NAMES
-  global AI_PROMPTS_FILE, AI_PROMPTS_LAST_MOD, AI_PROMPTS_FOLDER, AI_PROMPTS_FOLDER_LAST_MOD
+  global AI_PROMPTS_FILE, AI_PROMPTS_LAST_MOD, AI_PROMPTS_FOLDER, AI_PROMPTS_FOLDER_LAST_MOD, AI_PROMPTS_FOLDER_FILE_COUNT
 
   newPrompts := Map()
   newProviders := Map()
@@ -373,6 +373,7 @@ AICheckPromptsReload() {
       if (A_LoopFileTimeModified > latestModTime)
         latestModTime := A_LoopFileTimeModified
     }
+    
     if (latestModTime != AI_PROMPTS_FOLDER_LAST_MOD || fileCount != AI_PROMPTS_FOLDER_FILE_COUNT)
       needsReload := true
   }

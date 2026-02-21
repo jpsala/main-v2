@@ -37,13 +37,26 @@ ChordUnregisterAll() {
 ChordRegister(prefixMap, executeFn) {
     global CHORD_PREFIX_MAP, CHORD_PREFIX_HOTKEY_MAP, CHORD_SUFFIX_HOTKEY_MAP, CHORD_EXECUTE_FN
 
+    log("ChordRegister called with " . prefixMap.Count . " prefixes")
+    for prefix, suffixMap in prefixMap {
+        log("  Prefix: " . prefix . " with " . suffixMap.Count . " suffixes")
+        for suffix, name in suffixMap
+            log("    " . prefix . "," . suffix . " -> " . name)
+    }
+
     CHORD_PREFIX_MAP := prefixMap
     CHORD_EXECUTE_FN := executeFn
 
     for prefixKey, _ in CHORD_PREFIX_MAP {
         registeredPrefix := ChordEnsureHookHotkey(prefixKey)
-        try Hotkey(registeredPrefix, ChordHandlePrefix.Bind(prefixKey))
-        CHORD_PREFIX_HOTKEY_MAP[registeredPrefix] := true
+        log("Registering prefix: " . prefixKey . " -> " . registeredPrefix)
+        try {
+            Hotkey(registeredPrefix, ChordHandlePrefix.Bind(prefixKey))
+            CHORD_PREFIX_HOTKEY_MAP[registeredPrefix] := true
+            log("  -> SUCCESS registered prefix")
+        } catch as err {
+            log("  -> ERROR registering prefix: " . err.Message)
+        }
     }
 
     uniqueSuffixes := Map()
@@ -52,12 +65,19 @@ ChordRegister(prefixMap, executeFn) {
             uniqueSuffixes[suffixKey] := true
     }
 
+    log("Registering " . uniqueSuffixes.Count . " unique suffixes")
     for suffixKey, _ in uniqueSuffixes {
         suffixHotkey := ChordBuildSuffixHotkey(suffixKey)
+        log("  Suffix: " . suffixKey . " -> hotkey: " . suffixHotkey)
         if (suffixHotkey = "")
             continue
-        try Hotkey(suffixHotkey, ChordHandleSuffix.Bind(suffixKey), "Off")
-        CHORD_SUFFIX_HOTKEY_MAP[suffixKey] := suffixHotkey
+        try {
+            Hotkey(suffixHotkey, ChordHandleSuffix.Bind(suffixKey), "Off")
+            CHORD_SUFFIX_HOTKEY_MAP[suffixKey] := suffixHotkey
+            log("    -> SUCCESS registered suffix (Off)")
+        } catch as err {
+            log("    -> ERROR registering suffix: " . err.Message)
+        }
     }
 }
 
@@ -321,6 +341,7 @@ ChordHandleSuffix(suffixKey, *) {
 
     prefixHotkey := CHORD_PENDING_PREFIX
     ChordClearPending()
+    
     if !CHORD_PREFIX_MAP.Has(prefixHotkey)
         return
 

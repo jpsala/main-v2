@@ -1,0 +1,12 @@
+# .vscode
+/config.ini
+/favorites
+/.vscode/bookmarks.json
+/.specstory
+
+# Database files in Flashpost-tests
+/Flashpost-tests/**/*.db
+
+# Specific files
+/Flashpost-tests
+

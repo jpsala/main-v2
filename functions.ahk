@@ -10,15 +10,6 @@ global aliasMap := Map()        ; For alias-based window management (NEW)
 
 
 ;===============================================================================
-; GLOBAL STATE MANAGEMENT
-;===============================================================================
-
-setMode(_mode) {
-    global mode
-    mode := _mode
-}
-
-;===============================================================================
 ; VOLUME CONTROL
 ;===============================================================================
 
@@ -281,44 +272,6 @@ mousePosY(_coordMode := 'Screen') {
     MouseGetPos(&X, &Y)
     CoordMode('Mouse', cm)
     return Y
-}
-
-changeMouseCursor(cursor := 0) {
-    log('changed to ' cursor)
-    ; StandardArrowAndSmallHourglass = 32650,
-    ; StandardArrow = 32512,
-    ; Crosshair = 32515,
-    ; Hand = 32649,
-    ; ArrowAndQuestionMark = 32651,
-    ; IBeam = 32513,
-    ; SlashedCircle = 32648,
-    ; FourPointedArrowPointingNorthSouthEastAndWest = 32646,
-    ; DoublePointedArrowPointingNortheastAndSouthwest = 32643,
-    ; DoublePointedArrowPointingNorthAndSouth = 32645,
-    ; DoublePointedArrowPointingNorthwestAndSoutheast = 32642,
-    ; DoublePointedArrowPointingWestAndEast = 32644,
-    ; VerticalArrow = 32516,
-    ; Hourglass = 32514
-    if (cursor) {
-        CursorHandle := DllCall("LoadCursor", "Uint", 0, "Int", cursor)
-        Cursors := "32512,32513,32514,32515,32516,32640,32641,32642,32643,32644,32645,32646,32648,32649,32650,32651"
-        Loop Parse, Cursors, ","
-            DllCall("SetSystemCursor", "Uint", CursorHandle, "Int", A_Loopfield)
-
-    } else {
-        DllCall("SystemParametersInfo", "UInt", 0x57, "UInt", 0, "UInt", 0, "UInt", 0)
-    }
-}
-
-betweenCoords(left, top, right, bottom) {
-    MouseGetPos(&X, &Y)
-    return (X >= left && X <= right && Y >= top && Y <= bottom)
-}
-
-sendAClick() {
-    Send("{LButton down}")
-    KeyWait("LButton")
-    Send("{LButton up}")
 }
 
 ;===============================================================================
@@ -620,54 +573,6 @@ notifu(message, type := 'info', seconds := 5, title := 'main.ahk', persistent :=
     Run(runCommand)
 }
 
-RemoveNotify() {
-    TrayTip  ; Attempt to hide it the normal way.
-    if SubStr(A_OSVersion, 1, 3) = "10." {
-        A_IconHidden := true
-        Sleep 200  ; It may be necessary to adjust this sleep.
-        A_IconHidden := false
-    }
-}
-
-makeContextMenu() {
-    ; Menu, MyMenu, add  ; Creates a separator line.
-    Tray := A_TrayMenu
-    TraySetIcon("wrench.png")
-    MyMenu := Menu()
-}
-
-;===============================================================================
-; GROUP MANAGEMENT
-;===============================================================================
-
-setGroup(group, timeout := 800) {
-    msgV1("Active group is " . group, 1, 1, 1, 10)
-    ; SoundBeep(2000, 30)
-    global activeGroup
-    ; global saveVol
-    ; saveVol := SoundGetVolume()
-    ; SoundSetVolume(4)
-    ; SoundPlay("start.mp3")
-    if (activeGroup == "") {
-        SetTimer(clearGroup, timeout)
-    }
-    activeGroup := group
-}
-
-clearGroup() {
-    global saveVol
-    global activeGroup
-    ; SoundBeep(200, 90)
-    if (!(activeGroup == "")) {
-        ; msgOld(activeGroup)
-        ; SoundPlay("stop.mp3")
-    }
-    ; Sleep(100)
-    ; SoundSetVolume(saveVol)
-    activeGroup := ""
-    SetTimer(clearGroup, 0)
-}
-
 ;===============================================================================
 ; DEBUGGING & LOGGING
 ;===============================================================================
@@ -795,49 +700,6 @@ emptylog(logFile := '') {
 ; TIMERS & SCHEDULED TASKS
 ;===============================================================================
 
-timerBeCarefull200() {
-    ; hwnd := GetWindowUnderMouse().id
-    ; msg('running ' wingettitle('ahk_id ' hwnd),{seconds: 1})
-    ; sleep(1100)
-}
-
-timerEveryNowAndThen() {
-    preventIdle()
-    ; msg('Reloading strokesplus...', {seconds: 1})
-    ; send('^+#!z')
-}
-
-timerOneSecond() {
-    ; global TimeGui1
-    ; formattedDateTime := FormatTime(, "HH:mm MMM-dd")
-    ; try TimeGui1['Time'].Text := formattedDateTime
-}
-
-timerBeCarefull350() {
-    global winTitleUnderMouse
-    global mouseX, mouseY, monitorInfo
-    MouseGetPos(&_, &_, &Win)
-    try winTitleUnderMouse := WinGetTitle(Win)
-    monitorInfo := getMonitorInfo()
-    mouseX := monitorInfo.x
-    mouseY := monitorInfo.y
-    ; if the remote desktop credential dialog is open, send the password
-    if (WinActive('ahk_class Credential Dialog Xaml Host') && GetKeyState('alt', 'P')) {
-        Sleep(200)
-        send('REDACTED_SECRET{Enter}')
-    }
-    if ((WinActive('Please purchase WinRAR license') || WinActive('WinRAR 7.10 Expired Notification'))) {
-        send('!{F4}')
-    }
-    if (WinActive('ahk_class ApplicationFrameWindow') && GetKeyState('alt', 'P')) {
-        Sleep(200)
-        send('REDACTED_SECRETC_{Enter}')
-        
-    }
-    checkIfMouseIsOverTaskbar()
-}
-
-
 global winSaved := false
 
 ; checkIfMouseIsOverTaskbar automatically activates the taskbar when the mouse hovers over its vertical position (1079 pixels).
@@ -874,15 +736,6 @@ checkIfMouseIsOverTaskbar() {
         return  ; Block drag/click when over taskbar
     }
 #HotIf
-moveBrowserToSecondMonitor() {
-    if (WinExist('ahk_exe chrome.exe')) {
-        WinGetPos(&x, &y, &width, &height, 'ahk_exe chrome.exe')
-        ; Only move if the window is not already in the second monitor (x < 1920)
-        if (x < 1920) {
-            WinMove(1920, 0, , , 'ahk_exe chrome.exe')
-        }
-    }
-}
 
 preventIdle() {
     SetScrollLockState(!GetKeyState("ScrollLock", "T"))
@@ -931,25 +784,6 @@ arrayJoin(array, delimiter := "`n") {
         result .= value . delimiter
     }
     return RTrim(result, delimiter)  ; Remove the trailing delimiter
-}
-
-;===============================================================================
-; MISC UTILITIES
-;===============================================================================
-
-kitRun(f) {
-    kenvScriptsDir := IniRead("config.ini", "desktop", "kenv_scripts_dir", "")
-    kitDir := IniRead("config.ini", "desktop", "kit_dir", "")
-    fsTouchExe := IniRead("config.ini", "desktop", "fsTouch_exe", "")
-
-    if (!kenvScriptsDir || !kitDir || !fsTouchExe) {
-        msgV1("Error: Missing required paths in config.ini", 3)
-        return
-    }
-
-    FileDelete(kitDir . '\run.txt')
-    FileAppend(kenvScriptsDir . '\' . f, kitDir . '\run.txt')
-    Run(fsTouchExe . '  /p"' . f . '" /o"+1"')
 }
 
 ;===============================================================================
@@ -1050,30 +884,9 @@ IniReadWithExpansion(section, key, defaultValue := "") {
     return value
 }
 
-; ===============================================================================
-; CLIPBOARD & COPYQ INTEGRATION
-; ===============================================================================
-
-sendToCopyQ(script, logIt := false) {
-    cmd := 'cmd /C c:\tools\copyq\copyq eval ' '"' script '"'
-    ExitCode := RunWait(cmd, , 'Hide')
-    if (ExitCode != 0 and !logIt) {
-        msgBox('Error in sendToCopyQ, ExitCode: ' ExitCode)
-    }
-    if (logIt) {
-        log('copyq', 'cmd: ' cmd, ' ExitCode: ' ExitCode)
-    }
-    ; RunWait('c:\tools\copyq\copyq eval "' . 'pupup("hola")' . '"')
-}
-
 ;===============================================================================
 ; WINDOW DETECTION & INTERACTION
 ;===============================================================================
-
-MouseIsOver(WinTitle) {
-    MouseGetPos(&_, &_, &Win)
-    return WinExist(WinTitle . " ahk_id " . Win)
-}
 
 GetWindowUnderMouse() {
     WinGetPos(, , &w, &h, 'A')
@@ -1086,50 +899,6 @@ GetWindowUnderMouse() {
     }
 }
 
-IsAnyWinActive(windowList) {
-    for window in windowList {
-        if (WinActive(window)) {
-            return true
-        }
-    }
-    return false
-}
-
-; Get window handle from screen coordinates
-WinFromPoint(X, Y) {
-    ; Use WindowFromPoint DllCall to get the window handle at the specified coordinates
-    return DllCall("WindowFromPoint", "Int64", X | (Y << 32), "Ptr")
-}
-
-;===============================================================================
-; WINDOW MANAGEMENT & TASKBAR
-;===============================================================================
-
-activateOrMinimize(_win, exePath := false, windowTitle := '') { ; Activate or minimize the specified window
-    toggleOrLaunchApp({
-        winPattern: _win,
-        launchCmd: exePath,
-        windowTitle: windowTitle ? windowTitle : _win
-    })
-}
-
-ToggleTaskbar() {
-    Static A_WinID := ""
-    If Not WinActive("ahk_class Shell_TrayWnd")
-    {
-        A_WinID := WinExist("A")
-        WinShow('ahk_class Shell_TrayWnd')
-        WinActivateFast('ahk_class Shell_TrayWnd')
-    }
-    Else
-    {
-        If A_WinID
-        {
-            try WinActivateFast("ahk_id " A_WinID)
-            A_WinID := ""
-        }
-    }
-}
 ; =====================
 ; SEQUENCE & GUI MANAGEMENT (migrated from functions.ahk)
 ; =====================

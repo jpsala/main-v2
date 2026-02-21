@@ -107,6 +107,9 @@ browserWindow := "ahk_exe vivaldi.exe ahk_exe chrome.exe ahk_exe msedge.exe ahk_
 ; browserWithDevProfile := chromeAppPath ' --remote-debugging-port=9222 --profile-directory=Debug'
 browserWithChromeMainProfile := chromeExe ' --profile-directory="Profile 1" '
 
+; Check if all paths in config.ini exist
+CheckConfigPaths()
+
 ; browserWithAIProfile := zenAppPath ' -p AI '
 ; browserWithWorkProfile := zenAppPath ' -p Work '
 

@@ -1002,3 +1002,87 @@ getNextSerialNumber() {
     IniWrite(serial, "config.ini", "variables", "serialNumber")
     return serial
 }
+
+;===============================================================================
+; CONFIG PATH VALIDATION
+;===============================================================================
+
+CheckConfigPaths() {
+    if (!FileExist("config.ini")) {
+        msg("config.ini not found!", 3)
+        return
+    }
+
+    missing := []
+    sections := ["desktop", "work", "carnival", "notebook", "gordos", "paths"]
+    
+    ; Check each section
+    for _, section in sections {
+        sectionContent := IniRead("config.ini", section, "", "")
+        if (sectionContent = "")
+            continue
+            
+        ; Parse section content
+        loop parse sectionContent, "`n", "`r" {
+            if (A_LoopField = "")
+                continue
+            if (!InStr(A_LoopField, "="))
+                continue
+                
+            parts := StrSplit(A_LoopField, "=", , 2)
+            if (parts.Length < 2)
+                continue
+                
+            key := Trim(parts[1])
+            value := Trim(parts[2])
+            
+            ; Skip empty values or comments
+            if (value = "" || SubStr(key, 1, 1) = ";")
+                continue
+            
+            ; Check if this is a path-related key
+            isPathKey := (InStr(key, "_path") || InStr(key, "_exe") || InStr(key, "_dir") 
+                         || section = "paths")
+            
+            if (!isPathKey)
+                continue
+            
+            ; Expand variables in path using IniReadWithExpansion logic
+            expandedPath := value
+            if (InStr(expandedPath, "%")) {
+                expandedPath := StrReplace(expandedPath, "%user_home%", IniRead("config.ini", "paths", "user_home", ""))
+                expandedPath := StrReplace(expandedPath, "%user_documents%", IniRead("config.ini", "paths", "user_documents", ""))
+                expandedPath := StrReplace(expandedPath, "%user_appdata%", IniRead("config.ini", "paths", "user_appdata", ""))
+                expandedPath := StrReplace(expandedPath, "%program_files%", IniRead("config.ini", "paths", "program_files", ""))
+                expandedPath := StrReplace(expandedPath, "%dev_dir%", IniRead("config.ini", "paths", "dev_dir", ""))
+                expandedPath := StrReplace(expandedPath, "%scripts_dir%", IniRead("config.ini", "paths", "scripts_dir", ""))
+            }
+            
+            ; Check if path exists (file or directory)
+            if (!FileExist(expandedPath) && !DirExist(expandedPath)) {
+                missing.Push("[" . section . "] " . key . " = " . expandedPath)
+            }
+        }
+    }
+    
+    ; Show results
+    if (missing.Length > 0) {
+        msgText := "Missing paths in config.ini:`n`n"
+        for _, item in missing {
+            msgText .= "✗ " . item . "`n"
+        }
+        msgText .= "`nTotal: " . missing.Length . " missing path(s)"
+        
+        ToolTip(msgText, 100, 100)
+        SetTimer(() => ToolTip(), -10000)  ; Hide after 10 seconds
+        
+        ; Also log to file
+        try {
+            logFile := A_ScriptDir . '\missing-paths.log'
+            timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+            FileAppend(timestamp . "`n" . msgText . "`n`n", logFile, "UTF-8")
+        }
+    } else {
+        ; All paths OK - silent success
+    }
+}

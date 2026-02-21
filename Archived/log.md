@@ -25,10 +25,10 @@ The following 39 files ARE used by `main.ahk` and should **NOT** be moved:
 ### Core Scripts
 - `main.ahk` - Entry point
 - `msg.ahk`, `functions.ahk`, `init.ahk`, `bookmarks.ahk`, `menus.ahk`
-- `code.ahk`, `browser.ahk`, `keyboardSwitch.ahk`, `hotstrings.ahk`
+- `code.ahk`, `browser.ahk`, `hotstrings.ahk`
 - `system.ahk`, `chrome.ahk`, `obsidian.ahk`, `discord.ahk`
-- `telegram.ahk`, `xyplorer.ahk`, `terminal.ahk`, `database.ahk`
-- `media.ahk`, `teams.ahk`, `tv.ahk`, `clipboard.ahk`, `hotkeys-global.ahk`
+- `xyplorer.ahk`, `database.ahk`
+- `teams.ahk`, `tv.ahk`, `clipboard.ahk`, `hotkeys-global.ahk`
 - `gdip.ahk` (included by clipboard.ahk)
 
 ### Configuration Files

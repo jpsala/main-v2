@@ -1,0 +1,34 @@
+// See https://go.microsoft.com/fwlink/?LinkId=733558
+// for the documentation about the tasks.json format
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "echo a input variable",
+			"type": "shell",
+			"command": [
+				"echo ${input:promptVar} ${input:pickVar}"
+			],
+			"options": {
+				"shell": {
+					"executable": "pwsh",
+					"args": ["-Command"]
+				}
+			}
+		}
+	],
+	"inputs": [
+		{
+			"description": "this is a promptString",
+			"type": "promptString",
+			"default": "hello world",
+			"id": "promptVar"
+		},
+		{
+			"description": "this is a pickString",
+			"type": "pickString",
+			"options": ["this", "is", "a", "pickString"],
+			"id": "pickVar"
+		}
+	]
+}

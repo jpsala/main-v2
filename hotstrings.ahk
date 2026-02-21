@@ -105,7 +105,11 @@
 
 ; API keys
 :?C:.apior:: {
-  send('REDACTED_SECRET')
+  key := AIGetApiKey("openrouter")
+  if (key != "")
+    SendText(key)
+  else
+    ToolTip("OpenRouter API key not found in config.ini")
 }
 
 :?C:.apig:: {

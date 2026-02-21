@@ -44,6 +44,32 @@ AIWebUIInit() {
   AIRegisterDynamicHotkeys()
   try AIRegisterPromptHotkeys(AI_PROMPT_HOTKEYS)
   ChordSetTimeout(0.9)
+  
+  ; Preload AI windows in background after 2 seconds to avoid startup delay
+  SetTimer(AIPreloadWindows, -2000)
+}
+
+/**
+ * Preload AI WebView windows in background to avoid first-open delay
+ * This initializes the windows without showing them
+ */
+AIPreloadWindows() {
+  global AI_WEBUI_MAIN_GUI, AI_WEBUI_SETTINGS_GUI
+  
+  ; Preload main window
+  if (!IsObject(AI_WEBUI_MAIN_GUI)) {
+    try {
+      AIInitMainWindow()
+      msg("AI Main window preloaded", {seconds: 1})
+    } catch Error as e {
+      log("Error preloading AI main window: " . e.Message)
+    }
+  }
+  
+  ; Optionally preload settings window (commented out to save resources)
+  ; if (!IsObject(AI_WEBUI_SETTINGS_GUI)) {
+  ;   try AIInitSettingsWindow()
+  ; }
 }
 
 ; ============================================================

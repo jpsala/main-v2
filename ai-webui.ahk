@@ -970,7 +970,8 @@ AIRegisterPromptHotkeys(newHotkeys) {
     }
   }
 
-  ChordRegister(chordPrefixMap, AIExecutePromptSilently)
+  if (chordPrefixMap.Count > 0)
+    ChordRegister(chordPrefixMap, AIExecutePromptSilently)
 }
 
 AISuspendPromptHotkeys() {

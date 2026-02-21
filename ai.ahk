@@ -306,7 +306,10 @@ AIExtractPromptDirectives(rawValue, &providerOut, &modelOut, &hotkeyOut, &bodyOu
   providerOut := ""
   modelOut := ""
   hotkeyOut := ""
-  bodyOut := rawValue
+  
+  ; Normalize line endings to Unix format (\n only)
+  bodyOut := StrReplace(rawValue, "`r`n", "`n")
+  bodyOut := StrReplace(bodyOut, "`r", "`n")
 
   loop {
     nlPos := InStr(bodyOut, "`n")

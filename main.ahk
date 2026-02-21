@@ -14,6 +14,7 @@ if(A_IsAdmin){
 
 ; Load modular library components
 #Include 'lib\globals.ahk'
+#Include 'lib\chord-hotkeys.ahk'
 #Include 'lib\audio.ahk'
 #Include 'lib\window.ahk'
 #Include 'lib\screen.ahk'

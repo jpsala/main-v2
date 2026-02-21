@@ -69,6 +69,7 @@ ChordTryParseHotkeySpec(hotkeySpec, &prefixHotkeyOut, &suffixKeyOut) {
     if (spec = "")
         return false
 
+    ; Try arrow syntax first
     if RegExMatch(spec, "i)^\s*(.+?)\s*->\s*(.+?)\s*$", &mArrow) {
         prefixHotkey := ChordNormalizeDisplayHotkeyToAhk(mArrow[1])
         if (prefixHotkey = "")
@@ -82,6 +83,7 @@ ChordTryParseHotkeySpec(hotkeySpec, &prefixHotkeyOut, &suffixKeyOut) {
         return false
     }
 
+    ; Try comma syntax
     commaPos := InStr(spec, ",")
     if (commaPos <= 0)
         return false
@@ -90,6 +92,7 @@ ChordTryParseHotkeySpec(hotkeySpec, &prefixHotkeyOut, &suffixKeyOut) {
     prefixHotkey := ChordNormalizeDisplayHotkeyToAhk(prefixCandidate)
     if (prefixHotkey = "")
         prefixHotkey := prefixCandidate
+    
     suffixKey := Trim(SubStr(spec, commaPos + 1))
     suffixKey := ChordNormalizeSuffixKey(suffixKey)
 

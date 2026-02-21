@@ -1,40 +1,14 @@
+; Load centralized global variables
+#Include 'lib\globals.ahk'
+
 ; Ensure the script exits cleanly when terminated
 OnExit exitScript
-; Global variables for storing various states and configurations
-global storedVolume := "", mouseX := 0, mouseY := 0, mode := 0, monitorInfo := {x: 0, y: 0, width: 0, height: 0}
-global activeTradeWin := 'xxxx', tvWin := '', fxWin := '', lastBrowserTitle := "" , time := '', TimeGui1 := 0, TimeGui2 := 0
 
 ; Load persistent window alias mappings from config.ini for Roa() function
 ; Enables alias-based window management (e.g., "code" -> specific VS Code window)
 LoadAliasMap()
 
-initStarted := true
-
-savedID := ""
-saveVol := ""
 A_Clipboard := A_ComputerName
-; Flags to identify the current machine type
-isNotebook := A_ComputerName == 'ZENBOOK' ? true : false
-isRemote := A_ComputerName == 'CIDEV06' ? true : false
-isGordos := A_ComputerName == 'gordos' ? true : false
-isWork := A_ComputerName == 'AR-IT31927' ? true : false
-isCarnival := A_ComputerName == 'avdp-1310' ? true : false
-
-activeGroup := ""
-
-altProfile := "" 
-; Toggle variables
-logVisibility := false
-toggleCodeDebug := false
-toggleChromeDebug := false
-toggleObsidanDebug := false
-windowUnderMouseID := 0
-winProcessNameUnderMouse := ''
-winTitleUnderMouse := ''
-
-; Determine the device section in the configuration file based on the machine type
-deviceSection := isGordos ? "gordos" : (isNotebook ? "notebook" : !isWork ? "desktop" : "work")
-deviceSection := isCarnival ? "carnival" : deviceSection
 ; Read paths from the configuration file for the current device section
 whatsappExe := IniRead("config.ini", deviceSection, "whatsapp_path", "")
 cursorExe := IniRead("config.ini", deviceSection, "cursor_path", "")

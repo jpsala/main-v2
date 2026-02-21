@@ -12,6 +12,16 @@ if(A_IsAdmin){
   MsgBox('Better not to run this as Administrator!!')
 }
 
+; Load modular library components
+#Include 'lib\globals.ahk'
+#Include 'lib\audio.ahk'
+#Include 'lib\window.ahk'
+#Include 'lib\screen.ahk'
+#Include 'lib\clipboard.ahk'
+#Include 'lib\logging.ahk'
+#Include 'lib\utils.ahk'
+
+; Load core modules
 #Include '.\msg.ahk'
 #Include '.\functions.ahk'
 #Include '.\roa.ahk'

@@ -16,7 +16,7 @@ global AI_HOTKEY_DEFAULTS := Map(
   ; Alt+` (US layout) => !vkC0
   "mainWindow", "!vkC0",
   "goToCommand", "",
-  "promptPicker", "^q",
+  "promptPicker", "!q",
   "reload", ""
 )
 global AI_HOTKEY_LABELS := Map(
@@ -1123,6 +1123,16 @@ AIGetActiveMonitorWorkArea(&outLeft, &outTop, &outRight, &outBottom) {
   outTop := mt
   outRight := mr
   outBottom := mb
+}
+
+; Hotkeys for AI windows
+#HotIf AIMainWindowIsActive()
+Escape::AIMainWindowClose()
+#HotIf
+
+AIMainWindowIsActive() {
+  global AI_WEBUI_MAIN_GUI
+  return IsObject(AI_WEBUI_MAIN_GUI) && WinActive("ahk_id " . AI_WEBUI_MAIN_GUI.Hwnd)
 }
 
 ; Bootstrap web UI layer

@@ -7,7 +7,31 @@
 #Warn All, Off
 global appInstanceMap := Map()  ; For tracking application instances
 global aliasMap := Map()        ; For alias-based window management (NEW)
+global configCache := Map()     ; Cache for frequently accessed config values
 
+;===============================================================================
+; CONFIG CACHE HELPERS
+;===============================================================================
+
+/**
+ * Get a config value with caching to reduce disk I/O
+ * @param {string} section - The INI section name
+ * @param {string} key - The config key
+ * @param {string} default - Default value if not found
+ * @returns {string} The config value
+ */
+GetCachedConfig(section, key, default := "") {
+    global configCache
+    cacheKey := section . "." . key
+    
+    if (configCache.Has(cacheKey)) {
+        return configCache[cacheKey]
+    }
+    
+    value := IniRead("config.ini", section, key, default)
+    configCache[cacheKey] := value
+    return value
+}
 
 ;===============================================================================
 ; VOLUME CONTROL
@@ -116,7 +140,7 @@ soundHigh(volParam := SoundGetVolume(), minVal := 0, maxVal := 100, withDebug :=
 
 changeAudioDevice(device) {
     try {
-        nircmdExe := IniRead("config.ini", "desktop", "nircmd_exe", "")
+        nircmdExe := GetCachedConfig("desktop", "nircmd_exe", "")
         if (!nircmdExe) {
             msgV1("Error: Missing nircmd path in config.ini", 3)
             return
@@ -134,7 +158,7 @@ changeAudioDevice(device) {
 }
 
 showNirCmdAudioDevices() {
-    nircmdExe := IniRead("config.ini", "desktop", "nircmd_exe", "")
+    nircmdExe := GetCachedConfig("desktop", "nircmd_exe", "")
     if (!nircmdExe) {
         msgV1("Error: Missing nircmd path in config.ini2", 3)
         return
@@ -143,7 +167,7 @@ showNirCmdAudioDevices() {
 }
 
 MinimizeToTrayWithNirCmd(winTitle) {
-    nircmdExe := IniRead("config.ini", "desktop", "nircmd_exe", "")
+    nircmdExe := GetCachedConfig("desktop", "nircmd_exe", "")
     if (!nircmdExe) {
         msgV1("Error: Missing nircmd path in config.ini", 3)
         return
@@ -547,7 +571,7 @@ notify(title := 'Main.ahk', text := '', seconds := 5, icon := '', muted := False
 
 notifu(message, type := 'info', seconds := 5, title := 'main.ahk', persistent := false) {
     log(seconds)
-    notifuExe := IniRead("config.ini", "desktop", "notifu_exe", "")
+    notifuExe := GetCachedConfig("desktop", "notifu_exe", "")
     if (!notifuExe) {
         msgV1("Error: Missing notifu path in config.ini3", 3)
         return
@@ -650,7 +674,7 @@ log(params*) {
 
 runLogExe() {
     if (!WinExist("ahk_exe Tail.exe")) {
-        tailExe := IniRead("config.ini", "desktop", "tail_exe", "")
+        tailExe := GetCachedConfig("desktop", "tail_exe", "")
         logFile := A_ScriptDir . '\log.txt'
 
         if (!tailExe) {

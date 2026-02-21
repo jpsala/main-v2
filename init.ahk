@@ -82,44 +82,15 @@ vivaldiLocalWithAIProfile := vivaldiLocalExe ' --profile-directory="AI" '
 vivaldiLocalWithGordosProfile := vivaldiLocalExe ' --profile-directory="Gordos" '
 
 chromeWithDebugProfile := chromeExe ' --profile-directory="Profile 3" --user-data-dir="c:\chrome-debug" --flag-switches-begin --flag-switches-end --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors'
-; chromeWithDebugProfile := chromeExe ' --profile-directory="Profile 3" --remote-debugging-port=9222 --no-first-run --user-data-dir="c:\chrome-debug" --flag-switches-begin --flag-switches-end --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors'
-vivaldiWithDebugProfile := vivaldiExe ' --profile-directory="Debug" --remote-debugging-port=9222 --no-first-run' ; --disable-features=BlockInsecurePrivateNetworkRequests
-;"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir=C:\chrome-debug --no-first-run
+vivaldiWithDebugProfile := vivaldiExe ' --profile-directory="Debug" --remote-debugging-port=9222 --no-first-run'
 
 browserWindow := "ahk_exe vivaldi.exe ahk_exe chrome.exe ahk_exe msedge.exe ahk_exe firefox.exe ahk_exe brave.exe"
-
-
-; browserWithMainLocalProfile := vivaldiLocalWithMainProfile
-; browserWithAILocalProfile := vivaldiLocalWithAIProfile
-; ; Vivaldi end
-
-; ; browser paths
-; browserWithMainProfile := vivaldiWithMainProfile
-; browserWithAIProfile := vivaldiWithAIProfile
-; browserWithTradingProfile := vivaldiWithTradingProfile
-
-; browserWithChatGptProfile := zenAppPath '-p AI '
-; vivaldiWithChatGptProfile := zenAppPath '-p AI '
-; browserWithJPProfile := zenAppPath ' -p Personal '
-
-; browserWithVideosProfile := zenAppPath ' --profile-directory="Videos.profile" '
-; browserWithDebugProfile := zenAppPath ' --remote-debugging-port=9222  -p Debug" '
-; browserWithDevProfile := chromeAppPath ' --remote-debugging-port=9222 --profile-directory=Debug'
 browserWithChromeMainProfile := chromeExe ' --profile-directory="Profile 1" '
 
 ; Check if all paths in config.ini exist
 CheckConfigPaths(deviceSection)
 
-; browserWithAIProfile := zenAppPath ' -p AI '
-; browserWithWorkProfile := zenAppPath ' -p Work '
-
-; browserWithAmaiaProfile := chromeAppPath ' --profile-directory="Profile 2" '
-
-; A_Clipboard := browserWithVideosProfile
-; browserWithTradingProfile := zenAppPath ' --profile-directory=Trading '
-
 Global filesToCheckForReload := [
-  ; {path: A_ScriptFullPath, lastModVar: FileGetTime(A_ScriptFullPath, "M")},
   {path: './main.ahk', lastModVar: FileGetTime('./main.ahk', "M")},
   {path: './msg.ahk', lastModVar: FileGetTime('./msg.ahk', "M")},
   {path: './functions.ahk', lastModVar: FileGetTime('./functions.ahk', "M")},
@@ -212,8 +183,8 @@ monitorInfo := getMonitorInfo()
 
 ; setting timers
 
-; Run low priority tasks every second
-SetTimer(CheckTimeForFileModification,1000)
+; Run low priority tasks every 5 seconds (optimized from 1s to reduce disk I/O)
+SetTimer(CheckTimeForFileModification, 5000)
 
 ; let make some noise when the script is loaded
 

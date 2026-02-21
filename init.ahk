@@ -132,7 +132,6 @@ Global filesToCheckForReload := [
   {path: './chrome.ahk', lastModVar: FileGetTime('./chrome.ahk', "M")},
   {path: './terminal.ahk', lastModVar: FileGetTime('./terminal.ahk', "M")},
   {path: './media.ahk', lastModVar: FileGetTime('./media.ahk', "M")},
-  {path: './tv.ahk', lastModVar: FileGetTime('./tv.ahk', "M")},
   {path: './ai.ahk', lastModVar: FileGetTime('./ai.ahk', "M")},
   {path: './ai-picker.ahk', lastModVar: FileGetTime('./ai-picker.ahk', "M")},
   {path: './ai-webui.ahk', lastModVar: FileGetTime('./ai-webui.ahk', "M")},

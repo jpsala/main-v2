@@ -62,7 +62,7 @@ mainSeqA() {
         case 'ae':
             Roa('sq-admin-project', cursorExe ' C:\dev\aguila\sq-admin')
             case 'ap':
-            Roa('sqx-projects', xyploreExe . ' ' . 'D:\SQX\142\user\projects')
+            Roa('sqx-projects', xyplorerExe . ' ' . 'D:\SQX\142\user\projects')
         case 'ax':
             Roa('sq-scripts', cursorExe . ' ' . 'C:\dev\aguila\SQ-scripts')
         case '#b':
@@ -80,9 +80,9 @@ mainSeqA() {
         case 'r':
             Roa('rustdesk', "C:\Program Files\RustDesk\rustdesk.exe --connect 21920093", '#r')
         case 's':
-            activateOrMinimize('ahk_exe spotify.exe', 'spotify.exe')
+            Roa('spotify', 'spotify.exe')
         case 'S':
-            Roa('sharex-folder', xyploreExe . ' ' . 'C:/Users/jpsal/Pictures/sharex')
+            Roa('sharex-folder', xyplorerExe . ' ' . 'C:/Users/jpsal/Pictures/sharex')
         case 'tt':
             Roa('windows-terminal', "C:\Program Files\WindowsApps\Microsoft.WindowsTerminal_1.23.20211.0_x64__8wekyb3d8bbwe\wt.exe")
         case 'tw':
@@ -106,9 +106,9 @@ mainSeqA() {
         case 'xx':
             Roa('xyplorer', 'C:\tools\xyplorer-portable\XYplorer.exe')
         case 'xs':
-            Roa('sharex-folder', xyploreExe . ' ' . 'C:/Users/jpsal/Pictures/sharex')
+            Roa('sharex-folder', xyplorerExe . ' ' . 'C:/Users/jpsal/Pictures/sharex')
         case 'xd':
-            Roa('dev-folder', xyploreExe . ' ' . 'C:/dev')
+            Roa('dev-folder', xyplorerExe . ' ' . 'C:/dev')
         case 'y':
             Roa('window-spy', 'C:\Program Files\AutoHotkey\UX\WindowSpy.ahk')
     }
@@ -250,191 +250,6 @@ mainSeqC() {
         case 'p':
             Roa('chrome-passwords-csv', cursorExe ' "D:\user-home-in-d\Documents\Chrome Passwords.csv"')
     }
-}
-; ===================================================================
-; Vivaldi
-; ===================================================================
-#HotIf WinActive('ahk_exe vivaldi.exe')
-    ^!x:: {
-        options := {
-            waitml: 800,
-            items: [
-                { key: 'yv', label: 'YouTube Video Downloader' },
-                { key: 'ya', label: 'YouTube Audio Downloader' },
-                { key: 'ax', label: 'Toggle AI Chatbot Sidebar' },
-                { key: 'az', label: 'Toggle Firefox Sidebar' },
-                { key: 'od', label: 'Open Downloads' },
-                { key: 'tr', label: 'Toggle Reader Mode (Windows)' },
-                { key: 'ap', label: 'About Processes' },
-                { key: 'sb', label: 'Show Bookmarks Sidebar' },
-                { key: 'tb', label: 'Show Bookmarks Toolbar' },
-                { key: 'c', label: 'close split view' },
-                { key: 'h', label: 'split view horizontal' },
-                { key: 'v', label: 'split view vertical' },
-                { key: 'x', label: 'Clear Context' }
-            ]
-        }
-        key := customMenu(options)
-        
-        switch key {
-            case 'yv':
-                ytdVideo()
-            case 'ya':
-                ytdAudio()
-            case 'ax':
-                Send("!^+x")
-            case 'az':
-                Send("!^+z")
-            case 'od':
-                Send("^j")
-            case 'tr':
-                Send("{f9}")
-            case 'ap':
-                Send("+{esc}")
-            case 'sb':
-                Send("^b")
-            case 'tb':
-                Send("+^b")
-            case 'c':
-                send('^+:')
-            case 'h':
-                send('!x')
-            case 'v':
-                send('!^v')
-            case 'x':
-                send('!x')
-        }
-    }
-
-    ytdVideo() {
-        url := A_Clipboard
-        if (!InStr(url, 'https://www.youtube.com/watch?') and !InStr(url, 'https://youtu.be') and !InStr(url, 'https://www.youtube.com/shorts/')) {
-            MsgBox('not valid url in clipboard')
-            return
-        }
-        run('c:\tools\ytd.bat ' . url)
-        copyToClipboard('c:\tools\ytd.bat ' . url)
-    }
-
-    ytdAudio() {
-        url := A_Clipboard
-        if (!InStr(url, 'https://www.youtube.com/watch?') and !InStr(url, 'https://youtu.be')) {
-            MsgBox('not valid url in clipboard')
-            return
-        }
-        run('c:\tools\ytd-audio.bat ' . url)
-    }
-
-#HotIf
-
-; ===================================================================
-; Remote
-; ===================================================================
-#HotIf WinActive('ahk_exe mstsc.exe') or WinActive('ahk_exe StrategyQuantX_nocheck.exe')
-    !p:: {
-        msg('mstsc')
-        options := {
-            items: [
-                { key: 'b', label: 'Bots', items: [
-                    { key: 'b', label: 'Base' },
-                    { key: 'o', label: 'Original' },
-                    { key: 'm', label: 'MQ5' },
-                ]}
-            ]
-        }
-        key := customMenu(options)
-        switch key {
-            case 'bb':
-                send('g:\my drive\sqx\bots\')
-            case 'bo':
-                send('g:\my drive\sqx\bots\original\')
-            case 'bm':
-                send('g:\my drive\sqx\bots\mq5\')
-        }
-    }
-#HotIf
-tv() {
-    log(1)
-    list := WinGetList(tvWin)
-    if (list.Length == 0) {
-        Run(browserWithTradingProfile 'https://www.tradingview.com/chart --new-window')
-        ll := WinWaitActive(tvWin, , 20)
-        setManualBookmark('#t', ll)
-        send('{F11}')
-        return
-    }
-    for index, id in list {
-        if (!WinActive(id)) {
-            WinActivateFast('ahk_id ' id)
-        } else {
-            WinMinimize('ahk_id ' id)
-        }
-    }
-}
-
-mysqlServiceUp() {
-    Run('"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Administrative Tools\services.lnk"')
-    Sleep(1000)
-    MouseClick('Left', 444, 253)
-    Sleep(100)
-    send('mysql')
-    sleep(500)
-    send('+{F10}')
-    Sleep(100)
-    send('s')
-}
-
-activateTeams() {
-    toggleOrLaunchApp({
-        winPattern: 'ahk_exe ms-teams.exe',
-        launchCmd: 'C:\Program Files\WindowsApps\MSTeams_24074.2321.2810.31000_x64__8wekyb3d8bbwe\ms-teams.exe',
-        extraCheck: (hwnd, class, title) => InStr(title, ' | ')
-    })
-}
-
-DownloadYouTubeVideoFromClipboard() {
-    url := A_Clipboard
-    if !IsValidYouTubeUrl(url) {
-        MsgBox('Clipboard does not contain a valid YouTube video or shorts URL.`n`n' url, 'Invalid URL', 'IconWarning')
-        return
-    }
-    command := 'c:\tools\ytd.bat "' . url . '"' ; Enclose URL in quotes for safety
-    try {
-        Run(command)
-        ; Optionally copy the command for debugging/verification
-        ; A_Clipboard := command
-    } catch Error as e {
-        MsgBox('Failed to run YouTube download command:`n' command '`n`nError: ' e.Message, 'Execution Error', 'IconError')
-    }
-}
-
-DownloadYouTubeAudioFromClipboard() {
-    url := A_Clipboard
-    if !IsValidYouTubeUrl(url, false) { ; Allow standard videos/links, maybe not shorts for audio? Adjust as needed.
-        MsgBox('Clipboard does not contain a valid YouTube URL for audio download.`n`n' url, 'Invalid URL', 'IconWarning')
-        return
-    }
-    command := 'c:\tools\ytd-audio.bat "' . url . '"' ; Enclose URL in quotes
-    try {
-        Run(command)
-    } catch Error as e {
-        MsgBox('Failed to run YouTube audio download command:`n' command '`n`nError: ' e.Message, 'Execution Error', 'IconError')
-    }
-}
-
-IsValidYouTubeUrl(url, allowShorts := true) {
-    ; Basic check for non-empty string
-    if (url = "")
-        return false
-
-    ; More robust RegEx check for common YouTube URL patterns
-    ; Covers: youtube.com/watch?v=..., youtu.be/..., youtube.com/shorts/...
-    pattern := "i)https?://(www\.)?(youtube\.com/(watch\?v=|embed/|v/)|youtu\.be/)"
-    if (allowShorts) {
-        pattern .= "|https?://(www\.)?youtube\.com/shorts/"
-    }
-
-    return RegExMatch(url, pattern)
 }
 
 

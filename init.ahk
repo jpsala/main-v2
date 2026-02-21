@@ -75,8 +75,7 @@ vivaldiWithAIProfile := vivaldiExe ' --user-data-dir="C:\tools\vivaldi\User Data
 vivaldiWithTradingProfile := vivaldiExe ' --profile-directory="Trading" '
 vivaldiWithGordosProfile := vivaldiExe ' --profile-directory="Gordos" '
 chromeWithWorkProfile := chromeExe ' --user-data-dir="C:\tools\chrome\User Data" --profile-directory="Work" '
-;vivaldiWithWorkProfile := vivaldiExe ' --user-data-dir="C:\tools\vivaldi\User Data" --profile-directory="Work" '
-; vivaldiWithBooksProfile := vivaldiExe ' --user-data-dir=d:\vivaldi-profiles --profile-directory="Books" '
+vivaldiWithBooksProfile := vivaldiExe ' --user-data-dir=d:\vivaldi-profiles --profile-directory="Books" '
 
 vivaldiLocalWithMainProfile := vivaldiLocalExe ' --profile-directory="Main" '
 vivaldiLocalWithAIProfile := vivaldiLocalExe ' --profile-directory="AI" '
@@ -214,17 +213,8 @@ monitorInfo := getMonitorInfo()
 
 ; setting timers
 
-; Run high priority tasks every 200ms
-SetTimer(timerBeCarefull200, 200)
-
-; Run medium priority tasks every 350ms
-SetTimer(timerBeCarefull350, 350)
-
 ; Run low priority tasks every second
 SetTimer(CheckTimeForFileModification,1000)
-
-; Run tasks every 5 minutes
-SetTimer(timerEveryNowAndThen, 1000*60*4)
 
 ; let make some noise when the script is loaded
 

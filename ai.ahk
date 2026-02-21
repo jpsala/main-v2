@@ -4,12 +4,15 @@
 
 global AI_SECTION := "ai"
 global AI_PROMPTS_FILE := A_ScriptDir . "\ai-prompts.json"
+global AI_PROMPTS_FOLDER := A_ScriptDir . "\prompts"
 global AI_PROMPTS := Map()
 global AI_PROMPT_PROVIDERS := Map()
 global AI_PROMPT_MODELS := Map()
 global AI_PROMPT_HOTKEYS := Map()
 global AI_PROMPT_NAMES := []
 global AI_PROMPTS_LAST_MOD := ""
+global AI_PROMPTS_FOLDER_LAST_MOD := 0
+global AI_PROMPTS_FOLDER_FILE_COUNT := 0
 
 global AI_DEFAULT_PROVIDER := "openrouter"
 global AI_VALID_PROVIDERS := ["openrouter", "openai", "anthropic", "xai"]
@@ -208,21 +211,8 @@ AIEnsurePromptsFile() {
 }
 
 AILoadPrompts() {
-  global AI_PROMPTS, AI_PROMPT_PROVIDERS, AI_PROMPT_MODELS, AI_PROMPT_HOTKEYS, AI_PROMPT_NAMES, AI_PROMPTS_FILE, AI_PROMPTS_LAST_MOD
-
-  AIEnsurePromptsFile()
-  if !FileExist(AI_PROMPTS_FILE) {
-    AINotify("No se encontró ai-prompts.json", 3)
-    return
-  }
-
-  content := FileRead(AI_PROMPTS_FILE, "UTF-8")
-  if (SubStr(content, 1, 1) = Chr(0xFEFF))
-    content := SubStr(content, 2)
-  if !RegExMatch(Trim(content), "^\{[\s\S]*\}$") {
-    AINotify("ai-prompts.json inválido", 3)
-    return
-  }
+  global AI_PROMPTS, AI_PROMPT_PROVIDERS, AI_PROMPT_MODELS, AI_PROMPT_HOTKEYS, AI_PROMPT_NAMES
+  global AI_PROMPTS_FILE, AI_PROMPTS_LAST_MOD, AI_PROMPTS_FOLDER, AI_PROMPTS_FOLDER_LAST_MOD
 
   newPrompts := Map()
   newProviders := Map()
@@ -230,26 +220,77 @@ AILoadPrompts() {
   newHotkeys := Map()
   newNames := []
 
-  pos := 1
-  while (pos := RegExMatch(content, '"((?:[^"\\]|\\.)*?)"\s*:\s*"((?:[^"\\]|\\.)*?)"', &m, pos)) {
-    key := AIJsonUnescape(m[1])
-    rawValue := AIJsonUnescape(m[2])
-    AIExtractPromptDirectives(rawValue, &providerId, &modelId, &hotkeyId, &bodyValue)
+  ; Load from JSON file
+  AIEnsurePromptsFile()
+  if FileExist(AI_PROMPTS_FILE) {
+    content := FileRead(AI_PROMPTS_FILE, "UTF-8")
+    if (SubStr(content, 1, 1) = Chr(0xFEFF))
+      content := SubStr(content, 2)
+    
+    if RegExMatch(Trim(content), "^\{[\s\S]*\}$") {
+      pos := 1
+      while (pos := RegExMatch(content, '"((?:[^"\\]|\\.)*?)"\s*:\s*"((?:[^"\\]|\\.)*?)"', &m, pos)) {
+        key := AIJsonUnescape(m[1])
+        rawValue := AIJsonUnescape(m[2])
+        AIExtractPromptDirectives(rawValue, &providerId, &modelId, &hotkeyId, &bodyValue)
 
-    if (providerId != "")
-      newProviders[key] := providerId
-    if (modelId != "")
-      newModels[key] := modelId
-    if (hotkeyId != "")
-      newHotkeys[key] := hotkeyId
+        if (providerId != "")
+          newProviders[key] := providerId
+        if (modelId != "")
+          newModels[key] := modelId
+        if (hotkeyId != "")
+          newHotkeys[key] := hotkeyId
 
-    newPrompts[key] := bodyValue
-    newNames.Push(key)
-    pos += m.Len
+        newPrompts[key] := bodyValue
+        newNames.Push(key)
+        pos += m.Len
+      }
+    }
+    AI_PROMPTS_LAST_MOD := FileGetTime(AI_PROMPTS_FILE, "M")
+  }
+
+  ; Load from prompts/ folder (.md files)
+  if DirExist(AI_PROMPTS_FOLDER) {
+    latestModTime := 0
+    fileCount := 0
+    Loop Files, AI_PROMPTS_FOLDER . "\*.md" {
+      fileCount++
+      ; Track latest modification time
+      if (A_LoopFileTimeModified > latestModTime)
+        latestModTime := A_LoopFileTimeModified
+      
+      ; Extract prompt name from filename (remove .md extension)
+      promptName := StrReplace(A_LoopFileName, ".md", "")
+      ; Convert dashes to spaces and title case (e.g., "como-yo" -> "Como Yo")
+      promptName := StrReplace(promptName, "-", " ")
+      promptName := StrTitle(promptName)
+      
+      ; Read file content
+      try {
+        fileContent := FileRead(A_LoopFilePath, "UTF-8")
+        if (SubStr(fileContent, 1, 1) = Chr(0xFEFF))
+          fileContent := SubStr(fileContent, 2)
+        
+        ; Extract directives and body
+        AIExtractPromptDirectives(fileContent, &providerId, &modelId, &hotkeyId, &bodyValue)
+        
+        if (providerId != "")
+          newProviders[promptName] := providerId
+        if (modelId != "")
+          newModels[promptName] := modelId
+        if (hotkeyId != "")
+          newHotkeys[promptName] := hotkeyId
+        
+        newPrompts[promptName] := bodyValue
+        newNames.Push(promptName)
+      }
+    }
+    AI_PROMPTS_FOLDER_LAST_MOD := latestModTime
+    AI_PROMPTS_FOLDER_FILE_COUNT := fileCount
   }
 
   if (newNames.Length = 0) {
-    AINotify("No hay prompts válidos en ai-prompts.json", 3)
+    AINotify("No hay prompts válidos", 3)
     return
   }
 
@@ -258,7 +299,6 @@ AILoadPrompts() {
   AI_PROMPT_MODELS := newModels
   AI_PROMPT_HOTKEYS := newHotkeys
   AI_PROMPT_NAMES := newNames
-  AI_PROMPTS_LAST_MOD := FileGetTime(AI_PROMPTS_FILE, "M")
   try AIRegisterPromptHotkeys(AI_PROMPT_HOTKEYS)
 }
 
@@ -309,12 +349,32 @@ AIExtractPromptDirectives(rawValue, &providerOut, &modelOut, &hotkeyOut, &bodyOu
 }
 
 AICheckPromptsReload() {
-  global AI_PROMPTS_FILE, AI_PROMPTS_LAST_MOD, AI_PROMPT_NAMES
-  if !FileExist(AI_PROMPTS_FILE)
-    return
-
-  currentMod := FileGetTime(AI_PROMPTS_FILE, "M")
-  if (currentMod != AI_PROMPTS_LAST_MOD) {
+  global AI_PROMPTS_FILE, AI_PROMPTS_LAST_MOD, AI_PROMPTS_FOLDER, AI_PROMPTS_FOLDER_LAST_MOD
+  global AI_PROMPTS_FOLDER_FILE_COUNT, AI_PROMPT_NAMES
+  
+  needsReload := false
+  
+  ; Check JSON file
+  if FileExist(AI_PROMPTS_FILE) {
+    currentMod := FileGetTime(AI_PROMPTS_FILE, "M")
+    if (currentMod != AI_PROMPTS_LAST_MOD)
+      needsReload := true
+  }
+  
+  ; Check prompts/ folder (check both timestamp and file count)
+  if DirExist(AI_PROMPTS_FOLDER) {
+    latestModTime := 0
+    fileCount := 0
+    Loop Files, AI_PROMPTS_FOLDER . "\*.md" {
+      fileCount++
+      if (A_LoopFileTimeModified > latestModTime)
+        latestModTime := A_LoopFileTimeModified
+    }
+    if (latestModTime != AI_PROMPTS_FOLDER_LAST_MOD || fileCount != AI_PROMPTS_FOLDER_FILE_COUNT)
+      needsReload := true
+  }
+  
+  if (needsReload) {
     AILoadPrompts()
     AIRefreshPromptMenuList()
     AISendCommandsToPickerUI()

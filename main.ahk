@@ -6,6 +6,7 @@ InstallMouseHook()
 SendMode("Input")
 SetTitleMatchMode(2)
 SetWorkingDir(A_ScriptDir)
+TraySetIcon(A_ScriptDir . '\icon.ico')
 
 if(A_IsAdmin){
   MsgBox('Better not to run this as Administrator!!')

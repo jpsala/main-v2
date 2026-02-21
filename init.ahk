@@ -141,7 +141,6 @@ Global filesToCheckForReload := [
   {path: './menu.ahk', lastModVar: FileGetTime('./menu.ahk', "M")},
 ]
 emptylog()
-makeContextMenu()
 onceADay()
 
 

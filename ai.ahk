@@ -2,8 +2,6 @@
 ; Hotkey:
 ;   Win+Ctrl+Alt+P -> open AI prompt menu
 
-#Include ".\lib\WebViewToo.ahk"
-
 global AI_SECTION := "ai"
 global AI_PROMPTS_FILE := A_ScriptDir . "\ai-prompts.json"
 global AI_PROMPTS := Map()
@@ -28,15 +26,12 @@ global AI_MENU_INPUT_CTRL := false
 global AI_RESULT_GUI := false
 global AI_STARTUP_DEMO_GUI := false
 global AI_STARTUP_DEMO_LIST_CTRL := false
-global AI_WEB_GUI := ""
-global AI_WEB_READY := false
 
 AIInit() {
   AIEnsureConfigDefaults()
   AIMigrateKeysFromEnv()
   AILoadPrompts()
   SetTimer(AICheckPromptsReload, 5000)
-  SetTimer(AIInitWebMainWindow, -1200)
   if (AIShouldShowStartupDemo()) {
     SetTimer(AIShowStartupDemo, -1500)
   }
@@ -616,7 +611,6 @@ AIShowStartupDemo() {
     AI_STARTUP_DEMO_LIST_CTRL.Add(["1) Validar ListBox"])
     AI_STARTUP_DEMO_LIST_CTRL.Add(["2) Probar AI (ping)"])
     AI_STARTUP_DEMO_LIST_CTRL.Add(["3) Abrir menu de prompts"])
-    AI_STARTUP_DEMO_LIST_CTRL.Add(["4) Abrir UI web (como Ctrl+Q)"])
     AI_STARTUP_DEMO_LIST_CTRL.Choose(1)
 
     btnRun := AI_STARTUP_DEMO_GUI.Add("Button", "xm y+10 w140 Default", "Ejecutar")
@@ -681,11 +675,6 @@ AIOnStartupDemoRun(*) {
     return
   }
 
-  if (selected = 4) {
-    AIGoToCommandWeb()
-    return
-  }
-
   AINotify("Selecciona una opcion del ListBox", 2)
 }
 
@@ -697,210 +686,9 @@ AIOnStartupDemoDisable(*) {
   AINotify("Startup demo desactivado (config.ini)", 2)
 }
 
-AIInitWebMainWindow(*) {
-  global AI_WEB_GUI
-  if IsObject(AI_WEB_GUI)
-    return
-
-  try {
-    dllPath := A_ScriptDir "\lib\" (A_PtrSize * 8) "bit\WebView2Loader.dll"
-    AI_WEB_GUI := WebViewGui("+AlwaysOnTop +Resize +MinSize400x400 -Caption", "AI Assistant",, {DllPath: dllPath})
-    AI_WEB_GUI.OnEvent("Close", AIWebMainWindowClose)
-    if (A_IsCompiled)
-      AI_WEB_GUI.Control.BrowseFolder(A_ScriptDir)
-    AI_WEB_GUI.Control.wv.add_WebMessageReceived(AIWebMessageHandler)
-    AI_WEB_GUI.Navigate("ui/index.html")
-  } catch Error as e {
-    AINotify("Error inicializando UI web: " . e.Message, 4)
-  }
-}
-
-AIShowWebMainWindow(focusCommands := false) {
-  global AI_WEB_GUI, AI_WEB_READY
-
-  if !IsObject(AI_WEB_GUI)
-    AIInitWebMainWindow()
-  if !IsObject(AI_WEB_GUI)
-    return
-
-  MonitorGetWorkArea(MonitorGetPrimary(), &ml, &mt, &mr, &mb)
-  w := 584
-  h := 600
-  x := ml + (mr - ml - w) // 2
-  y := mt + (mb - mt - h) // 3
-
-  AIShowAndActivate(AI_WEB_GUI, "x" . x . " y" . y . " w" . w . " h" . h)
-  if (AI_WEB_READY) {
-    AIWebSendClipboardToUI()
-    if (focusCommands)
-      AI_WEB_GUI.ExecuteScriptAsync("focusCommands()")
-    else
-      AI_WEB_GUI.ExecuteScriptAsync("focusPrompt()")
-  }
-}
-
-AIGoToCommandWeb(*) {
-  AIShowWebMainWindow(true)
-}
-
-AIWebMainWindowClose(*) {
-  global AI_WEB_GUI
-  if IsObject(AI_WEB_GUI)
-    AI_WEB_GUI.Hide()
-  return 1
-}
-
-AIWebMessageHandler(wv, msg) {
-  try data := msg.WebMessageAsJson
-  catch
-    return
-
-  if !RegExMatch(data, '"action"\s*:\s*"(\w+)"', &m)
-    return
-
-  SetTimer(AIHandleWebAction.Bind(m[1]), -1)
-}
-
-AIHandleWebAction(action) {
-  global AI_WEB_GUI, AI_WEB_READY, AI_PROMPTS, AI_PROMPT_MODELS, AI_PROMPT_PROVIDERS
-
-  switch action {
-    case "ready":
-      AI_WEB_READY := true
-      AIWebSendClipboardToUI()
-      AIWebSendCommandsToUI()
-      AIWebSendModelToUI()
-      AIWebSendCommandHotkeyToUI()
-      AI_WEB_GUI.ExecuteScriptAsync("focusCommands()")
-
-    case "submit":
-      promptText := AI_WEB_GUI.ExecuteScript("document.getElementById('prompt').value")
-      clipText := AI_WEB_GUI.ExecuteScript("document.getElementById('clipboard-preview').value")
-      cmdName := Trim(AI_WEB_GUI.ExecuteScript("document.getElementById('command-input').value"))
-      modelOverride := ""
-      providerOverride := ""
-      if (cmdName != "" && AI_PROMPT_MODELS.Has(cmdName))
-        modelOverride := AI_PROMPT_MODELS[cmdName]
-      if (cmdName != "" && AI_PROMPT_PROVIDERS.Has(cmdName))
-        providerOverride := AI_PROMPT_PROVIDERS[cmdName]
-      AIWebProcessPrompt(promptText, clipText, modelOverride, providerOverride)
-
-    case "commandSelected":
-      cmdName := Trim(AI_WEB_GUI.ExecuteScript("document.getElementById('command-input').value"))
-      if AI_PROMPTS.Has(cmdName) {
-        promptText := AI_PROMPTS[cmdName]
-        AI_WEB_GUI.ExecuteScriptAsync('setPromptText("' . AIEscJson(promptText) . '")')
-      }
-      if (cmdName != "" && (AI_PROMPT_MODELS.Has(cmdName) || AI_PROMPT_PROVIDERS.Has(cmdName))) {
-        displayProvider := AI_PROMPT_PROVIDERS.Has(cmdName) ? AINormalizeProvider(AI_PROMPT_PROVIDERS[cmdName]) : AIGetProvider()
-        displayModel := AI_PROMPT_MODELS.Has(cmdName) ? AI_PROMPT_MODELS[cmdName] : AIGetDefaultModel(displayProvider)
-        AI_WEB_GUI.ExecuteScriptAsync('setModelDisplay("' . AIEscJson(AIProviderDisplayName(displayProvider) . " · " . displayModel) . '")')
-      } else {
-        AIWebSendModelToUI()
-      }
-
-    case "copy":
-      resultText := AI_WEB_GUI.ExecuteScript("document.getElementById('result').value")
-      if (Trim(resultText) != "") {
-        A_Clipboard := resultText
-        ClipWait(2)
-        AI_WEB_GUI.ExecuteScriptAsync('setStatus("Copied to clipboard!")')
-      }
-
-    case "clear":
-      AI_WEB_GUI.ExecuteScriptAsync("clearFields()")
-
-    case "hide":
-      AI_WEB_GUI.Hide()
-
-    case "settings":
-      AINotify("Settings web aun no integrado en main", 2.5)
-
-    case "promptEditor":
-      AINotify("Prompt editor web aun no integrado en main", 2.5)
-  }
-}
-
-AIWebProcessPrompt(promptText, clipText, modelOverride := "", providerOverride := "") {
-  global AI_WEB_GUI
-
-  if (Trim(promptText) = "") {
-    AI_WEB_GUI.ExecuteScriptAsync('setStatus("Write a prompt or select a command")')
-    return
-  }
-  if (Trim(clipText) = "") {
-    AI_WEB_GUI.ExecuteScriptAsync('setStatus("Clipboard is empty — copy some text first")')
-    return
-  }
-
-  provider := (Trim(providerOverride) != "") ? AINormalizeProvider(providerOverride) : AIGetProvider()
-  apiKey := AIGetApiKey(provider)
-  if (apiKey = "") {
-    AI_WEB_GUI.ExecuteScriptAsync('setStatus("Missing API key for ' . AIEscJson(AIProviderDisplayName(provider)) . '")')
-    return
-  }
-
-  if (Trim(modelOverride) != "")
-    useModel := modelOverride
-  else
-    useModel := AIGetDefaultModel(provider)
-
-  AI_WEB_GUI.ExecuteScriptAsync('setResult("")')
-  AI_WEB_GUI.ExecuteScriptAsync('setStatus("Processing with ' . AIEscJson(AIProviderDisplayName(provider) . " · " . useModel) . '...")')
-
-  userMessage := promptText . "`n`n---`n`n" . clipText
-  systemPrompt := "You are a concise assistant. Follow user instructions exactly. Return only the final text."
-
-  try {
-    result := AIRequest(userMessage, systemPrompt, provider, useModel)
-    AI_WEB_GUI.ExecuteScriptAsync('setResult("' . AIEscJson(result) . '")')
-    AI_WEB_GUI.ExecuteScriptAsync('setStatus("Done — ' . StrLen(result) . ' chars (' . AIEscJson(AIProviderDisplayName(provider) . " · " . useModel) . ')")')
-  } catch Error as e {
-    AI_WEB_GUI.ExecuteScriptAsync('setResult("Error: ' . AIEscJson(e.Message) . '")')
-    AI_WEB_GUI.ExecuteScriptAsync('setStatus("Error")')
-  }
-}
-
-AIWebSendClipboardToUI() {
-  global AI_WEB_GUI
-  clipText := A_Clipboard
-  AI_WEB_GUI.ExecuteScriptAsync('setClipboardPreview("' . AIEscJson(clipText) . '")')
-}
-
-AIWebSendModelToUI() {
-  global AI_WEB_GUI
-  provider := AIGetProvider()
-  model := AIGetDefaultModel(provider)
-  AI_WEB_GUI.ExecuteScriptAsync('setModelDisplay("' . AIEscJson(AIProviderDisplayName(provider) . " · " . model) . '")')
-}
-
-AIWebSendCommandsToUI() {
-  global AI_WEB_GUI
-  AI_WEB_GUI.ExecuteScriptAsync("setCommands(" . AIWebBuildCommandsJson() . ")")
-}
-
-AIWebSendCommandHotkeyToUI() {
-  global AI_WEB_GUI
-  AI_WEB_GUI.ExecuteScriptAsync('setCommandHotkey("' . AIEscJson("^q") . '")')
-}
-
-AIWebBuildCommandsJson() {
-  global AI_PROMPT_NAMES, AI_PROMPT_MODELS, AI_PROMPT_HOTKEYS
-  json := "["
-  for i, name in AI_PROMPT_NAMES {
-    if (i > 1)
-      json .= ","
-    model := AI_PROMPT_MODELS.Has(name) ? AIEscJson(AI_PROMPT_MODELS[name]) : ""
-    hotkey := AI_PROMPT_HOTKEYS.Has(name) ? AIEscJson(AI_PROMPT_HOTKEYS[name]) : ""
-    json .= '{"name":"' . AIEscJson(name) . '","model":"' . model . '","hotkey":"' . hotkey . '"}'
-  }
-  json .= "]"
-  return json
-}
-
 ; Open AI prompt menu (ListBox UI)
 #!^p:: AIShowPromptMenu()
-^q:: AIGoToCommandWeb()
+^q:: AIShowPromptMenu()
 
 ; Bootstrap
 AIInit()

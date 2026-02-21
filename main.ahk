@@ -28,3 +28,7 @@ if(A_IsAdmin){
 #Include ".\ai-webui.ahk"
 #Include ".\hotkeys-global.ahk"
 #Include ".\menu.ahk"
+
+; Configurar doble click en tray icon para abrir picker
+A_TrayMenu.Add("AI Prompt Picker", (*) => AIShowPickerWindow())
+A_TrayMenu.Default := "AI Prompt Picker"

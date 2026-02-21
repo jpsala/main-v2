@@ -23,14 +23,6 @@ mainSeqA() {
             { key: 'D', label: 'Run Tail.exe (Debug)' },
             { key: 'f', label: 'File Explorer' },
             { key: 'M', label: 'Mixer' },
-            { key: 'o', label: 'Obsidian', items: [
-                { key: 'a', label: 'AI' },
-                { key: 'l', label: 'Lab.v2' },
-                { key: 'm', label: 'Main' },
-                { key: 'b', label: 'Bots' },
-                { key: 'w', label: 'Work' },
-                { key: 'q', label: 'copyq-backup' },
-            ]},
             { key: 'r', label: 'rust' },
             { key: 's', label: 'Spotify' },
             { key: 'S', label: 'ShareX screenshots' },
@@ -73,8 +65,6 @@ mainSeqA() {
             Roa('sqx-projects', xyploreExe . ' ' . 'D:\SQX\142\user\projects')
         case 'ax':
             Roa('sq-scripts', cursorExe . ' ' . 'C:\dev\aguila\SQ-scripts')
-        case 'al':
-            Roa('obsidian-lab', 'obsidian://advanced-uri?vault=Lab.v2', '#d')
         case '#b':
             showBookmarks()
         case 'c':
@@ -87,18 +77,6 @@ mainSeqA() {
             Roa('file-explorer', 'C:\Windows\explorer.exe')
         case 'M':
             openMixer()
-        case 'oa':
-            Roa('obsidian-ai', 'obsidian://advanced-uri?vault=ai')
-        case 'ol':
-            Roa('obsidian-lab', 'obsidian://advanced-uri?vault=Lab.v2', '#d')
-        case 'om':
-            Roa('obsidian-main', 'obsidian://advanced-uri?vault=Main')
-        case 'ob':
-            Roa('obsidian-bots', 'obsidian://advanced-uri?vault=bots')
-        case 'ow':
-            Roa('obsidian-work', 'obsidian://advanced-uri?vault=Work', '#z')
-        case 'oq':
-            Roa('obsidian-copyq-backup', 'obsidian://advanced-uri?vault=copyq-backup')
         case 'r':
             Roa('rustdesk', "C:\Program Files\RustDesk\rustdesk.exe --connect 21920093", '#r')
         case 's':

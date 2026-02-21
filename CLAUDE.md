@@ -29,17 +29,10 @@ Modules are loaded in this exact order. Dependencies flow top-down:
 10. `hotstrings.ahk` - Text replacements and snippets
 11. `system.ahk` - System-wide hotkeys and instance tracking init
 12. `chrome.ahk` - Chrome-specific hotkeys
-13. `obsidian.ahk` - Obsidian hotkeys
-14. `discord.ahk` - Discord hotkeys
-15. `telegram.ahk` - Telegram hotkeys
-16. `xyplorer.ahk` - XYplorer file manager hotkeys
-17. `terminal.ahk` - Terminal hotkeys
-18. `database.ahk` - DBeaver hotkeys
-19. `media.ahk` - Media app hotkeys
-20. `teams.ahk` - Microsoft Teams hotkeys
-21. `tv.ahk` - Trading platform hotkeys (MT4/MT5, FX Replay)
-22. `hotkeys-global.ahk` - Global hotkeys (brightness, cursor nav, clipboard)
-23. `menu.ahk` - Enhanced menu engine with GUI/keyboard support
+13. `terminal.ahk` - Terminal hotkeys
+14. `media.ahk` - Media app hotkeys
+15. `hotkeys-global.ahk` - Global hotkeys (brightness, cursor nav, clipboard)
+16. `menu.ahk` - Enhanced menu engine with GUI/keyboard support
 
 ### Key Subsystems
 

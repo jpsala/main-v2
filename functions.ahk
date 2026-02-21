@@ -959,7 +959,7 @@ loadConfig() {
     }
 
     ; Cache Programs section
-    programKeys := ["ChromePath", "DiscordPath"]
+    programKeys := ["ChromePath"]
     Config["Programs"] := Map()
     for key in programKeys {
         Config["Programs"][key] := IniRead("config.ini", "Programs", key, "")

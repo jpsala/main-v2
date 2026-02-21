@@ -23,8 +23,7 @@ if(A_IsAdmin){
 #Include ".\hotstrings.ahk"
 #Include ".\system.ahk"
 #Include ".\chrome.ahk"
-#Include ".\obsidian.ahk"
-#Include ".\discord.ahk"
+
 #Include ".\terminal.ahk"
 #Include ".\media.ahk"
 #Include ".\ai.ahk"

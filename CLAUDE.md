@@ -24,15 +24,12 @@ Modules are loaded in this exact order. Dependencies flow top-down:
 5. `bookmarks.ahk` - Win+key window bookmarking with persistence
 6. `menus.ahk` - App launcher menus (`#a`, `#w`, `#c`) and context menus
 7. `code.ahk` - VS Code / Cursor editor hotkeys
-8. `browser.ahk` - Chrome/Vivaldi hotkeys
-9. `keyboardSwitch.ahk` - Auto keyboard layout switching (US/INTL)
-10. `hotstrings.ahk` - Text replacements and snippets
-11. `system.ahk` - System-wide hotkeys and instance tracking init
-12. `chrome.ahk` - Chrome-specific hotkeys
-13. `terminal.ahk` - Terminal hotkeys
-14. `media.ahk` - Media app hotkeys
-15. `hotkeys-global.ahk` - Global hotkeys (brightness, cursor nav, clipboard)
-16. `menu.ahk` - Enhanced menu engine with GUI/keyboard support
+8. `hotstrings.ahk` - Text replacements and snippets
+9. `system.ahk` - System-wide hotkeys and instance tracking init
+10. `chrome.ahk` - Chrome-specific hotkeys
+11. `hotkeys-global.ahk` - Global hotkeys (brightness, cursor nav, clipboard)
+12. `menu.ahk` - Enhanced menu engine with GUI/keyboard support
+13. `menu.ahk` - Enhanced menu engine with GUI/keyboard support
 
 ### Key Subsystems
 

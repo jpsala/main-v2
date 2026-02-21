@@ -18,14 +18,10 @@ if(A_IsAdmin){
 #Include ".\bookmarks.ahk"
 #Include ".\menus.ahk"
 #Include ".\code.ahk"
-#Include ".\browser.ahk"
-#Include ".\keyboardSwitch.ahk"  ; New keyboard layout auto-switching functionality
+
 #Include ".\hotstrings.ahk"
 #Include ".\system.ahk"
 #Include ".\chrome.ahk"
-
-#Include ".\terminal.ahk"
-#Include ".\media.ahk"
 #Include ".\ai.ahk"
 #Include ".\ai-picker.ahk"
 #Include ".\ai-webui.ahk"

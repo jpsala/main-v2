@@ -254,4 +254,33 @@ mainSeqC() {
 
 
 
+; YouTube download helper functions
+DownloadYouTubeVideoFromClipboard() {
+    url := A_Clipboard
+    if (!InStr(url, 'https://www.youtube.com/watch?') and !InStr(url, 'https://youtu.be') and !InStr(url, 'https://www.youtube.com/shorts/')) {
+        MsgBox('Clipboard does not contain a valid YouTube video or shorts URL.`n`n' url, 'Invalid URL', 'IconWarning')
+        return
+    }
+    command := 'c:\tools\ytd.bat "' . url . '"'
+    try {
+        Run(command)
+    } catch Error as e {
+        MsgBox('Failed to run YouTube video download command:`n' command '`n`nError: ' e.Message, 'Execution Error', 'IconError')
+    }
+}
+
+DownloadYouTubeAudioFromClipboard() {
+    url := A_Clipboard
+    if (!InStr(url, 'https://www.youtube.com/watch?') and !InStr(url, 'https://youtu.be')) {
+        MsgBox('Clipboard does not contain a valid YouTube URL for audio download.`n`n' url, 'Invalid URL', 'IconWarning')
+        return
+    }
+    command := 'c:\tools\ytd-audio.bat "' . url . '"'
+    try {
+        Run(command)
+    } catch Error as e {
+        MsgBox('Failed to run YouTube audio download command:`n' command '`n`nError: ' e.Message, 'Execution Error', 'IconError')
+    }
+}
+
 ; Note: The original SeqGui function has been removed and replaced with customMenu calls throughout the file

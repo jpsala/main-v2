@@ -100,7 +100,6 @@ ProcessMsgQueue() {
             arrayRemoveElByID(msgTimerIDsPool, msg.id)
             ToolTip(, , , msg.id)
             msgQueue.RemoveAt(idx)
-            ; log('msg: removed', msg.id, msg.seconds, 'msg: ' msg.msg)
         }
     }
 }

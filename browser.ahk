@@ -7,58 +7,6 @@
 
 
 ; ===================================================================
-; ZEN BROWSER SPECIFIC HOTKEYS
-; ===================================================================
-
-; #HotIf WinActive('ahk_exe zen.exe')
-;   !c:: {
-;     ; Wait a moment to ensure all key processing is complete
-;     KeyWait("Alt")
-;     Sleep(50)
-
-;     ; Get the keyboard layout information using our function
-;     keyboardLayoutType := getKeyboardLayoutUsOrIntl()
-
-;     ; Perform action based on layout
-;     if (keyboardLayoutType == "INTL") {
-;       msg('INTL detected - switching layout', { seconds: 2 })
-
-;       ; Explicitly send Alt+Shift to change keyboard layout
-;       ; Using SendLevel to override system handling
-;       SendLevel(100)
-
-;       ; Method 1: Using explicit key down/up
-;       Send("{Alt Down}{Shift Down}")
-;       Sleep(50)
-;       Send("{Shift Up}{Alt Up}")
-
-;       ; Wait for layout change to take effect
-;       Sleep(100)
-;     }
-;     Send("^!c")
-;   }
-;   +WheelDown:: Send('!e')
-;   +WheelUp:: Send('!w')
-;   +RButton:: {
-;     keyWait('Shift')
-;     Sleep(100)
-;     MouseClick('Left', , , 1, 0)
-;     Sleep(100)
-;     Send("^{End}") ; Scroll to the bottom on right-click
-;   }
-
-;   ^+e:: {
-;     send('^#!x')
-;   }
-
-;   !a:: {
-;     send('{esc}')
-;     Sleep(100)
-;     send('!a')
-;   }
-; #HotIf
-
-; ===================================================================
 ; CHROME BROWSER SPECIFIC HOTKEYS
 ; ===================================================================
 
@@ -89,9 +37,7 @@ allIds := '2CMJ58, M2M1T2, W8N2N3, Z6H0V0, Q4R1T4, R2G7W6, F5P3K0, Q0Z1J8, Q3F8N
   !a:: {
     Send('!{Left}')
   }
-  ; !s:: {
-  ;   Send('!{Right}')
-  ; }
+
   F8:: {
     setBrowserTitle(lastBrowserTitle, true)
   }

@@ -259,6 +259,7 @@ AILoadPrompts() {
   AI_PROMPT_HOTKEYS := newHotkeys
   AI_PROMPT_NAMES := newNames
   AI_PROMPTS_LAST_MOD := FileGetTime(AI_PROMPTS_FILE, "M")
+  try AIRegisterPromptHotkeys(AI_PROMPT_HOTKEYS)
 }
 
 AIExtractPromptDirectives(rawValue, &providerOut, &modelOut, &hotkeyOut, &bodyOut) {
@@ -316,6 +317,8 @@ AICheckPromptsReload() {
   if (currentMod != AI_PROMPTS_LAST_MOD) {
     AILoadPrompts()
     AIRefreshPromptMenuList()
+    AISendCommandsToPickerUI()
+    try AIWebUIOnPromptsReload()
     AINotify("AI prompts recargados (" . AI_PROMPT_NAMES.Length . ")", 1.5)
   }
 }
@@ -529,6 +532,8 @@ AIOnMenuLoadClipboard(*) {
 AIOnMenuReloadPrompts(*) {
   AILoadPrompts()
   AIRefreshPromptMenuList()
+  AISendCommandsToPickerUI()
+  try AIWebUIOnPromptsReload()
 }
 
 AIOnMenuRun(*) {
@@ -610,7 +615,7 @@ AIShowStartupDemo() {
     AI_STARTUP_DEMO_LIST_CTRL := AI_STARTUP_DEMO_GUI.Add("ListBox", "xm w520 r4")
     AI_STARTUP_DEMO_LIST_CTRL.Add(["1) Validar ListBox"])
     AI_STARTUP_DEMO_LIST_CTRL.Add(["2) Probar AI (ping)"])
-    AI_STARTUP_DEMO_LIST_CTRL.Add(["3) Abrir menu de prompts"])
+    AI_STARTUP_DEMO_LIST_CTRL.Add(["3) Abrir picker web (Ctrl+Q)"])
     AI_STARTUP_DEMO_LIST_CTRL.Choose(1)
 
     btnRun := AI_STARTUP_DEMO_GUI.Add("Button", "xm y+10 w140 Default", "Ejecutar")
@@ -671,7 +676,7 @@ AIOnStartupDemoRun(*) {
   }
 
   if (selected = 3) {
-    AIShowPromptMenu()
+    AIShowPickerWindow()
     return
   }
 
@@ -688,7 +693,6 @@ AIOnStartupDemoDisable(*) {
 
 ; Open AI prompt menu (ListBox UI)
 #!^p:: AIShowPromptMenu()
-^q:: AIShowPromptMenu()
 
 ; Bootstrap
 AIInit()

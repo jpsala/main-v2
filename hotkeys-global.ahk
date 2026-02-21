@@ -2,35 +2,12 @@
     ; GLOBAL HOTKEYS - MOVED FROM system.ahk
     ; ===================================================================
 
-    ; TODO: !mover
-    #HotIf WinActive('ahk_exe code.exe')
-    ; ^+d:: {
-    ; KeyWait('Ctrl')
-    ; KeyWait('Shift')
-    ; send('^+d')
-    ; Sleep(400)
-    ; send('{Home}')
-    ; }
-    ; ^+1::{
-    ;   send('^#{Left}')
-    ; }
-    ; ^+2::{
-    ;   send('^#{Right}')
-    ; }
-    #HotIf
+#HotIf WinActive('ahk_exe code.exe')
+#HotIf
 
     !F1:: {
       MinimizeToTrayWithNirCmd(WinGetTitle('A'))
     }
-    ; !q:: {
-    ;   WinActivate('ahk_exe AnyDesk.exe')
-    ;   sleep(50)
-    ;   ; Sleep(100)
-    ;   ; KeyWait('Ctrl')
-    ;   ; keyWait('Shift')
-    ;   ; msg('GO')
-    ;   ; mainSeqA()
-    ; }
 
     myHotkeyAction(hotkeyStr) {
       Send(hotkeyStr)
@@ -80,7 +57,6 @@
       found := ImageSearch(&x, &y, 0, 0, 1000, 1000, '.\rename.png')
       if (found == 1) {
         msg('rename')
-        ; MouseMove(x+40,y+40)
         MouseClick('Left', x + 40, y + 40)
         sleep(200)
         MouseClick('Left', 1000, 530)
@@ -90,7 +66,6 @@
         }
         return
       }
-      ; MouseMove(451, 747)
       MouseClick('Left', 451, 747)
       sleep(200)
       MouseClick('Left', 1000, 530)
@@ -105,13 +80,9 @@
       found := ImageSearch(&x, &y, 0, 0, 1000, 1000, '.\clear-all.png')
       if (found == 1) {
         msg('rename')
-        ; MouseMove(x+40,y+40)
         MouseClick('Left', x + 40, y + 40)
         sleep(200)
         send('{Enter}')
-        ; MouseClick('Left',1225, 579)
-        ; MouseClick('Left',920, 539)
-        ; sleep(100)
         restoreMouse(mousePos)
         return
       }
@@ -122,12 +93,6 @@
       sleep(200)
       send('{Enter}')
       restoreMouse(mousePos)
-      ; sleep(200)
-      ; MouseClick('Left',920, 539)
-      ; sleep(100)
-      ; if (useSpecialBackspace) {
-      ;   send('{BackSpace 3}-')
-      ; }
     }
     ; ===================================================================
     ; Remote desktop o strategyquant
@@ -167,15 +132,6 @@
       WinSetTransColor("FF00FF")
     }
 
-    ; Paste and move to the previous clipboard entry
-
-    ; !v:: {
-    ;   sleep(20)
-    ;   send('^v')
-    ;   sleep(10)
-    ;   send('^+{up}')
-    ;   msg('pasted and moved to the previous clipboard entry')
-    ; }
     ; ===================================================================
     ; SYSTEM CONTROLS
     ; ===================================================================
@@ -252,10 +208,6 @@
       }
     }
 
-    ; Minimize active window
-    ; #!up:: {
-    ;   WinMaximize('A')
-    ; }
     #m::
     #!down:: {
       WinMinimize('A')
@@ -287,13 +239,6 @@
 
       return
     }
-
-    ; Copy from clipboard and activate next clipboard entry (Assumes clipPrevious() is defined elsewhere)
-    ; !+v:: {
-    ;   Send('^v')
-    ;   clipPrevious()
-    ;   Sleep(200)
-    ; }
 
     ; CopyQ - Label clipboard item (Requires CopyQ, Assumes InputBox() is defined elsewhere)
     #HotIf WinActive('ahk_exe copyq.exe')
@@ -400,7 +345,6 @@
       msg('🔆 ' direction, { seconds: waitTime / 1000 })
       cmd := 'C:\tools\ControlMyMonitor.exe /ChangeValue ' . monitor . ' ' . 10 . ' ' . (direction = 'up' ? '10' : '-10')
       run(cmd)
-      ; Send('^!#{Pg' direction '}')
     }
     ; ===================================================================
     ; CURSOR MOVEMENT
@@ -425,7 +369,6 @@
     ; Alt cursor navigation (when enabled)
     ; Note: activeTradeWin and cursorKeysEnabled need to be defined globally
     #hotif (cursorKeysEnabled ?? false) and ((activeTradeWin ?? "") = "" or not WinActive(activeTradeWin ?? ""))
-    ; !k:: Send("{up}")
     !j:: Send("{down}")
     !+j:: Send("{PgDn}")
     !k:: Send("{up}")
@@ -481,13 +424,3 @@
     ; ===================================================================
     ; UTILITY HOTKEYS
     ; ===================================================================
-
-    ; YouTube video download (Requires yt-dlp.exe in PATH or specified location)
-    ; #!^d:: {
-    ;   url := A_Clipboard
-    ;   ; Consider making the download path configurable
-    ;   downloadPath := "c:\users\jp\Downloads\yt-download"
-    ;   if !DirExist(downloadPath)
-    ;     DirCreate(downloadPath)
-    ;   Run('yt-dlp.exe "' url '"', downloadPath) ; Added quotes around URL
-    ; }

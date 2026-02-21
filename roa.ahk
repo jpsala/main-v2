@@ -315,11 +315,6 @@ toggleOrLaunchAppByUid(params, withDebug := false) {
     uid := params.HasProp('uid') ? params.uid : false
     timeout := params.HasProp('timeout') ? params.timeout : 5000
 
-    ; if (!uid) {
-    ;     log("ERROR: toggleOrLaunchAppByUid requires a uid parameter")
-    ;     return false
-    ; }
-
     if (withDebug) {
         log("Looking for instance by uid: " . uid)
     }

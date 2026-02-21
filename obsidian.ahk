@@ -9,23 +9,7 @@ global toggleObsidanDebug := false
 ; OBSIDIAN HOTKEYS
 ; ===================================================================
 #HotIf WinActive("ahk_exe Obsidian.exe") and WinActive('draw')
-; WheelDown::{
-;   if(mousePosX() < 2100){
-;     send('^{WheelDown}')
-;     send("^Up")
-;   } else {
-;     send('{WheelDown}')
-;   }
-; }
-; WheelUp::{
-;   if(mousePosX() < 2100){
-;     send("^{WheelUp}")
-;   } else {
-;     send('{WheelUp}')
-;   }
-; }
 !f::7
-; !c::2
 !a::a
 #HotIf
 
@@ -68,11 +52,6 @@ toggleDebugForObsidan(hk)
 }
 
 ^+e:: {
-  ; send('^+p')
-  ; Sleep(10)
-  ; send('reveal current file in navigation')
-  ; Sleep(1000)
-  ; send('{enter}')
   send('+^#e')
 }
 #HotIf

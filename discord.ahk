@@ -43,36 +43,6 @@
 !f:: {
   Send('!{Right}')
 }
-; !a::
-; followLInk(a) {
-;   try {
-;     msg('working...')
-;     KeyWait('Alt')
-;     Click('Right')
-;     Sleep(50)
-;     BlockInput(true)
-;     Send('{Up}')
-;     Sleep(200)
-;     Send('{Up}')
-;     Send('{Enter}')
-;     Sleep(100)
-;     url := A_Clipboard
-;     Sleep(100)
-;     BlockInput(false)
-;     if (!InStr(url, 'http')) {
-;       MsgBox('not valid string in clipboard: ' url)
-;       WinActivateFast('ahk_exe Discord.exe')
-;       return
-;     }
-;     openInBrowser(url, , , , , , '!0')
-;     WinActivateFast('- Discor')
-;     if !WinWaitActive('- Discor') {
-; ;       MsgBox('ahk_exe Discord.exe error')
-;     } catch Error as e {
-;     BlockInput(false)
-;     MsgBox('Error: ' e)
-;   }
-; }
 
 ^!d:: {
     ; Save the current active window

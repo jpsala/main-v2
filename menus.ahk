@@ -180,12 +180,6 @@ mainSeqW() {
     key := customMenu(options)
     
     switch key {
-        ; case 'a':
-        ;     openGptBrowser()
-        ; case 'A':
-        ;     Roa('chrome-amaia', browserWithAmaiaProfile)
-        ; case 'c':
-        ;     Roa('google-calendar', browserWithMainProfile . ' https://calendar.google.com/calendar/u/0/r')
         case 'c':
             Roa('chrome-carnival', vivaldiWithCarnivalProfile)
         case '#c':
@@ -352,44 +346,7 @@ mainSeqC() {
         }
         run('c:\tools\ytd-audio.bat ' . url)
     }
-    ; Helper function (if you don't already have it)
 
-    ; !s:: {
-    ;     options := {
-    ;         waitml: 800,
-    ;         items: [
-    ;             { key: 'c', label: 'close split view' },
-    ;             { key: 'h', label: 'split view horizontal' },
-    ;             { key: 'v', label: 'split view vertical' }
-    ;         ]
-    ;     }
-    ;     key := customMenu(options)
-
-    ;     switch key {
-    ;         case 'c':
-    ;             send('^!x')
-    ;         case 'h':
-    ;             send('!^v')
-    ;         case 'v':
-    ;             send('!^h')
-    ;         case 'yv':
-    ;             url := A_Clipboard
-    ;             ; https://youtu.be/Y_nRfa7S9F0?si=AG4nlUguFSJ-SdcZ
-    ;             if (!InStr(url, 'https://www.youtube.com/watch?') and !InStr(url, 'https://youtu.be') and !InStr(url, 'https://www.youtube.com/shorts/')) {
-    ;                 MsgBox('not valid url in clipboard')
-    ;                 return
-    ;             }
-    ;             run('c:\tools\ytd.bat ' . url)
-    ;             copyToClipboard('c:\tools\ytd.bat ' . url)
-    ;         case 'ya':
-    ;             url := A_Clipboard
-    ;             if (!InStr(url, 'https://www.youtube.com/watch?') and !InStr(url, 'https://youtu.be')) {
-    ;                 MsgBox('not valid url in clipboard')
-    ;                 return
-    ;             }
-    ;             run('c:\tools\ytd-audio.bat ' . url)
-    ;     }
-    ; }
 #HotIf
 
 ; ===================================================================

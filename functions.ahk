@@ -200,8 +200,6 @@ setBrowserTitle(title?, dontExit := false) {
     Send('l')
     Sleep(1)
     Send('w')
-    ; if(true)
-    ;   returnv
     if (IsSet(title)) {
         Sleep(100)
         Send(title)
@@ -232,7 +230,6 @@ setBrowserTitle(title?, dontExit := false) {
 mouseClickAndSave(x, y) {
     mousePos := saveMouse()
     mouseClick('L', x, y,,0)
-    ; MouseMove(x, y, 0)
     return mousePos
 }
 
@@ -290,7 +287,6 @@ getMonitorInfo() {
         MonitorGet(A_Index, &MonLeft, &MonTop, &MonRight, &MonBottom)
         ; Check if mouse is within the current monitor's bounds
         found := (X >= MonLeft && X <= MonRight && Y >= MonTop && Y <= MonBottom)
-        ; log(MonLeft, X, MonRight, Y, MonTop, Y, MonBottom)
         coords := getMouseCoords('Screen')
         if (found) {
             monitor := {
@@ -333,7 +329,6 @@ getMonitorInfo() {
     }
     ; Restore previous mouse coordinate mode
     CoordMode('Mouse', _coorMode)
-    ; log(monitor.monitor, monitor.top, monitor.left, monitor.right, monitor.bottom, monitor.x, monitor.y)
     return monitor
 }
 
@@ -458,7 +453,6 @@ inArea(area, areas, inMonitor := 0) {
         return false
     }
     currentArea := area ?? getAreaYX()
-    ; MsgBox currentArea
     for each, area in areas {
         if (currentArea = area) {
             return true
@@ -471,7 +465,6 @@ inSec(sec) {
     curSec := getAreaYX()
     sec := sec
     ret := (sec == curSec)
-    ; MsgBox, %curSec%, %sec%, %ret%
     return ret
 }
 
@@ -676,14 +669,12 @@ runLogExe() {
 }
 
 emptylog(logFile := '') {
-    ; Use provided log file or default to log.txt
     logFile := logFile ? logFile : A_ScriptDir . '\log.txt'
     
     if (!logFile) {
         msgV1("Error: Missing log file path", 3)
         return
     }
-    ; if proccess ahk_exe Tail.exe is running, close it first and then run it again with
     if (FileExist(logFile)) {
         try {
             FileDelete(logFile)
@@ -746,10 +737,7 @@ preventIdle() {
 onceADay() {
     CurrentDate := FormatTime(A_Now, "yyyy-MM-dd")
     StoredDate := IniRead("config.ini", "general", "lastDate", "")
-    ; log('hola2', StoredDate, CurrentDate, 'chau')
     if (StoredDate !== CurrentDate) {
-        ; Here we can add some code to do something once a the script loads for the first time on a day
-        ; showNirCmdAudioDevices()
         changeAudioDevice("Headset Earphone") ; Headset Earphone / Speakers
         SoundSetVolume(5)
         msg('Changing to Headset Earphone', { seconds: 3 })
@@ -915,7 +903,6 @@ global seqGuiActive := false
 ; Returns: The key(s) pressed by user or empty if timeout
 
 Seq(time := 500, chars := 2, key := False, feedback := 0, beepOnNoKeyPressed := true, text := false) {
-    ; SoundOk(1, 1, 1)
     msgId := 13
     if (text) {
         msg(text . ' | ' . time / 1000 . ' seconds', { seconds: time / 1000, id: msgId })

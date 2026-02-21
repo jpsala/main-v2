@@ -113,9 +113,6 @@ $#s:: {
   saveCharBookmark(char)
 }
 $#+s:: {
-  ; global bookmarkMap
-  ; msg('reassigning bookmark, press a key, you have 5 seconds', { seconds: 5, x: -10, y: -10 })
-
   char := Seq(3000, 1, false, 0, false, "Press a key to reassign bookmark, you have ")
   if (!char) {
     soundError()
@@ -123,16 +120,6 @@ $#+s:: {
   }
   saveCharBookmark(char, true)
 }
-
-; $#w:: {
-;   global bookmarkMap
-;   saveCharBookmark('w' . Seq(1000, 1))
-; }
-
-; $#+w:: {
-;   global bookmarkMap
-;   saveCharBookmark('w' . Seq(1000, 1), true)
-; }
 
 saveCharBookmark(char := false, deleteFirst := false) {
   if (char) {
@@ -643,8 +630,6 @@ VerifyHotkeys() {
     
     if(! WinExist(winId)) {
 
-      ; msgBox(msg, file)
-      ; MsgBox( Format(msg, key, title), 'Bookmarks', 0x30)
       msg('Window not found: ' key ' -> ' title, { seconds: 5, x: 0, y: 0 })
       soundError()
       bookmarkMap.Delete(key)

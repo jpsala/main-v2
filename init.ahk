@@ -108,7 +108,7 @@ browserWindow := "ahk_exe vivaldi.exe ahk_exe chrome.exe ahk_exe msedge.exe ahk_
 browserWithChromeMainProfile := chromeExe ' --profile-directory="Profile 1" '
 
 ; Check if all paths in config.ini exist
-CheckConfigPaths()
+CheckConfigPaths(deviceSection)
 
 ; browserWithAIProfile := zenAppPath ' -p AI '
 ; browserWithWorkProfile := zenAppPath ' -p Work '

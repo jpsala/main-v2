@@ -1007,14 +1007,20 @@ getNextSerialNumber() {
 ; CONFIG PATH VALIDATION
 ;===============================================================================
 
-CheckConfigPaths() {
+CheckConfigPaths(deviceSection := "") {
     if (!FileExist("config.ini")) {
         msg("config.ini not found!", 3)
         return
     }
 
+    ; If no device section specified, try to detect from general section
+    if (deviceSection = "") {
+        deviceSection := IniRead("config.ini", "general", "deviceSection", "desktop")
+    }
+
     missing := []
-    sections := ["desktop", "work", "carnival", "notebook", "gordos", "paths"]
+    ; Only check paths section and current device section
+    sections := ["paths", deviceSection]
     
     ; Check each section
     for _, section in sections {
@@ -1035,6 +1041,10 @@ CheckConfigPaths() {
                 
             key := Trim(parts[1])
             value := Trim(parts[2])
+            
+            ; Remove quotes from value
+            value := StrReplace(value, '"', '')
+            value := StrReplace(value, "'", '')
             
             ; Skip empty values or comments
             if (value = "" || SubStr(key, 1, 1) = ";")
@@ -1066,6 +1076,9 @@ CheckConfigPaths() {
     }
     
     ; Show results
+    logFile := A_ScriptDir . '\missing-paths.log'
+    timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+    
     if (missing.Length > 0) {
         msgText := "Missing paths in config.ini:`n`n"
         for _, item in missing {
@@ -1076,13 +1089,14 @@ CheckConfigPaths() {
         ToolTip(msgText, 100, 100)
         SetTimer(() => ToolTip(), -10000)  ; Hide after 10 seconds
         
-        ; Also log to file
+        ; Log to file
         try {
-            logFile := A_ScriptDir . '\missing-paths.log'
-            timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
             FileAppend(timestamp . "`n" . msgText . "`n`n", logFile, "UTF-8")
         }
     } else {
-        ; All paths OK - silent success
+        ; All paths OK - silent success but log it
+        try {
+            FileAppend(timestamp . "`nAll paths OK - checked sections: paths, " . deviceSection . "`n`n", logFile, "UTF-8")
+        }
     }
 }

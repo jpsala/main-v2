@@ -141,6 +141,9 @@ AIPickerActivateFocus(*) {
       try WinActivate("ahk_id " . hwnd)
   }
 
+  ; Move keyboard focus into the WebView2 control (0 = Programmatic)
+  try AI_PICKER_GUI.Control.MoveFocus(0)
+
   if (AI_PICKER_READY)
     AI_PICKER_GUI.ExecuteScriptAsync("resetAndFocus()")
 }

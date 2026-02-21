@@ -47,7 +47,8 @@ mainSeqA() {
         ]
     }
     
-    key := customMenu(options)
+    ; key := customMenu(options)
+    key := customMenuWebView(options)
 
     ; Handle the selected key - can be single key or multi-key sequence
     switch key {
@@ -155,8 +156,9 @@ mainSeqW() {
         ]
     }
 
-    key := customMenu(options)
-    
+    ; key := customMenu(options)
+    key := customMenuWebView(options)
+
     switch key {
         case 'c':
             Roa('chrome-carnival', vivaldiWithCarnivalProfile)
@@ -225,7 +227,8 @@ mainSeqC() {
         ]
     }
 
-    key := customMenu(options)
+    ; key := customMenu(options)
+    key := customMenuWebView(options)
     switch key {
         case 'p':
             Roa('passwords-backup', cursorExe . ' "D:\user-home-in-d\Documents\Chrome Passwords Backup.csv"')
@@ -283,4 +286,9 @@ DownloadYouTubeAudioFromClipboard() {
     }
 }
 
-; Note: The original SeqGui function has been removed and replaced with customMenu calls throughout the file
+; ===================================================================
+; Test menus (commented out - WebView menu now used in main menus)
+; ===================================================================
+; #-:: testMenuWebView()
+; #+-:: testSimpleMenu()
+; #^-:: testLargeMenu()

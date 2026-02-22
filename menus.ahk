@@ -160,6 +160,10 @@ mainSeqW() {
     key := customMenuWebView(options)
 
     switch key {
+        case 'a':
+            Roa('ai-project', cursorExe . ' c:\dev\ai')
+        case 'A':
+            Roa('amaia-project', cursorExe . ' c:\dev\amaia')
         case 'c':
             Roa('chrome-carnival', vivaldiWithCarnivalProfile)
         case '#c':

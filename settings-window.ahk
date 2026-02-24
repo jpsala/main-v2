@@ -228,7 +228,8 @@ SendInitialData() {
     )
     
     ; Debug logging
-    log("Settings values - hidePathsSummary: " . hidePathsSummary . ", logVisibility: " . logVisibility . ", cursorKeys: " . cursorKeys)
+    log("Settings values - hidePathsSummary: '" . hidePathsSummary . "', logVisibility: '" . logVisibility . "', cursorKeys: '" . cursorKeys . "'")
+    log("Settings bool - showPathsSummary: " . general["showPathsSummary"] . ", loggingEnabled: " . general["loggingEnabled"] . ", cursorKeysEnabled: " . general["cursorKeysEnabled"])
     
     ; Info
     info := Map(
@@ -406,11 +407,11 @@ HandleSettingUpdate(data) {
     loadConfig()
     
     ; Confirm to WebView
-    SendToWebView({
-        action: "settingUpdated",
-        key: key,
-        value: value
-    })
+    SendToWebView(Map(
+        "action", "settingUpdated",
+        "key", key,
+        "value", value
+    ))
 }
 
 ;-------------------------------------------------------------------------------
@@ -426,6 +427,7 @@ SendToWebView(data) {
     
     try {
         json := Jxon_Dump(data)
+        log("Sending to WebView: " . json)
         SETTINGS_GUI.Control.wv.PostWebMessageAsJson(json)
     } catch as err {
         log("Error sending to WebView: " . err.Message)

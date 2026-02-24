@@ -546,6 +546,7 @@
 // Communication with AHK
 window.chrome.webview.addEventListener('message', function(event) {
   const data = event.data;
+  console.log('Received from AHK:', data);
   
   if (data.action === 'init') {
     initializeSettings(data.settings);
@@ -636,9 +637,14 @@ function createPathItem(item) {
 
 // Render general settings
 function renderGeneralSettings(settings) {
-  updateToggle('toggle-show-summary', settings.showPathsSummary !== false);
-  updateToggle('toggle-logging', settings.loggingEnabled !== false);
-  updateToggle('toggle-cursor-keys', settings.cursorKeysEnabled !== false);
+  console.log('Rendering general settings:', settings);
+  console.log('  showPathsSummary:', settings.showPathsSummary, typeof settings.showPathsSummary);
+  console.log('  loggingEnabled:', settings.loggingEnabled, typeof settings.loggingEnabled);
+  console.log('  cursorKeysEnabled:', settings.cursorKeysEnabled, typeof settings.cursorKeysEnabled);
+  
+  updateToggle('toggle-show-summary', settings.showPathsSummary === true);
+  updateToggle('toggle-logging', settings.loggingEnabled === true);
+  updateToggle('toggle-cursor-keys', settings.cursorKeysEnabled === true);
 }
 
 function updateToggle(id, active) {

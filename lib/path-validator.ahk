@@ -149,7 +149,7 @@ ExpandEnvVars(path) {
     path := StrReplace(path, "%ProgramFiles%", A_ProgramFiles)
     path := StrReplace(path, "%ProgramFiles(x86)%", A_ProgramFiles . " (x86)")
     path := StrReplace(path, "%AppData%", A_AppData)
-    path := StrReplace(path, "%LocalAppData%", A_AppDataLocal)
+    path := StrReplace(path, "%LocalAppData%", EnvGet("LOCALAPPDATA"))
     path := StrReplace(path, "%UserProfile%", A_MyDocuments . "\..")
     path := StrReplace(path, "%Username%", A_UserName)
     path := StrReplace(path, "%ComputerName%", A_ComputerName)
@@ -233,28 +233,28 @@ GetCommonPaths(appName) {
         
         case "vscode":
             return [
-                A_AppDataLocal . "\\Programs\\Microsoft VS Code\\Code.exe",
+                EnvGet("LOCALAPPDATA") . "\\Programs\\Microsoft VS Code\\Code.exe",
                 A_ProgramFiles . "\Microsoft VS Code\Code.exe"
             ]
         
         case "cursor":
             return [
                 A_ProgramFiles . "\Cursor\Cursor.exe",
-                A_AppDataLocal . "\\Programs\\Cursor\\Cursor.exe"
+                EnvGet("LOCALAPPDATA") . "\\Programs\\Cursor\\Cursor.exe"
             ]
         
         case "chrome":
             return [
                 A_ProgramFiles . "\Google\Chrome\Application\chrome.exe",
                 A_ProgramFiles . " (x86)\Google\Chrome\Application\chrome.exe",
-                A_AppDataLocal . "\\Google\\Chrome\\Application\\chrome.exe"
+                EnvGet("LOCALAPPDATA") . "\\Google\\Chrome\\Application\\chrome.exe"
             ]
         
         case "vivaldi":
             return [
                 "C:\tools\vivaldi\Application\vivaldi.exe",
                 A_ProgramFiles . "\Vivaldi\Application\vivaldi.exe",
-                A_AppDataLocal . "\\Vivaldi\\Application\\vivaldi.exe"
+                EnvGet("LOCALAPPDATA") . "\\Vivaldi\\Application\\vivaldi.exe"
             ]
         
         case "xyplorer":

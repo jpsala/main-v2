@@ -62,15 +62,26 @@ Run `build.bat` to:
 ### Project Structure
 
 ```
-main.ahk              Entry point
-├── lib/              Core libraries (WebView2, utilities)
-├── ui/               HTML/CSS/JS for WebView2 menus
-├── functions.ahk     Custom functions
-├── hotkeys-global.ahk Global hotkey definitions
-├── hotstrings.ahk    Text expansion shortcuts
-├── menus.ahk         Menu definitions
-├── bookmarks.ahk     Window bookmark system
-└── config.ini        User configuration (not in git)
+main.ahk                Entry point
+├── lib/                Core libraries (WebView2, audio, window, utils)
+├── ui/                 HTML/CSS/JS for WebView2 menus & settings
+├── init.ahk            Initialization, path detection, browser profiles
+├── functions.ahk       Config management, utility functions
+├── settings-window.ahk WebView2 settings UI backend
+├── tray-menu.ahk       System tray menu with icons
+├── bookmarks.ahk       Window bookmark system
+├── menus.ahk           Context menu definitions
+├── hotkeys-global.ahk  Global hotkey definitions
+├── hotstrings.ahk      Text expansion shortcuts
+├── code.ahk            VS Code integrations
+├── chrome.ahk          Chrome/browser integrations
+├── system.ahk          System-wide hotkeys
+├── menu.ahk            Folder menu
+├── menu-webview.ahk    WebView2-based menu
+├── roa.ahk             Run-or-Activate window manager
+├── msg.ahk             Tooltip message system
+├── config.ini.dist     Config template (config.ini not in git)
+└── build.bat           Build script (exe + installer)
 ```
 
 ## License

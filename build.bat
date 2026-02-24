@@ -52,7 +52,6 @@ REM Copy icons and config templates
 echo - Copying icons and config files...
 copy /Y "main.ico" "dist\" >nul
 copy /Y "icon.ico" "dist\" >nul
-if exist "wrench.png" copy /Y "wrench.png" "dist\" >nul
 copy /Y "config.ini.dist" "dist\config.ini" >nul
 
 REM Copy documentation
@@ -70,19 +69,23 @@ if errorlevel 1 (
 
 echo.
 echo [5/5] Creating installer with Inno Setup...
-set "INNO_COMPILER=C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
-if exist "%INNO_COMPILER%" (
-    "%INNO_COMPILER%" "installer.iss"
-    if errorlevel 1 (
-        echo WARNING: Installer compilation failed
-    ) else (
-        echo SUCCESS: main-automation-setup.exe created
-    )
-) else (
-    echo SKIPPED: Inno Setup not found at:
-    echo %INNO_COMPILER%
-    echo Install from https://jrsoftware.org/isinfo.php to create installer
+set INNO_PATH=C:\Program Files (x86)\Inno Setup 6\ISCC.exe
+if not exist "%INNO_PATH%" goto :skip_installer
+
+"%INNO_PATH%" "installer.iss"
+if errorlevel 1 (
+    echo WARNING: Installer compilation failed
+    goto :installer_done
 )
+echo SUCCESS: main-automation-setup.exe created
+goto :installer_done
+
+:skip_installer
+echo SKIPPED: Inno Setup not found at:
+echo %INNO_PATH%
+echo Install from https://jrsoftware.org/isinfo.php to create installer
+
+:installer_done
 
 echo.
 echo ======================================

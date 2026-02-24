@@ -19,4 +19,4 @@ nul
 _backup_*/
 
 # Claude metadata junction
-.claude/
+.claude/bookmarks-missing.txt

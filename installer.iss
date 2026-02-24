@@ -51,20 +51,12 @@ Source: "dist\main.exe"; DestDir: "{app}"; Flags: ignoreversion
 ; UI files
 Source: "dist\ui\*"; DestDir: "{app}\ui"; Flags: ignoreversion recursesubdirs createallsubdirs
 
-; Commands
-Source: "dist\commands\*"; DestDir: "{app}\commands"; Flags: recursesubdirs createallsubdirs; Check: ShouldInstallUserFile('commands')
-
-; Skills - preserve on update, replace on clean install
-Source: "dist\skills\*"; DestDir: "{app}\skills"; Flags: recursesubdirs createallsubdirs; Check: ShouldInstallUserFile('skills')
-Source: "dist\.skills\*"; DestDir: "{app}\.skills"; Flags: recursesubdirs createallsubdirs; Check: ShouldInstallUserFile('.skills')
-
 ; Libraries (includes WebView2 DLLs)
 Source: "dist\lib\*"; DestDir: "{app}\lib"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; Icons
 Source: "dist\main.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "dist\icon.ico"; DestDir: "{app}"; Flags: ignoreversion
-Source: "dist\wrench.png"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 
 ; Config - use uninsneveruninstall to preserve on uninstall, but allow clean install to replace
 Source: "dist\config.ini"; DestDir: "{app}"; Flags: ignoreversion; Check: ShouldInstallUserFile('config.ini')
@@ -113,10 +105,7 @@ var
   InstallDir: String;
 begin
   InstallDir := ExpandConstant('{autopf}\{#MyAppName}');
-  Result := FileExists(InstallDir + '\config.ini') or
-            DirExists(InstallDir + '\skills') or
-            DirExists(InstallDir + '\.skills') or
-            DirExists(InstallDir + '\commands');
+  Result := FileExists(InstallDir + '\config.ini');
 end;
 
 function IsCleanInstall: Boolean;

@@ -133,7 +133,7 @@ HandleSettingsMessage(wv, args) {
         SettingsDebugLog("Received message from WebView: " . json)
         data := Jxon_Load(&json)
         
-        action := data.HasProp("action") ? data.action : ""
+        action := data.Has("action") ? data["action"] : ""
         SettingsDebugLog("Message action: " . action)
         
         switch action {
@@ -174,8 +174,8 @@ HandleSettingsMessage(wv, args) {
                 
             case "openDoc":
                 ; Open documentation file
-                if (data.HasProp("filename")) {
-                    docPath := A_ScriptDir . "\" . data.filename
+                if (data.Has("filename")) {
+                    docPath := A_ScriptDir . "\\" . data["filename"]
                     if (FileExist(docPath)) {
                         Run('"' . docPath . '"')
                     }
@@ -283,12 +283,12 @@ CheckPathExists(key, section) {
 HandlePathUpdate(data) {
     global deviceSection
     
-    if (!data.HasProp("key") || !data.HasProp("path")) {
+    if (!data.Has("key") || !data.Has("path")) {
         return
     }
     
-    key := data.key
-    path := data.path
+    key := data["key"]
+    path := data["path"]
     
     ; Determine section (desktop for tools, deviceSection for apps)
     section := InStr(key, "_exe") ? "desktop" : deviceSection
@@ -314,12 +314,12 @@ HandlePathUpdate(data) {
 }
 
 HandleBrowsePath(data) {
-    if (!data.HasProp("key") || !data.HasProp("name")) {
+    if (!data.Has("key") || !data.Has("name")) {
         return
     }
     
-    key := data.key
-    name := data.name
+    key := data["key"]
+    name := data["name"]
     
     ; Show file picker
     isFolder := InStr(key, "_dir")
@@ -337,12 +337,12 @@ HandleBrowsePath(data) {
 }
 
 HandleDetectPath(data) {
-    if (!data.HasProp("key") || !data.HasProp("name")) {
+    if (!data.Has("key") || !data.Has("name")) {
         return
     }
     
-    key := data.key
-    name := data.name
+    key := data["key"]
+    name := data["name"]
     
     ; Map key to app name for GetCommonPaths
     appMap := Map(
@@ -399,12 +399,12 @@ HandleAutoDetectAll() {
 ;-------------------------------------------------------------------------------
 
 HandleSettingUpdate(data) {
-    if (!data.HasProp("key") || !data.HasProp("value")) {
+    if (!data.Has("key") || !data.Has("value")) {
         return
     }
     
-    key := data.key
-    value := data.value
+    key := data["key"]
+    value := data["value"]
     
     switch key {
         case "showPathsSummary":

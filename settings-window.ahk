@@ -437,7 +437,6 @@ HandleSettingUpdate(data) {
             cursorKeysEnabled := iniValue  ; Update global variable
             SettingsDebugLog("Wrote cursorKeysEnabled=" . iniValue . ", updated global variable")
     }
-    }
     
     ; Reload config
     loadConfig()

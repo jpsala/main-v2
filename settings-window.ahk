@@ -181,6 +181,17 @@ HandleSettingsMessage(wv, args) {
 ; DATA MANAGEMENT
 ;-------------------------------------------------------------------------------
 
+CreatePathItem(key, name, description, type, section) {
+    return Map(
+        "key", key,
+        "name", name,
+        "description", description,
+        "type", type,
+        "path", IniRead("config.ini", section, key, ""),
+        "found", CheckPathExists(key, section)
+    )
+}
+
 SendInitialData() {
     global SETTINGS_GUI, SETTINGS_READY, deviceSection
     
@@ -192,102 +203,51 @@ SendInitialData() {
     paths := []
     
     ; Applications
-    paths.Push({
-        key: "cursor_path",
-        name: "Cursor",
-        description: "Editor de código con IA",
-        type: "app",
-        path: IniRead("config.ini", deviceSection, "cursor_path", ""),
-        found: CheckPathExists("cursor_path", deviceSection)
-    })
-    
-    paths.Push({
-        key: "vscode_path",
-        name: "VS Code",
-        description: "Visual Studio Code",
-        type: "app",
-        path: IniRead("config.ini", deviceSection, "vscode_path", ""),
-        found: CheckPathExists("vscode_path", deviceSection)
-    })
-    
-    paths.Push({
-        key: "chrome_path",
-        name: "Chrome",
-        description: "Google Chrome browser",
-        type: "app",
-        path: IniRead("config.ini", deviceSection, "chrome_path", ""),
-        found: CheckPathExists("chrome_path", deviceSection)
-    })
-    
-    paths.Push({
-        key: "vivaldi_path",
-        name: "Vivaldi",
-        description: "Vivaldi browser",
-        type: "app",
-        path: IniRead("config.ini", deviceSection, "vivaldi_path", ""),
-        found: CheckPathExists("vivaldi_path", deviceSection)
-    })
-    
-    paths.Push({
-        key: "zen_path",
-        name: "Zen Browser",
-        description: "Zen browser",
-        type: "app",
-        path: IniRead("config.ini", deviceSection, "zen_path", ""),
-        found: CheckPathExists("zen_path", deviceSection)
-    })
-    
-    paths.Push({
-        key: "xyplorer_path",
-        name: "XYplorer",
-        description: "File manager avanzado",
-        type: "app",
-        path: IniRead("config.ini", deviceSection, "xyplorer_path", ""),
-        found: CheckPathExists("xyplorer_path", deviceSection)
-    })
+    paths.Push(CreatePathItem("cursor_path", "Cursor", "Editor de código con IA", "app", deviceSection))
+    paths.Push(CreatePathItem("vscode_path", "VS Code", "Visual Studio Code", "app", deviceSection))
+    paths.Push(CreatePathItem("chrome_path", "Chrome", "Google Chrome browser", "app", deviceSection))
+    paths.Push(CreatePathItem("vivaldi_path", "Vivaldi", "Vivaldi browser", "app", deviceSection))
+    paths.Push(CreatePathItem("zen_path", "Zen Browser", "Zen browser", "app", deviceSection))
+    paths.Push(CreatePathItem("xyplorer_path", "XYplorer", "File manager avanzado", "app", deviceSection))
     
     ; Tools
-    paths.Push({
-        key: "nircmd_exe",
-        name: "NirCmd",
-        description: "Utilidad de línea de comandos para Windows",
-        type: "tool",
-        path: IniRead("config.ini", "desktop", "nircmd_exe", ""),
-        found: CheckPathExists("nircmd_exe", "desktop")
-    })
-    
-    paths.Push({
-        key: "notifu_exe",
-        name: "Notifu",
-        description: "Sistema de notificaciones",
-        type: "tool",
-        path: IniRead("config.ini", "desktop", "notifu_exe", ""),
-        found: CheckPathExists("notifu_exe", "desktop")
-    })
+    paths.Push(CreatePathItem("nircmd_exe", "NirCmd", "Utilidad de línea de comandos para Windows", "tool", "desktop"))
+    paths.Push(CreatePathItem("notifu_exe", "Notifu", "Sistema de notificaciones", "tool", "desktop"))
     
     ; General settings
-    general := {
-        showPathsSummary: IniRead("config.ini", "general", "hidePathsSummary", "0") = "0",
-        loggingEnabled: IniRead("config.ini", "variables", "logVisibility", "0") = "1",
-        cursorKeysEnabled: IniRead("config.ini", "variables", "cursorKeysEnabled", "1") = "1"
-    }
+    ; Read raw values first
+    hidePathsSummary := IniRead("config.ini", "general", "hidePathsSummary", "0")
+    logVisibility := IniRead("config.ini", "variables", "logVisibility", "0")
+    cursorKeys := IniRead("config.ini", "variables", "cursorKeysEnabled", "1")
+    
+    ; Convert to explicit true/false
+    general := Map(
+        "showPathsSummary", (hidePathsSummary = "0" ? true : false),
+        "loggingEnabled", (logVisibility = "1" ? true : false),
+        "cursorKeysEnabled", (cursorKeys = "1" ? true : false)
+    )
+    
+    ; Debug logging
+    log("Settings values - hidePathsSummary: " . hidePathsSummary . ", logVisibility: " . logVisibility . ", cursorKeys: " . cursorKeys)
     
     ; Info
-    info := {
-        version: "1.0.0",
-        scriptDir: A_ScriptDir,
-        configPath: A_ScriptDir . "\config.ini"
-    }
+    info := Map(
+        "version", "1.0.0",
+        "scriptDir", A_ScriptDir,
+        "configPath", A_ScriptDir . "\config.ini"
+    )
     
     ; Send data to WebView
-    data := {
-        action: "init",
-        settings: {
-            paths: paths,
-            general: general,
-            info: info
-        }
-    }
+    settings := Map(
+        "paths", paths,
+        "general", general,
+        "info", info
+    )
+    
+    data := Map(
+        "action", "init",
+        "settings", settings
+    )
     
     SendToWebView(data)
 }
@@ -329,12 +289,12 @@ HandlePathUpdate(data) {
     
     ; Notify WebView
     found := path = "" ? false : FileExist(path) ? true : false
-    SendToWebView({
-        action: "pathUpdated",
-        key: key,
-        path: path,
-        found: found
-    })
+    SendToWebView(Map(
+        "action", "pathUpdated",
+        "key", key,
+        "path", path,
+        "found", found
+    ))
 }
 
 HandleBrowsePath(data) {
@@ -356,7 +316,7 @@ HandleBrowsePath(data) {
     
     if (selectedPath) {
         ; Update path
-        HandlePathUpdate({ key: key, path: selectedPath })
+        HandlePathUpdate(Map("key", key, "path", selectedPath))
     }
 }
 
@@ -385,7 +345,7 @@ HandleDetectPath(data) {
         detectedPath := AutoDetectPath(searchPaths)
         
         if (detectedPath) {
-            HandlePathUpdate({ key: key, path: detectedPath })
+            HandlePathUpdate(Map("key", key, "path", detectedPath))
             SendMessage(name . " detectado: " . detectedPath, "success")
         } else {
             SendMessage(name . " no pudo ser detectado automáticamente", "warning")
@@ -405,7 +365,7 @@ HandleAutoDetectAll() {
         if (detectedPath) {
             ; Determine the key name
             key := appName = "nircmd" ? "nircmd_exe" : appName . "_path"
-            HandlePathUpdate({ key: key, path: detectedPath })
+            HandlePathUpdate(Map("key", key, "path", detectedPath))
             detected++
         }
     }

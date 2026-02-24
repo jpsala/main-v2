@@ -433,7 +433,6 @@ HandleSettingUpdate(data) {
             IniWrite(iniValue, "config.ini", "variables", "cursorKeysEnabled")
             SettingsDebugLog("Wrote cursorKeysEnabled=" . iniValue)
     }
-    }
     
     ; Reload config
     loadConfig()

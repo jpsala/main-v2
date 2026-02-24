@@ -62,52 +62,54 @@ ShowMissingPathsWebView(criticalCount, optionalCount) {
 CreateSettingsWindow(initialTab := "paths") {
     global SETTINGS_GUI, SETTINGS_READY
     
-    ; Create GUI
-    SETTINGS_GUI := Gui("-DPIScale +Resize", "Configuración - Main Automation")
-    SETTINGS_GUI.BackColor := "1E1E1E"
-    SETTINGS_GUI.SetFont("s10", "Segoe UI")
+    SETTINGS_READY := false
     
-    ; Set size and position
-    SETTINGS_GUI.Show("w900 h700 Hide")
-    
-    ; Center on screen
-    MonitorGetWorkArea(, &Left, &Top, &Right, &Bottom)
-    screenWidth := Right - Left
-    screenHeight := Bottom - Top
-    winWidth := 900
-    winHeight := 700
-    x := Left + (screenWidth - winWidth) // 2
-    y := Top + (screenHeight - winHeight) // 2
-    SETTINGS_GUI.Move(x, y, winWidth, winHeight)
-    
-    ; Create WebView control
+    ; Create WebView GUI
     try {
         dllPath := A_ScriptDir . "\lib\" . (A_PtrSize * 8) . "bit\WebView2Loader.dll"
         
-        wv := WebViewToo.create(SETTINGS_GUI.hwnd, , , , , , dllPath)
-        wv.BrowseFolder(A_ScriptDir)
-        
-        ; Navigate to settings.html
-        wv.Navigate("ui/settings.html")
-        
-        ; Set up message handler
-        wv.Event.Add(WebViewToo.Events.WebMessageReceived, HandleSettingsMessage)
-        
-        ; Store WebView instance
-        SETTINGS_GUI.wv := wv
-        SETTINGS_READY := false
-        
-        ; Show window
-        SETTINGS_GUI.Show()
+        SETTINGS_GUI := WebViewGui("+Resize", "Configuración - Main Automation",, {DllPath: dllPath})
+        SETTINGS_GUI.BackColor := "1E1E1E"
         
         ; Set up window events
         SETTINGS_GUI.OnEvent("Close", (*) => CloseSettingsWindow())
         SETTINGS_GUI.OnEvent("Escape", (*) => CloseSettingsWindow())
         
+        ; Set up message handler
+        SETTINGS_GUI.Control.wv.add_WebMessageReceived(HandleSettingsMessage)
+        SETTINGS_GUI.Control.wv.add_NavigationCompleted(SettingsNavigationCompleted)
+        
+        ; Browse folder if compiled
+        if (A_IsCompiled)
+            SETTINGS_GUI.Control.BrowseFolder(A_ScriptDir)
+        
+        ; Navigate to settings.html
+        SETTINGS_GUI.Navigate("ui/settings.html")
+        
+        ; Set size and position
+        SETTINGS_GUI.Show("w900 h700 Hide")
+        
+        ; Center on screen
+        MonitorGetWorkArea(, &Left, &Top, &Right, &Bottom)
+        screenWidth := Right - Left
+        screenHeight := Bottom - Top
+        winWidth := 900
+        winHeight := 700
+        x := Left + (screenWidth - winWidth) // 2
+        y := Top + (screenHeight - winHeight) // 2
+        SETTINGS_GUI.Move(x, y, winWidth, winHeight)
+        
+        ; Show window
+        SETTINGS_GUI.Show()
+        
     } catch as err {
         MsgBox("Error creando ventana de configuración: " . err.Message, "Error", "Icon!")
         SETTINGS_GUI := false
     }
+}
+
+SettingsNavigationCompleted(wv, args) {
+    global SETTINGS_READY := true
 }
 
 ;-------------------------------------------------------------------------------
@@ -118,7 +120,7 @@ HandleSettingsMessage(wv, args) {
     global SETTINGS_GUI, SETTINGS_READY
     
     try {
-        json := args.get_WebMessageAsJson()
+        json := args.WebMessageAsJson
         data := Jxon_Load(&json)
         
         action := data.HasProp("action") ? data.action : ""
@@ -454,15 +456,15 @@ HandleSettingUpdate(data) {
 ;-------------------------------------------------------------------------------
 
 SendToWebView(data) {
-    global SETTINGS_GUI
+    global SETTINGS_GUI, SETTINGS_READY
     
-    if (!SETTINGS_GUI || !SETTINGS_GUI.HasProp("wv")) {
+    if (!SETTINGS_GUI || !SETTINGS_READY) {
         return
     }
     
     try {
         json := Jxon_Dump(data)
-        SETTINGS_GUI.wv.PostWebMessageAsJson(json)
+        SETTINGS_GUI.Control.wv.PostWebMessageAsJson(json)
     } catch as err {
         log("Error sending to WebView: " . err.Message)
     }

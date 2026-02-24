@@ -31,6 +31,7 @@ if(A_IsAdmin){
 #Include ".\bookmarks.ahk"
 #Include ".\menus.ahk"
 #Include ".\code.ahk"
+#Include ".\settings-window.ahk"
 
 #Include ".\hotstrings.ahk"
 #Include ".\system.ahk"

@@ -168,6 +168,7 @@ ExpandEnvVars(path) {
 
 /**
  * Shows a summary of missing paths at startup if any were not found
+ * Can display as WebView window or simple MsgBox
  */
 ShowMissingPathsSummary() {
     criticalCount := CRITICAL_PATHS.Count
@@ -176,6 +177,21 @@ ShowMissingPathsSummary() {
     if (criticalCount = 0 && optionalCount = 0)
         return  ; All paths are valid
     
+    ; Check if user wants to hide this message
+    hidePathsSummary := IniRead("config.ini", "general", "hidePathsSummary", "0")
+    if (hidePathsSummary = "1") {
+        return
+    }
+    
+    ; Try to show in WebView settings window (preferred)
+    try {
+        ShowSettingsWindow("paths")
+        return
+    } catch {
+        ; Fallback to MsgBox if WebView fails
+    }
+    
+    ; Fallback: Show traditional MsgBox
     message := "Algunas aplicaciones no fueron encontradas:`n`n"
     
     if (criticalCount > 0) {

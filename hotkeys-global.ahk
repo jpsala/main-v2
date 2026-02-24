@@ -2,6 +2,17 @@
     ; GLOBAL HOTKEYS - MOVED FROM system.ahk
     ; ===================================================================
 
+; ===================================================================
+; SETTINGS WINDOW
+; ===================================================================
+#,:: {  ; Win+, opens settings (like many apps)
+    ShowSettingsWindow()
+}
+
+#!s:: {  ; Win+Alt+S alternative shortcut
+    ShowSettingsWindow()
+}
+
 #HotIf WinActive('ahk_exe code.exe')
 #HotIf
 
@@ -286,9 +297,10 @@
     ; LAUNCHER SHORTCUTS
     ; ===================================================================
 
-    ; PowerToys Run Comma Shortcut (Requires PowerToys Run)
-    #,:: {
-      send('#!{space}') ; Assuming Alt+Space opens PowerToys Run
+    ; PowerToys Run (Requires PowerToys Run)
+    ; Moved from #, to #!space since #, is used for Settings
+    #!space:: {
+      send('#!{space}') ; PowerToys Run shortcut
     }
 
     ; File Explorer (Assumes toggleOrLaunchApp() is defined elsewhere)

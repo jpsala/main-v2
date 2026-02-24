@@ -3,6 +3,7 @@
 /favorites
 /.vscode/bookmarks.json
 /.specstory
+.claude
 
 # Database files in Flashpost-tests
 /Flashpost-tests/**/*.db

@@ -53,12 +53,15 @@ ResetAllBookmarks() {
   }
 }
 
-; Predefined hotkey combinations for window management
-bookmarks := [
+; Default hotkey combinations (used to seed config.ini on first run)
+DEFAULT_BOOKMARK_HOTKEYS := [
   "#1", "#2", "#3", "#4", "#5", "#6", "#7", "#8", "#9", "#0",
   "#b", "#d", "#e", "#f", "#g", "#i", "#t", "#q", "#z", "#v", "#x",
   "!#a", "!#d", "!#e", "!#f", "!#g", "!#q", "!#r", "!#v", "!#x", "!#w", "!#z",
 ]
+
+; Load hotkey definitions from config.ini instead of hardcoded array
+bookmarks := LoadBookmarkHotkeys()
 
 LoadBookmarksInBookmarkMap()
 
@@ -614,6 +617,158 @@ showBookmarks(ExitReason := '', ExitCode := '') {
   }
 
 
+}
+
+;-------------------------------------------------------------------------------
+; BOOKMARK HOTKEY CONFIG FUNCTIONS
+;-------------------------------------------------------------------------------
+
+; Loads enabled bookmark hotkey definitions from [bookmarkHotkeys] in config.ini
+; Seeds defaults if section is empty/missing. Returns array of hotkey strings.
+LoadBookmarkHotkeys() {
+  global DEFAULT_BOOKMARK_HOTKEYS
+  section := IniRead("config.ini", "bookmarkHotkeys",, "")
+
+  if (section = "") {
+    SeedDefaultBookmarkHotkeys()
+    section := IniRead("config.ini", "bookmarkHotkeys",, "")
+  }
+
+  result := []
+  lines := StrSplit(section, "`n")
+  for line in lines {
+    parts := StrSplit(line, "=")
+    if (parts.Length < 2)
+      continue
+    value := parts[2]
+    pipeParts := StrSplit(value, "|")
+    if (pipeParts.Length >= 2) {
+      hotkeyStr := pipeParts[1]
+      enabled := pipeParts[2]
+      if (enabled = "1")
+        result.Push(hotkeyStr)
+    } else {
+      result.Push(value)
+    }
+  }
+  return result
+}
+
+; Writes default hotkeys to [bookmarkHotkeys] on first run
+SeedDefaultBookmarkHotkeys() {
+  global DEFAULT_BOOKMARK_HOTKEYS
+  for index, key in DEFAULT_BOOKMARK_HOTKEYS {
+    IniWrite(key . "|1", "config.ini", "bookmarkHotkeys", String(index))
+  }
+}
+
+; Returns ALL bookmark hotkeys (including disabled) as array of Maps for settings UI
+GetAllBookmarkHotkeys() {
+  section := IniRead("config.ini", "bookmarkHotkeys",, "")
+  if (section = "") {
+    SeedDefaultBookmarkHotkeys()
+    section := IniRead("config.ini", "bookmarkHotkeys",, "")
+  }
+
+  result := []
+  lines := StrSplit(section, "`n")
+  for line in lines {
+    parts := StrSplit(line, "=")
+    if (parts.Length < 2)
+      continue
+    idx := parts[1]
+    value := parts[2]
+    pipeParts := StrSplit(value, "|")
+    hotkeyStr := pipeParts[1]
+    enabled := pipeParts.Length >= 2 ? pipeParts[2] : "1"
+    result.Push(Map("index", idx, "hotkey", hotkeyStr, "enabled", enabled))
+  }
+  return result
+}
+
+; Adds a new bookmark hotkey to config.ini. Returns the new index.
+AddBookmarkHotkey(hotkeyStr) {
+  section := IniRead("config.ini", "bookmarkHotkeys",, "")
+  maxIndex := 0
+  if (section != "") {
+    lines := StrSplit(section, "`n")
+    for line in lines {
+      parts := StrSplit(line, "=")
+      if (parts.Length >= 1) {
+        try {
+          idx := Integer(parts[1])
+          if (idx > maxIndex)
+            maxIndex := idx
+        }
+      }
+    }
+  }
+  newIndex := maxIndex + 1
+  IniWrite(hotkeyStr . "|1", "config.ini", "bookmarkHotkeys", String(newIndex))
+  return newIndex
+}
+
+; Removes a bookmark hotkey by index. Disables the live hotkey first.
+RemoveBookmarkHotkey(index) {
+  section := IniRead("config.ini", "bookmarkHotkeys",, "")
+  lines := StrSplit(section, "`n")
+  for line in lines {
+    parts := StrSplit(line, "=")
+    if (parts.Length >= 2 && parts[1] = String(index)) {
+      pipeParts := StrSplit(parts[2], "|")
+      hotkeyStr := pipeParts[1]
+      try Hotkey(hotkeyStr, "Off")
+      try Hotkey("+" . hotkeyStr, "Off")
+    }
+  }
+  IniDelete("config.ini", "bookmarkHotkeys", String(index))
+}
+
+; Toggles enabled/disabled state for a bookmark hotkey
+ToggleBookmarkHotkey(index, enabled) {
+  section := IniRead("config.ini", "bookmarkHotkeys",, "")
+  lines := StrSplit(section, "`n")
+  for line in lines {
+    parts := StrSplit(line, "=")
+    if (parts.Length >= 2 && parts[1] = String(index)) {
+      pipeParts := StrSplit(parts[2], "|")
+      hotkeyStr := pipeParts[1]
+      IniWrite(hotkeyStr . "|" . (enabled ? "1" : "0"), "config.ini", "bookmarkHotkeys", String(index))
+
+      if (enabled) {
+        try Hotkey(hotkeyStr, "On")
+        try Hotkey("+" . hotkeyStr, "On")
+      } else {
+        try Hotkey(hotkeyStr, "Off")
+        try Hotkey("+" . hotkeyStr, "Off")
+      }
+      return
+    }
+  }
+}
+
+; Validates an AHK hotkey string by attempting to register/unregister it
+ValidateHotkeyString(hotkeyStr) {
+  stripped := hotkeyStr
+  stripped := StrReplace(stripped, "#", "")
+  stripped := StrReplace(stripped, "!", "")
+  stripped := StrReplace(stripped, "^", "")
+  stripped := StrReplace(stripped, "+", "")
+
+  ; Must have at least one modifier
+  if (stripped = hotkeyStr)
+    return false
+  ; Must have a key after stripping modifiers
+  if (stripped = "")
+    return false
+
+  try {
+    Hotkey(hotkeyStr, (*) => "", "On")
+    Hotkey(hotkeyStr, "Off")
+    return true
+  } catch {
+    return false
+  }
 }
 
 VerifyHotkeys() {

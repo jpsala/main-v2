@@ -40,88 +40,60 @@ if (nircmdExe) {
 ShowMissingPathsSummary()
 
 ;===============================================================================
-; BROWSER PROFILES
-; Profile configurations for Vivaldi browser (only if Vivaldi is available)
+; BROWSER PROFILES (loaded from config.ini)
+; Profile configurations loaded from [vivaldi-profiles], [chrome-profiles],
+; [vivaldi-local-profiles] sections. Seeded with defaults on first run.
 ;===============================================================================
 
-if (vivaldiExe) {
-    vivaldiWithMainProfile := vivaldiExe ' --profile-directory="Profile 1" '
-    vivaldiWithCarnivalProfile := vivaldiExe ' --user-data-dir="C:\tools\vivaldi\User Data" --profile-directory="Carnival" '
-    vivaldiWithYoutubeProfile := vivaldiExe ' --user-data-dir="C:\tools\vivaldi\User Data" --profile-directory="Youtube" '
-    vivaldiAltWithMainProfile := vivaldiExe ' --profile-directory="Main.alt" '
-    vivaldiWithGeminProfile := vivaldiExe ' --profile-directory="Gemin"'
-    vivaldiWithAIProfile := vivaldiExe ' --user-data-dir="C:\tools\vivaldi\User Data" --profile-directory="AI" '
-    vivaldiWithTradingProfile := vivaldiExe ' --profile-directory="Trading" '
-    vivaldiWithGordosProfile := vivaldiExe ' --profile-directory="Gordos" '
-} else {
-    ; Define empty strings if Vivaldi not available
-    vivaldiWithMainProfile := ""
-    vivaldiWithCarnivalProfile := ""
-    vivaldiWithYoutubeProfile := ""
-    vivaldiAltWithMainProfile := ""
-    vivaldiWithGeminProfile := ""
-    vivaldiWithAIProfile := ""
-    vivaldiWithTradingProfile := ""
-    vivaldiWithGordosProfile := ""
-}
+SeedDefaultProfiles()
 
-;===============================================================================
-; CHROME PROFILES (only if Chrome is available)
-;===============================================================================
+; Vivaldi profiles
+vivaldiWithMainProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "main")
+vivaldiWithCarnivalProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "carnival")
+vivaldiWithYoutubeProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "youtube")
+vivaldiAltWithMainProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "mainalt")
+vivaldiWithGeminProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "gemin")
+vivaldiWithAIProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "ai")
+vivaldiWithTradingProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "trading")
+vivaldiWithGordosProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "gordos")
+vivaldiWithBooksProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "books")
+vivaldiWithDebugProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "debug")
 
-if (chromeExe) {
-    chromeWithWorkProfile := chromeExe ' --user-data-dir="C:\tools\chrome\User Data" --profile-directory="Work" '
-    chromeWithDebugProfile := chromeExe ' --profile-directory="Profile 3" --user-data-dir="c:\chrome-debug" --flag-switches-begin --flag-switches-end --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors'
-    browserWithChromeMainProfile := chromeExe ' --profile-directory="Profile 1" '
-} else {
-    chromeWithWorkProfile := ""
-    chromeWithDebugProfile := ""
-    browserWithChromeMainProfile := ""
-}
+; Chrome profiles
+chromeWithWorkProfile := BuildProfileCmd(chromeExe, "chrome-profiles", "work")
+chromeWithDebugProfile := BuildProfileCmd(chromeExe, "chrome-profiles", "debug")
+browserWithChromeMainProfile := BuildProfileCmd(chromeExe, "chrome-profiles", "main")
 
-;===============================================================================
-; ADDITIONAL BROWSER PROFILES
-;===============================================================================
-
-if (vivaldiExe) {
-    vivaldiWithBooksProfile := vivaldiExe ' --user-data-dir=d:\vivaldi-profiles --profile-directory="Books" '
-    vivaldiWithDebugProfile := vivaldiExe ' --profile-directory="Debug" --remote-debugging-port=9222 --no-first-run'
-} else {
-    vivaldiWithBooksProfile := ""
-    vivaldiWithDebugProfile := ""
-}
-
-if (vivaldiLocalExe) {
-    vivaldiLocalWithMainProfile := vivaldiLocalExe ' --profile-directory="Main" '
-    vivaldiLocalWithAIProfile := vivaldiLocalExe ' --profile-directory="AI" '
-    vivaldiLocalWithGordosProfile := vivaldiLocalExe ' --profile-directory="Gordos" '
-} else {
-    vivaldiLocalWithMainProfile := ""
-    vivaldiLocalWithAIProfile := ""
-    vivaldiLocalWithGordosProfile := ""
-}
+; Vivaldi Local profiles
+vivaldiLocalWithMainProfile := BuildProfileCmd(vivaldiLocalExe, "vivaldi-local-profiles", "main")
+vivaldiLocalWithAIProfile := BuildProfileCmd(vivaldiLocalExe, "vivaldi-local-profiles", "ai")
+vivaldiLocalWithGordosProfile := BuildProfileCmd(vivaldiLocalExe, "vivaldi-local-profiles", "gordos")
 
 browserWindow := "ahk_exe vivaldi.exe ahk_exe chrome.exe ahk_exe msedge.exe ahk_exe firefox.exe ahk_exe brave.exe"
 
 ; Check if all paths in config.ini exist
 CheckConfigPaths(deviceSection)
 
-Global filesToCheckForReload := [
-  {path: './main.ahk', lastModVar: FileGetTime('./main.ahk', "M")},
-  {path: './msg.ahk', lastModVar: FileGetTime('./msg.ahk', "M")},
-  {path: './functions.ahk', lastModVar: FileGetTime('./functions.ahk', "M")},
-  {path: './init.ahk', lastModVar: FileGetTime('./init.ahk', "M")},
-  {path: './bookmarks.ahk', lastModVar: FileGetTime('./bookmarks.ahk', "M")},
-  {path: './menus.ahk', lastModVar: FileGetTime('./menus.ahk', "M")},
-  {path: './code.ahk', lastModVar: FileGetTime('./code.ahk', "M")},
-  {path: './hotstrings.ahk', lastModVar: FileGetTime('./hotstrings.ahk', "M")},
-  {path: './system.ahk', lastModVar: FileGetTime('./system.ahk', "M")},
-  {path: './chrome.ahk', lastModVar: FileGetTime('./chrome.ahk', "M")},
-  {path: './lib/chord-hotkeys.ahk', lastModVar: FileGetTime('./lib/chord-hotkeys.ahk', "M")},
-  {path: './hotkeys-global.ahk', lastModVar: FileGetTime('./hotkeys-global.ahk', "M")},
-  {path: './roa.ahk', lastModVar: FileGetTime('./roa.ahk', "M")},
-  {path: './menu.ahk', lastModVar: FileGetTime('./menu.ahk', "M")},
-]
+; Hot-reload feature (development only)
+if (!A_IsCompiled) {
+  Global filesToCheckForReload := [
+    {path: './main.ahk', lastModVar: FileGetTime('./main.ahk', "M")},
+    {path: './msg.ahk', lastModVar: FileGetTime('./msg.ahk', "M")},
+    {path: './functions.ahk', lastModVar: FileGetTime('./functions.ahk', "M")},
+    {path: './init.ahk', lastModVar: FileGetTime('./init.ahk', "M")},
+    {path: './bookmarks.ahk', lastModVar: FileGetTime('./bookmarks.ahk', "M")},
+    {path: './menus.ahk', lastModVar: FileGetTime('./menus.ahk', "M")},
+    {path: './code.ahk', lastModVar: FileGetTime('./code.ahk', "M")},
+    {path: './hotstrings.ahk', lastModVar: FileGetTime('./hotstrings.ahk', "M")},
+    {path: './system.ahk', lastModVar: FileGetTime('./system.ahk', "M")},
+    {path: './chrome.ahk', lastModVar: FileGetTime('./chrome.ahk', "M")},
+    {path: './lib/chord-hotkeys.ahk', lastModVar: FileGetTime('./lib/chord-hotkeys.ahk', "M")},
+    {path: './hotkeys-global.ahk', lastModVar: FileGetTime('./hotkeys-global.ahk', "M")},
+    {path: './roa.ahk', lastModVar: FileGetTime('./roa.ahk', "M")},
+    {path: './menu.ahk', lastModVar: FileGetTime('./menu.ahk', "M")},
+    {path: './tray-menu.ahk', lastModVar: FileGetTime('./tray-menu.ahk', "M")},
+  ]
+}
 emptylog()
 onceADay()
 
@@ -196,8 +168,10 @@ monitorInfo := getMonitorInfo()
 
 ; setting timers
 
-; Run low priority tasks every 5 seconds (optimized from 1s to reduce disk I/O)
-SetTimer(CheckTimeForFileModification, 5000)
+; Run low priority tasks every 5 seconds (optimized from 1s to reduce disk I/O) - development only
+if (!A_IsCompiled) {
+  SetTimer(CheckTimeForFileModification, 5000)
+}
 
 ; let make some noise when the script is loaded
 
@@ -235,3 +209,119 @@ chequearLaHoraParaElBrillo() {
 
 soundHigh('50%', 1, 100)
 msg("Loaded...", {seconds: .3})
+
+;===============================================================================
+; BROWSER PROFILE FUNCTIONS
+;===============================================================================
+
+BuildProfileCmd(exePath, section, key) {
+  if (!exePath)
+    return ""
+  value := IniRead("config.ini", section, key, "")
+  if (!value)
+    return ""
+
+  pipeParts := StrSplit(value, "|")
+  profileDir := pipeParts[1]
+  userDataDir := pipeParts.Length >= 2 ? pipeParts[2] : ""
+  extraFlags := pipeParts.Length >= 3 ? pipeParts[3] : ""
+
+  if (!profileDir)
+    return ""
+
+  cmd := exePath
+  if (userDataDir)
+    cmd .= ' --user-data-dir="' . userDataDir . '"'
+  cmd .= ' --profile-directory="' . profileDir . '"'
+  if (extraFlags)
+    cmd .= ' ' . extraFlags
+  return cmd . ' '
+}
+
+SeedDefaultProfiles() {
+  if (IniRead("config.ini", "vivaldi-profiles",, "") = "") {
+    defaults := Map(
+      "main", "Profile 1||",
+      "carnival", "Carnival|C:\tools\vivaldi\User Data|",
+      "youtube", "Youtube|C:\tools\vivaldi\User Data|",
+      "mainalt", "Main.alt||",
+      "gemin", "Gemin||",
+      "ai", "AI|C:\tools\vivaldi\User Data|",
+      "trading", "Trading||",
+      "gordos", "Gordos||",
+      "books", "Books|d:\vivaldi-profiles|",
+      "debug", "Debug||--remote-debugging-port=9222 --no-first-run"
+    )
+    for k, v in defaults
+      IniWrite(v, "config.ini", "vivaldi-profiles", k)
+  }
+  if (IniRead("config.ini", "chrome-profiles",, "") = "") {
+    defaults := Map(
+      "work", "Work|C:\tools\chrome\User Data|",
+      "debug", "Profile 3|c:\chrome-debug|--flag-switches-begin --flag-switches-end --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors",
+      "main", "Profile 1||"
+    )
+    for k, v in defaults
+      IniWrite(v, "config.ini", "chrome-profiles", k)
+  }
+  if (IniRead("config.ini", "vivaldi-local-profiles",, "") = "") {
+    defaults := Map("main", "Main||", "ai", "AI||", "gordos", "Gordos||")
+    for k, v in defaults
+      IniWrite(v, "config.ini", "vivaldi-local-profiles", k)
+  }
+}
+
+GetAllProfiles(section) {
+  sectionData := IniRead("config.ini", section,, "")
+  if (sectionData = "")
+    return []
+  result := []
+  lines := StrSplit(sectionData, "`n")
+  for line in lines {
+    parts := StrSplit(line, "=")
+    if (parts.Length < 2)
+      continue
+    key := parts[1]
+    value := parts[2]
+    pipeParts := StrSplit(value, "|")
+    profileDir := pipeParts[1]
+    userDataDir := pipeParts.Length >= 2 ? pipeParts[2] : ""
+    extraFlags := pipeParts.Length >= 3 ? pipeParts[3] : ""
+    result.Push(Map("key", key, "profileDir", profileDir, "userDataDir", userDataDir, "extraFlags", extraFlags))
+  }
+  return result
+}
+
+UpdateProfile(section, key, profileDir, userDataDir, extraFlags) {
+  IniWrite(profileDir . "|" . userDataDir . "|" . extraFlags, "config.ini", section, key)
+}
+
+RemoveProfile(section, key) {
+  IniDelete("config.ini", section, key)
+}
+
+DetectBrowserProfiles(browser) {
+  localAppData := EnvGet("LOCALAPPDATA")
+  if (browser = "vivaldi")
+    userDataDir := localAppData . "\Vivaldi\User Data"
+  else if (browser = "chrome")
+    userDataDir := localAppData . "\Google\Chrome\User Data"
+  else
+    return []
+
+  if (!DirExist(userDataDir))
+    return []
+
+  result := []
+  loop files, userDataDir . "\*", "D" {
+    prefsFile := A_LoopFilePath . "\Preferences"
+    if (FileExist(prefsFile)) {
+      dirName := A_LoopFileName
+      ; Skip internal dirs
+      if (dirName = "System Profile" || dirName = "Guest Profile")
+        continue
+      result.Push(Map("dirName", dirName, "path", A_LoopFilePath))
+    }
+  }
+  return result
+}

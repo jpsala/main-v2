@@ -29,13 +29,14 @@ global TimeGui1 := 0
 global TimeGui2 := 0
 
 ;-------------------------------------------------------------------------------
-; Device Detection Flags
+; Device Detection Flags (loaded from [machines] in config.ini)
 ;-------------------------------------------------------------------------------
-global isNotebook := A_ComputerName == 'ZENBOOK'
-global isRemote := A_ComputerName == 'CIDEV06'
-global isGordos := A_ComputerName == 'gordos'
-global isWork := A_ComputerName == 'AR-IT31927'
-global isCarnival := A_ComputerName == 'avdp-1310'
+global deviceSection := LoadDeviceSection()
+global isNotebook := deviceSection == "notebook"
+global isRemote := deviceSection == "remote"
+global isGordos := deviceSection == "gordos"
+global isWork := deviceSection == "work"
+global isCarnival := deviceSection == "carnival"
 
 ;-------------------------------------------------------------------------------
 ; Feature Flags & Toggle States
@@ -63,7 +64,50 @@ global savedID := ""
 global saveVol := ""
 
 ;-------------------------------------------------------------------------------
-; Device Section Configuration
+; Machine Detection Functions
 ;-------------------------------------------------------------------------------
-global deviceSection := isGordos ? "gordos" : (isNotebook ? "notebook" : (!isWork ? "desktop" : "work"))
-global deviceSection := isCarnival ? "carnival" : deviceSection
+
+LoadDeviceSection() {
+  section := IniRead("config.ini", "machines",, "")
+  if (section = "") {
+    SeedDefaultMachines()
+    section := IniRead("config.ini", "machines",, "")
+  }
+  lines := StrSplit(section, "`n")
+  for line in lines {
+    parts := StrSplit(line, "=")
+    if (parts.Length >= 2 && parts[1] = A_ComputerName)
+      return parts[2]
+  }
+  return "desktop"
+}
+
+SeedDefaultMachines() {
+  defaults := Map("ZENBOOK", "notebook", "CIDEV06", "remote", "gordos", "gordos", "AR-IT31927", "work", "avdp-1310", "carnival")
+  for name, sect in defaults
+    IniWrite(sect, "config.ini", "machines", name)
+}
+
+GetAllMachines() {
+  section := IniRead("config.ini", "machines",, "")
+  if (section = "") {
+    SeedDefaultMachines()
+    section := IniRead("config.ini", "machines",, "")
+  }
+  result := []
+  lines := StrSplit(section, "`n")
+  for line in lines {
+    parts := StrSplit(line, "=")
+    if (parts.Length >= 2)
+      result.Push(Map("name", parts[1], "section", parts[2], "current", parts[1] = A_ComputerName))
+  }
+  return result
+}
+
+AddMachine(name, sect) {
+  IniWrite(sect, "config.ini", "machines", name)
+}
+
+RemoveMachine(name) {
+  IniDelete("config.ini", "machines", name)
+}

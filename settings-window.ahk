@@ -170,6 +170,7 @@ HandleSettingsMessage(wv, args) {
             case "reloadConfig":
                 ; Reload configuration
                 loadConfig()
+                SendInitialData()  ; Refresh UI with new data
                 SendMessage("Config recargado exitosamente", "success")
                 
             case "openDoc":
@@ -235,11 +236,11 @@ SendInitialData() {
     logVisibility := IniRead("config.ini", "variables", "logVisibility", "0")
     cursorKeys := IniRead("config.ini", "variables", "cursorKeysEnabled", "1")
     
-    ; Convert to explicit true/false
+    ; Convert to explicit true/false strings for JSON
     general := Map(
-        "showPathsSummary", (hidePathsSummary = "0" ? true : false),
-        "loggingEnabled", (logVisibility = "1" ? true : false),
-        "cursorKeysEnabled", (cursorKeys = "1" ? true : false)
+        "showPathsSummary", (hidePathsSummary = "0" ? "true" : "false"),
+        "loggingEnabled", (logVisibility = "1" ? "true" : "false"),
+        "cursorKeysEnabled", (cursorKeys = "1" ? "true" : "false")
     )
     
     ; Debug logging
@@ -315,11 +316,14 @@ HandlePathUpdate(data) {
 
 HandleBrowsePath(data) {
     if (!data.Has("key") || !data.Has("name")) {
+        SettingsDebugLog("HandleBrowsePath: missing key or name")
         return
     }
     
     key := data["key"]
     name := data["name"]
+    
+    SettingsDebugLog("HandleBrowsePath: key=" . key . ", name=" . name)
     
     ; Show file picker
     isFolder := InStr(key, "_dir")
@@ -338,11 +342,14 @@ HandleBrowsePath(data) {
 
 HandleDetectPath(data) {
     if (!data.Has("key") || !data.Has("name")) {
+        SettingsDebugLog("HandleDetectPath: missing key or name")
         return
     }
     
     key := data["key"]
     name := data["name"]
+    
+    SettingsDebugLog("HandleDetectPath: key=" . key . ", name=" . name)
     
     ; Map key to app name for GetCommonPaths
     appMap := Map(
@@ -400,22 +407,32 @@ HandleAutoDetectAll() {
 
 HandleSettingUpdate(data) {
     if (!data.Has("key") || !data.Has("value")) {
+        SettingsDebugLog("HandleSettingUpdate: missing key or value")
         return
     }
     
     key := data["key"]
     value := data["value"]
     
+    SettingsDebugLog("HandleSettingUpdate: key=" . key . ", value=" . value . " (type: " . Type(value) . ")")
+    
     switch key {
         case "showPathsSummary":
             ; Invert logic: showPathsSummary true = hidePathsSummary false
-            IniWrite(value ? "0" : "1", "config.ini", "general", "hidePathsSummary")
+            iniValue := value ? "0" : "1"
+            IniWrite(iniValue, "config.ini", "general", "hidePathsSummary")
+            SettingsDebugLog("Wrote hidePathsSummary=" . iniValue)
             
         case "loggingEnabled":
-            IniWrite(value ? "1" : "0", "config.ini", "variables", "logVisibility")
+            iniValue := value ? "1" : "0"
+            IniWrite(iniValue, "config.ini", "variables", "logVisibility")
+            SettingsDebugLog("Wrote logVisibility=" . iniValue)
             
         case "cursorKeysEnabled":
-            IniWrite(value ? "1" : "0", "config.ini", "variables", "cursorKeysEnabled")
+            iniValue := value ? "1" : "0"
+            IniWrite(iniValue, "config.ini", "variables", "cursorKeysEnabled")
+            SettingsDebugLog("Wrote cursorKeysEnabled=" . iniValue)
+    }
     }
     
     ; Reload config

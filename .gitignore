@@ -17,3 +17,6 @@
 
 nul
 _backup_*/
+
+# Claude metadata junction
+.claude/

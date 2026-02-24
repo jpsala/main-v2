@@ -558,7 +558,9 @@ window.chrome.webview.addEventListener('message', function(event) {
 });
 
 function sendToAHK(action, data = {}) {
-  window.chrome.webview.postMessage({ action, ...data });
+  const message = { action, ...data };
+  console.log('Sending to AHK:', message);
+  window.chrome.webview.postMessage(message);
 }
 
 // Tab switching
@@ -572,11 +574,15 @@ function switchTab(tabName) {
 
 // Initialize settings from AHK
 function initializeSettings(settings) {
+  console.log('initializeSettings called with:', settings);
+  
   if (settings.paths) {
+    console.log('Paths count:', settings.paths.length);
     renderPaths(settings.paths);
   }
   
   if (settings.general) {
+    console.log('General settings:', settings.general);
     renderGeneralSettings(settings.general);
   }
   

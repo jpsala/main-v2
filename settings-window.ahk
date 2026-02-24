@@ -8,6 +8,14 @@
 global SETTINGS_GUI := false
 global SETTINGS_READY := false
 global SETTINGS_PATHS_DATA := []
+global SETTINGS_DEBUG_FILE := A_ScriptDir . "\settings-debug.txt"
+
+; Debug logging function (always writes, independent of logVisibility)
+SettingsDebugLog(msg) {
+    global SETTINGS_DEBUG_FILE
+    timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+    FileAppend(timestamp . " - " . msg . "`n", SETTINGS_DEBUG_FILE)
+}
 
 ;-------------------------------------------------------------------------------
 ; PUBLIC API
@@ -62,6 +70,7 @@ ShowMissingPathsWebView(criticalCount, optionalCount) {
 CreateSettingsWindow(initialTab := "paths") {
     global SETTINGS_GUI, SETTINGS_READY
     
+    SettingsDebugLog("CreateSettingsWindow called, initialTab: " . initialTab)
     SETTINGS_READY := false
     
     ; Create WebView GUI
@@ -109,7 +118,7 @@ CreateSettingsWindow(initialTab := "paths") {
 }
 
 SettingsNavigationCompleted(wv, args) {
-    global SETTINGS_READY := true
+    SettingsDebugLog("WebView navigation completed (HTML loaded)")
 }
 
 ;-------------------------------------------------------------------------------
@@ -121,15 +130,18 @@ HandleSettingsMessage(wv, args) {
     
     try {
         json := args.WebMessageAsJson
+        SettingsDebugLog("Received message from WebView: " . json)
         data := Jxon_Load(&json)
         
         action := data.HasProp("action") ? data.action : ""
+        SettingsDebugLog("Message action: " . action)
         
         switch action {
             case "ready":
                 ; WebView is ready, send initial data
-                SendInitialData()
+                SettingsDebugLog("WebView sent ready signal")
                 SETTINGS_READY := true
+                SendInitialData()
                 
             case "updatePath":
                 ; User updated a path
@@ -173,7 +185,7 @@ HandleSettingsMessage(wv, args) {
                 CloseSettingsWindow()
         }
     } catch as err {
-        log("Settings window error: " . err.Message)
+        SettingsDebugLog("Settings window error: " . err.Message)
     }
 }
 
@@ -195,7 +207,10 @@ CreatePathItem(key, name, description, type, section) {
 SendInitialData() {
     global SETTINGS_GUI, SETTINGS_READY, deviceSection
     
+    SettingsDebugLog("SendInitialData called - SETTINGS_GUI: " . (SETTINGS_GUI ? "exists" : "null") . ", SETTINGS_READY: " . SETTINGS_READY . ", deviceSection: " . deviceSection)
+    
     if (!SETTINGS_GUI || !SETTINGS_READY) {
+        SettingsDebugLog("SendInitialData aborted - GUI or READY check failed")
         return
     }
     
@@ -228,8 +243,8 @@ SendInitialData() {
     )
     
     ; Debug logging
-    log("Settings values - hidePathsSummary: '" . hidePathsSummary . "', logVisibility: '" . logVisibility . "', cursorKeys: '" . cursorKeys . "'")
-    log("Settings bool - showPathsSummary: " . general["showPathsSummary"] . ", loggingEnabled: " . general["loggingEnabled"] . ", cursorKeysEnabled: " . general["cursorKeysEnabled"])
+    SettingsDebugLog("Settings values - hidePathsSummary: '" . hidePathsSummary . "', logVisibility: '" . logVisibility . "', cursorKeys: '" . cursorKeys . "'")
+    SettingsDebugLog("Settings bool - showPathsSummary: " . general["showPathsSummary"] . ", loggingEnabled: " . general["loggingEnabled"] . ", cursorKeysEnabled: " . general["cursorKeysEnabled"])
     
     ; Info
     info := Map(
@@ -427,17 +442,17 @@ SendToWebView(data) {
     
     try {
         json := Jxon_Dump(data)
-        log("Sending to WebView: " . json)
+        SettingsDebugLog("Sending to WebView: " . json)
         SETTINGS_GUI.Control.wv.PostWebMessageAsJson(json)
     } catch as err {
-        log("Error sending to WebView: " . err.Message)
+        SettingsDebugLog("Error sending to WebView: " . err.Message)
     }
 }
 
 SendMessage(message, type := "info") {
     ; Could implement a toast/notification system in the WebView
     ; For now, just log it
-    log("Settings: " . message)
+    SettingsDebugLog("Settings: " . message)
 }
 
 ;-------------------------------------------------------------------------------

@@ -18,6 +18,8 @@ global SETTINGS_PATHS_DATA := []
  * @param {String} initialTab - Optional: tab to open ("paths", "general", "about")
  */
 ShowSettingsWindow(initialTab := "paths") {
+    global SETTINGS_GUI, SETTINGS_READY
+    
     ; If window already exists, just show and focus it
     if (SETTINGS_GUI) {
         try {
@@ -39,6 +41,8 @@ ShowSettingsWindow(initialTab := "paths") {
  * @param {Integer} optionalCount - Number of optional missing paths
  */
 ShowMissingPathsWebView(criticalCount, optionalCount) {
+    global SETTINGS_GUI
+    
     ; Only show if not hidden by user setting
     hidePathsSummary := IniRead("config.ini", "general", "hidePathsSummary", "0")
     if (hidePathsSummary = "1") {
@@ -176,7 +180,7 @@ HandleSettingsMessage(wv, args) {
 ;-------------------------------------------------------------------------------
 
 SendInitialData() {
-    global SETTINGS_GUI
+    global SETTINGS_GUI, SETTINGS_READY
     
     if (!SETTINGS_GUI || !SETTINGS_READY) {
         return

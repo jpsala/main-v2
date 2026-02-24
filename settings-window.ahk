@@ -182,7 +182,7 @@ HandleSettingsMessage(wv, args) {
 ;-------------------------------------------------------------------------------
 
 SendInitialData() {
-    global SETTINGS_GUI, SETTINGS_READY
+    global SETTINGS_GUI, SETTINGS_READY, deviceSection
     
     if (!SETTINGS_GUI || !SETTINGS_READY) {
         return
@@ -305,6 +305,8 @@ CheckPathExists(key, section) {
 ;-------------------------------------------------------------------------------
 
 HandlePathUpdate(data) {
+    global deviceSection
+    
     if (!data.HasProp("key") || !data.HasProp("path")) {
         return
     }

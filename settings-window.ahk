@@ -406,6 +406,8 @@ HandleAutoDetectAll() {
 ;-------------------------------------------------------------------------------
 
 HandleSettingUpdate(data) {
+    global cursorKeysEnabled, logVisibility
+    
     if (!data.Has("key") || !data.Has("value")) {
         SettingsDebugLog("HandleSettingUpdate: missing key or value")
         return
@@ -426,12 +428,15 @@ HandleSettingUpdate(data) {
         case "loggingEnabled":
             iniValue := value ? "1" : "0"
             IniWrite(iniValue, "config.ini", "variables", "logVisibility")
-            SettingsDebugLog("Wrote logVisibility=" . iniValue)
+            logVisibility := iniValue  ; Update global variable
+            SettingsDebugLog("Wrote logVisibility=" . iniValue . ", updated global variable")
             
         case "cursorKeysEnabled":
             iniValue := value ? "1" : "0"
             IniWrite(iniValue, "config.ini", "variables", "cursorKeysEnabled")
-            SettingsDebugLog("Wrote cursorKeysEnabled=" . iniValue)
+            cursorKeysEnabled := iniValue  ; Update global variable
+            SettingsDebugLog("Wrote cursorKeysEnabled=" . iniValue . ", updated global variable")
+    }
     }
     
     ; Reload config

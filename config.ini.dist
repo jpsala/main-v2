@@ -1,3 +1,20 @@
+;===============================================================================
+; MAIN AUTOMATION - CONFIGURATION FILE
+;===============================================================================
+;
+; PRIMERA VEZ / NUEVA PC:
+; 1. El script detectará automáticamente aplicaciones comunes (Chrome, VS Code, etc.)
+; 2. Te mostrará qué aplicaciones no fueron encontradas
+; 3. Podés configurar manualmente editando este archivo o dejarás que el script pregunte
+; 4. Las features de aplicaciones no disponibles se deshabilitarán automáticamente
+;
+; PATHS OPCIONALES vs CRÍTICOS:
+; - La mayoría de paths son OPCIONALES (el script funciona sin ellos)
+; - Solo configurá los que realmente usás
+; - Paths vacíos = feature deshabilitada (sin errores)
+;
+;===============================================================================
+
 [paths]
 ; System-wide paths (updated on initialization)
 user_home=
@@ -17,12 +34,15 @@ logVisibility=0
 [appInstances]
 
 [desktop]
+; NOTA: Estos paths se auto-detectan si están vacíos o son inválidos
+; Solo necesitás configurarlos si están en ubicaciones no estándar
+
 ; Base directories
 tools_dir=C:\tools
 dev_dir=C:\dev
 scripts_dir=C:\dev\scripts\bin
 
-; Tools and utilities
+; Tools and utilities (opcionales)
 tail_exe=C:\tools\Tail.exe
 nircmd_exe=C:\tools\nircmd.exe
 notifu_exe=C:\tools\notifu\notifu.exe
@@ -31,14 +51,15 @@ strokesplus_dir=C:\tools\strokesPlus
 xyplorer_path=C:\tools\XYplorer-portable\XYplorer.exe
 log_file=C:\dev\scripts\bin\log.txt
 
-; Application paths
+; Application paths (auto-detectados si están vacíos)
+; Solo cambiá si tu instalación está en una ubicación custom
 whatsapp_path=
-cursor_path=C:\Program Files\cursor\Cursor.exe
-vscode_path=C:\Users\<USERNAME>\AppData\Local\Programs\Microsoft VS Code\Code.exe
-vivaldi_path=C:\tools\vivaldi\Application\vivaldi.exe
-vivaldi_local_path=C:\tools\vivaldi\Application\vivaldi.exe
-chrome_path=C:\Program Files\Google\Chrome\Application\chrome.exe
-zen_path=C:\Program Files\Zen Twilight\zen.exe
+cursor_path=
+vscode_path=
+vivaldi_path=
+vivaldi_local_path=
+chrome_path=
+zen_path=
 
 [work]
 ; Add your work machine-specific paths here if needed

@@ -170,6 +170,44 @@ toggleOrLaunchApp(params) {
 
     ; Launch the app if no matching window found
     if (!found) {
+        ; Check if launchCmd is provided and valid
+        if (!params.HasProp('launchCmd') || !params.launchCmd || params.launchCmd = "") {
+            msg('No se puede lanzar: path no configurado', { seconds: 3 })
+            if (logIt) {
+                log('Launch error: launchCmd not provided or empty')
+            }
+            if (params.HasProp('onError') && Type(params.onError) == "Func") {
+                return params.onError.Call('Launch command not provided', 0)
+            }
+            return false
+        }
+        
+        ; Extract executable path from command (handle quotes and arguments)
+        exePath := params.launchCmd
+        if (InStr(exePath, '"')) {
+            ; Command has quotes, extract path between first pair of quotes
+            RegExMatch(exePath, '"([^"]+)"', &match)
+            if (match)
+                exePath := match[1]
+        } else {
+            ; No quotes, get first part before space (if any)
+            spacePos := InStr(exePath, ' ')
+            if (spacePos > 0)
+                exePath := SubStr(exePath, 1, spacePos - 1)
+        }
+        
+        ; Validate executable exists
+        if (!FileExist(exePath)) {
+            msg('Aplicación no encontrada: ' . exePath, { seconds: 3 })
+            if (logIt) {
+                log('Launch error: executable not found: ' . exePath)
+            }
+            if (params.HasProp('onError') && Type(params.onError) == "Func") {
+                return params.onError.Call('Executable not found: ' . exePath, 2)
+            }
+            return false
+        }
+        
         try {
             windowTitle := params.HasProp('windowTitle') ? params.windowTitle : winPattern
             msg('Launching: ' . params.launchCmd)

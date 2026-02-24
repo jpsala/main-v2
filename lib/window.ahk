@@ -15,11 +15,17 @@ WinActivateFast(WinTitle, WinText := '', ExcludeTitle := '', ExcludeText := '', 
 
 MinimizeToTrayWithNirCmd(winTitle) {
     nircmdExe := GetCachedConfig("desktop", "nircmd_exe", "")
-    if (!nircmdExe) {
-        msgV1("Error: Missing nircmd path in config.ini", 3)
+    if (!nircmdExe || !FileExist(nircmdExe)) {
+        MsgBox("NirCmd no está disponible.`n`nPara usar esta función, instalá NirCmd y configurá su path en config.ini.`n`nPor ahora, se minimizará la ventana normalmente.", "NirCmd no configurado", "Icon! 4096")
+        WinMinimize(winTitle)
         return
     }
-    Run(nircmdExe . ' win min title "' . winTitle . '"')
+    try {
+        Run(nircmdExe . ' win min title "' . winTitle . '"')
+    } catch as err {
+        MsgBox("Error ejecutando NirCmd: " . err.Message . "`n`nMinimizando normalmente...", "Error", "Icon! 4096")
+        WinMinimize(winTitle)
+    }
 }
 
 ;===============================================================================

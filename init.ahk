@@ -1,5 +1,6 @@
 ; Load centralized global variables
 #Include 'lib\globals.ahk'
+#Include 'lib\path-validator.ahk'
 
 ; Ensure the script exits cleanly when terminated
 OnExit exitScript
@@ -9,57 +10,98 @@ OnExit exitScript
 LoadAliasMap()
 
 A_Clipboard := A_ComputerName
-; Read paths from the configuration file for the current device section
-whatsappExe := IniRead("config.ini", deviceSection, "whatsapp_path", "")
-cursorExe := IniRead("config.ini", deviceSection, "cursor_path", "")
-vscodeExe := IniRead("config.ini", deviceSection, "vscode_path", "")
-vivaldiExe := IniRead("config.ini", deviceSection, "vivaldi_path", "")
-vivaldiLocalExe := IniRead("config.ini", deviceSection, "vivaldi_local_path", "")
-chromeExe := IniRead("config.ini", deviceSection, "chrome_path", "")
-zenExe := IniRead("config.ini", deviceSection, "zen_path", "")
-xyplorerExe := IniRead("config.ini", deviceSection, "xyplorer_path", "")
-strokesplusExe := IniRead("config.ini", deviceSection, "strokesplus_exe", "")
-strokesplusDir := IniRead("config.ini", deviceSection, "strokesplus_dir", "")
 
+;===============================================================================
+; PATH VALIDATION & AUTO-DETECTION
+; Validates paths from config.ini, auto-detects common locations,
+; and handles missing paths gracefully
+;===============================================================================
 
-; Validate that all paths were found
-if (!whatsappExe || !cursorExe || !vscodeExe || !vivaldiExe || !vivaldiLocalExe || !chromeExe || !zenExe || !xyplorerExe || !strokesplusExe || !strokesplusDir) {
-    MsgBox("Error: Missing required paths in config.ini for " . deviceSection . " section")
-    ExitApp(1)
+; OPTIONAL APPLICATION PATHS (script works without these, features disabled)
+whatsappExe     := ValidatePath(deviceSection, "whatsapp_path", "WhatsApp", false)
+cursorExe       := ValidatePath(deviceSection, "cursor_path", "Cursor", false, GetCommonPaths("cursor"))
+vscodeExe       := ValidatePath(deviceSection, "vscode_path", "VS Code", false, GetCommonPaths("vscode"))
+vivaldiExe      := ValidatePath(deviceSection, "vivaldi_path", "Vivaldi", false, GetCommonPaths("vivaldi"))
+vivaldiLocalExe := ValidatePath(deviceSection, "vivaldi_local_path", "Vivaldi (local)", false)
+chromeExe       := ValidatePath(deviceSection, "chrome_path", "Chrome", false, GetCommonPaths("chrome"))
+zenExe          := ValidatePath(deviceSection, "zen_path", "Zen Browser", false)
+xyplorerExe     := ValidatePath(deviceSection, "xyplorer_path", "XYplorer", false, GetCommonPaths("xyplorer"))
+strokesplusExe  := ValidatePath(deviceSection, "strokesplus_exe", "StrokesPlus", false)
+strokesplusDir  := ValidatePath(deviceSection, "strokesplus_dir", "StrokesPlus (folder)", false)
+
+; CRITICAL TOOLS (optional but recommended)
+nircmdExe := ValidatePath("desktop", "nircmd_exe", "NirCmd", false, GetCommonPaths("nircmd"))
+if (nircmdExe) {
+    ; Update config cache if auto-detected
+    IniWrite(nircmdExe, "config.ini", "desktop", "nircmd_exe")
 }
 
-; Remove any trailing spaces from paths
-whatsappExe := Trim(whatsappExe)
-cursorExe := Trim(cursorExe)
-vscodeExe := Trim(vscodeExe)
-vivaldiExe := Trim(vivaldiExe)
-vivaldiLocalExe := Trim(vivaldiLocalExe)
-chromeExe := Trim(chromeExe)
-zenExe := Trim(zenExe)
-xyplorerExe := Trim(xyplorerExe)
-strokesplusExe := Trim(strokesplusExe)
-strokesplusDir := Trim(strokesplusDir)
+; Show summary of missing paths if any
+ShowMissingPathsSummary()
 
-vivaldiWithMainProfile := vivaldiExe ' --profile-directory="Profile 1" '
-vivaldiWithCarnivalProfile := vivaldiExe ' --user-data-dir="C:\tools\vivaldi\User Data" --profile-directory="Carnival" '
-vivaldiWithYoutubeProfile := vivaldiExe ' --user-data-dir="C:\tools\vivaldi\User Data" --profile-directory="Youtube" '
-vivaldiAltWithMainProfile := vivaldiExe ' --profile-directory="Main.alt" '
-vivaldiWithGeminProfile := vivaldiExe ' --profile-directory="Gemin"'
-vivaldiWithAIProfile := vivaldiExe ' --user-data-dir="C:\tools\vivaldi\User Data" --profile-directory="AI" '
-vivaldiWithTradingProfile := vivaldiExe ' --profile-directory="Trading" '
-vivaldiWithGordosProfile := vivaldiExe ' --profile-directory="Gordos" '
-chromeWithWorkProfile := chromeExe ' --user-data-dir="C:\tools\chrome\User Data" --profile-directory="Work" '
-vivaldiWithBooksProfile := vivaldiExe ' --user-data-dir=d:\vivaldi-profiles --profile-directory="Books" '
+;===============================================================================
+; BROWSER PROFILES
+; Profile configurations for Vivaldi browser (only if Vivaldi is available)
+;===============================================================================
 
-vivaldiLocalWithMainProfile := vivaldiLocalExe ' --profile-directory="Main" '
-vivaldiLocalWithAIProfile := vivaldiLocalExe ' --profile-directory="AI" '
-vivaldiLocalWithGordosProfile := vivaldiLocalExe ' --profile-directory="Gordos" '
+if (vivaldiExe) {
+    vivaldiWithMainProfile := vivaldiExe ' --profile-directory="Profile 1" '
+    vivaldiWithCarnivalProfile := vivaldiExe ' --user-data-dir="C:\tools\vivaldi\User Data" --profile-directory="Carnival" '
+    vivaldiWithYoutubeProfile := vivaldiExe ' --user-data-dir="C:\tools\vivaldi\User Data" --profile-directory="Youtube" '
+    vivaldiAltWithMainProfile := vivaldiExe ' --profile-directory="Main.alt" '
+    vivaldiWithGeminProfile := vivaldiExe ' --profile-directory="Gemin"'
+    vivaldiWithAIProfile := vivaldiExe ' --user-data-dir="C:\tools\vivaldi\User Data" --profile-directory="AI" '
+    vivaldiWithTradingProfile := vivaldiExe ' --profile-directory="Trading" '
+    vivaldiWithGordosProfile := vivaldiExe ' --profile-directory="Gordos" '
+} else {
+    ; Define empty strings if Vivaldi not available
+    vivaldiWithMainProfile := ""
+    vivaldiWithCarnivalProfile := ""
+    vivaldiWithYoutubeProfile := ""
+    vivaldiAltWithMainProfile := ""
+    vivaldiWithGeminProfile := ""
+    vivaldiWithAIProfile := ""
+    vivaldiWithTradingProfile := ""
+    vivaldiWithGordosProfile := ""
+}
 
-chromeWithDebugProfile := chromeExe ' --profile-directory="Profile 3" --user-data-dir="c:\chrome-debug" --flag-switches-begin --flag-switches-end --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors'
-vivaldiWithDebugProfile := vivaldiExe ' --profile-directory="Debug" --remote-debugging-port=9222 --no-first-run'
+;===============================================================================
+; CHROME PROFILES (only if Chrome is available)
+;===============================================================================
+
+if (chromeExe) {
+    chromeWithWorkProfile := chromeExe ' --user-data-dir="C:\tools\chrome\User Data" --profile-directory="Work" '
+    chromeWithDebugProfile := chromeExe ' --profile-directory="Profile 3" --user-data-dir="c:\chrome-debug" --flag-switches-begin --flag-switches-end --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors'
+    browserWithChromeMainProfile := chromeExe ' --profile-directory="Profile 1" '
+} else {
+    chromeWithWorkProfile := ""
+    chromeWithDebugProfile := ""
+    browserWithChromeMainProfile := ""
+}
+
+;===============================================================================
+; ADDITIONAL BROWSER PROFILES
+;===============================================================================
+
+if (vivaldiExe) {
+    vivaldiWithBooksProfile := vivaldiExe ' --user-data-dir=d:\vivaldi-profiles --profile-directory="Books" '
+    vivaldiWithDebugProfile := vivaldiExe ' --profile-directory="Debug" --remote-debugging-port=9222 --no-first-run'
+} else {
+    vivaldiWithBooksProfile := ""
+    vivaldiWithDebugProfile := ""
+}
+
+if (vivaldiLocalExe) {
+    vivaldiLocalWithMainProfile := vivaldiLocalExe ' --profile-directory="Main" '
+    vivaldiLocalWithAIProfile := vivaldiLocalExe ' --profile-directory="AI" '
+    vivaldiLocalWithGordosProfile := vivaldiLocalExe ' --profile-directory="Gordos" '
+} else {
+    vivaldiLocalWithMainProfile := ""
+    vivaldiLocalWithAIProfile := ""
+    vivaldiLocalWithGordosProfile := ""
+}
 
 browserWindow := "ahk_exe vivaldi.exe ahk_exe chrome.exe ahk_exe msedge.exe ahk_exe firefox.exe ahk_exe brave.exe"
-browserWithChromeMainProfile := chromeExe ' --profile-directory="Profile 1" '
 
 ; Check if all paths in config.ini exist
 CheckConfigPaths(deviceSection)

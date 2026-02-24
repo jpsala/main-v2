@@ -182,6 +182,33 @@ HandleSettingsMessage(wv, args) {
                     }
                 }
                 
+            case "addMachine":
+                HandleAddMachine(data)
+
+            case "removeMachine":
+                HandleRemoveMachine(data)
+
+            case "updateProfile":
+                HandleUpdateProfile(data)
+
+            case "removeProfile":
+                HandleRemoveProfile(data)
+
+            case "addProfile":
+                HandleAddProfile(data)
+
+            case "detectProfiles":
+                HandleDetectProfiles(data)
+
+            case "addBookmarkHotkey":
+                HandleAddBookmarkHotkey(data)
+
+            case "removeBookmarkHotkey":
+                HandleRemoveBookmarkHotkey(data)
+
+            case "toggleBookmarkHotkey":
+                HandleToggleBookmarkHotkey(data)
+
             case "close":
                 CloseSettingsWindow()
         }
@@ -254,11 +281,32 @@ SendInitialData() {
         "configPath", A_ScriptDir . "\config.ini"
     )
     
+    ; Bookmark hotkeys
+    bookmarkHotkeys := GetAllBookmarkHotkeys()
+
+    ; Machine detection
+    machines := GetAllMachines()
+    machineInfo := Map(
+        "currentName", A_ComputerName,
+        "currentSection", deviceSection,
+        "machines", machines
+    )
+
+    ; Browser profiles
+    browserProfiles := Map(
+        "vivaldi", GetAllProfiles("vivaldi-profiles"),
+        "chrome", GetAllProfiles("chrome-profiles"),
+        "vivaldiLocal", GetAllProfiles("vivaldi-local-profiles")
+    )
+
     ; Send data to WebView
     settings := Map(
         "paths", paths,
         "general", general,
-        "info", info
+        "info", info,
+        "bookmarkHotkeys", bookmarkHotkeys,
+        "machineInfo", machineInfo,
+        "browserProfiles", browserProfiles
     )
     
     data := Map(
@@ -448,6 +496,185 @@ HandleSettingUpdate(data) {
         "action", "settingUpdated",
         "key", key,
         "value", valueToSend
+    ))
+}
+
+;-------------------------------------------------------------------------------
+; MACHINE DETECTION OPERATIONS
+;-------------------------------------------------------------------------------
+
+HandleAddMachine(data) {
+    if (!data.Has("name") || !data.Has("section")) {
+        return
+    }
+    AddMachine(data["name"], data["section"])
+    SendMachineUpdate()
+}
+
+HandleRemoveMachine(data) {
+    if (!data.Has("name")) {
+        return
+    }
+    RemoveMachine(data["name"])
+    SendMachineUpdate()
+}
+
+SendMachineUpdate() {
+    global deviceSection
+    SendToWebView(Map(
+        "action", "machinesUpdated",
+        "machineInfo", Map(
+            "currentName", A_ComputerName,
+            "currentSection", deviceSection,
+            "machines", GetAllMachines()
+        )
+    ))
+}
+
+;-------------------------------------------------------------------------------
+; BROWSER PROFILE OPERATIONS
+;-------------------------------------------------------------------------------
+
+HandleUpdateProfile(data) {
+    if (!data.Has("browser") || !data.Has("key") || !data.Has("profileDir")) {
+        return
+    }
+    section := GetProfileSection(data["browser"])
+    if (!section) {
+        return
+    }
+
+    userDataDir := data.Has("userDataDir") ? data["userDataDir"] : ""
+    extraFlags := data.Has("extraFlags") ? data["extraFlags"] : ""
+    UpdateProfile(section, data["key"], data["profileDir"], userDataDir, extraFlags)
+    SendProfileUpdate()
+}
+
+HandleAddProfile(data) {
+    if (!data.Has("browser") || !data.Has("key") || !data.Has("profileDir")) {
+        return
+    }
+    section := GetProfileSection(data["browser"])
+    if (!section) {
+        return
+    }
+
+    userDataDir := data.Has("userDataDir") ? data["userDataDir"] : ""
+    extraFlags := data.Has("extraFlags") ? data["extraFlags"] : ""
+    UpdateProfile(section, data["key"], data["profileDir"], userDataDir, extraFlags)
+    SendProfileUpdate()
+}
+
+HandleRemoveProfile(data) {
+    if (!data.Has("browser") || !data.Has("key")) {
+        return
+    }
+    section := GetProfileSection(data["browser"])
+    if (!section) {
+        return
+    }
+
+    RemoveProfile(section, data["key"])
+    SendProfileUpdate()
+}
+
+HandleDetectProfiles(data) {
+    if (!data.Has("browser")) {
+        return
+    }
+    detected := DetectBrowserProfiles(data["browser"])
+    SendToWebView(Map(
+        "action", "detectedProfiles",
+        "browser", data["browser"],
+        "profiles", detected
+    ))
+}
+
+GetProfileSection(browser) {
+    switch browser {
+        case "vivaldi": return "vivaldi-profiles"
+        case "chrome": return "chrome-profiles"
+        case "vivaldiLocal": return "vivaldi-local-profiles"
+        default: return ""
+    }
+}
+
+SendProfileUpdate() {
+    SendToWebView(Map(
+        "action", "profilesUpdated",
+        "browserProfiles", Map(
+            "vivaldi", GetAllProfiles("vivaldi-profiles"),
+            "chrome", GetAllProfiles("chrome-profiles"),
+            "vivaldiLocal", GetAllProfiles("vivaldi-local-profiles")
+        )
+    ))
+}
+
+;-------------------------------------------------------------------------------
+; BOOKMARK HOTKEY OPERATIONS
+;-------------------------------------------------------------------------------
+
+HandleAddBookmarkHotkey(data) {
+    if (!data.Has("hotkey")) {
+        return
+    }
+
+    hotkeyStr := data["hotkey"]
+
+    ; Validate
+    if (!ValidateHotkeyString(hotkeyStr)) {
+        SendToWebView(Map(
+            "action", "bookmarkHotkeyError",
+            "message", "Hotkey inválido: " . hotkeyStr
+        ))
+        return
+    }
+
+    ; Check for duplicates
+    existing := GetAllBookmarkHotkeys()
+    for item in existing {
+        if (item["hotkey"] = hotkeyStr) {
+            SendToWebView(Map(
+                "action", "bookmarkHotkeyError",
+                "message", "Hotkey ya existe: " . hotkeyStr
+            ))
+            return
+        }
+    }
+
+    ; Add and register live
+    AddBookmarkHotkey(hotkeyStr)
+    try SetHotkeysForBookmark(hotkeyStr)
+
+    SendToWebView(Map(
+        "action", "bookmarkHotkeysUpdated",
+        "bookmarkHotkeys", GetAllBookmarkHotkeys()
+    ))
+}
+
+HandleRemoveBookmarkHotkey(data) {
+    if (!data.Has("index")) {
+        return
+    }
+
+    RemoveBookmarkHotkey(data["index"])
+
+    SendToWebView(Map(
+        "action", "bookmarkHotkeysUpdated",
+        "bookmarkHotkeys", GetAllBookmarkHotkeys()
+    ))
+}
+
+HandleToggleBookmarkHotkey(data) {
+    if (!data.Has("index") || !data.Has("enabled")) {
+        return
+    }
+
+    ToggleBookmarkHotkey(data["index"], data["enabled"])
+
+    SendToWebView(Map(
+        "action", "bookmarkHotkeysUpdated",
+        "bookmarkHotkeys", GetAllBookmarkHotkeys()
     ))
 }
 

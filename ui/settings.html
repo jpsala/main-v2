@@ -393,6 +393,62 @@
   .path-disabled {
     background: var(--text-muted);
   }
+
+  /* Bookmark hotkey items */
+  .hotkey-badge {
+    font-family: 'Consolas', monospace;
+    font-size: 13px;
+    padding: 4px 10px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--accent);
+    min-width: 80px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .btn-danger {
+    background: rgba(241, 76, 76, 0.15);
+    color: var(--error);
+    border: 1px solid rgba(241, 76, 76, 0.3);
+  }
+
+  .btn-danger:hover {
+    background: rgba(241, 76, 76, 0.25);
+  }
+
+  .bookmark-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .bookmark-grid .setting-item {
+    margin-bottom: 0;
+  }
+
+  .machine-current {
+    border-left: 3px solid var(--success);
+  }
+
+  .profile-key {
+    font-family: 'Consolas', monospace;
+    font-size: 12px;
+    padding: 2px 8px;
+    background: rgba(0, 122, 204, 0.15);
+    border-radius: 3px;
+    color: var(--accent);
+    min-width: 60px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .profile-detail {
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
 </style>
 </head>
 <body>
@@ -405,6 +461,8 @@
     <div class="tabs">
       <button class="tab active" onclick="switchTab('paths')">Paths de Aplicaciones</button>
       <button class="tab" onclick="switchTab('general')">General</button>
+      <button class="tab" onclick="switchTab('bookmarks')">Bookmarks</button>
+      <button class="tab" onclick="switchTab('browsers')">Browsers</button>
       <button class="tab" onclick="switchTab('about')">Acerca de</button>
     </div>
 
@@ -495,6 +553,123 @@
           <button class="btn btn-secondary btn-small" onclick="reloadConfig()">🔄 Recargar</button>
         </div>
       </div>
+
+      <div class="section">
+        <div class="section-title">Machine Detection</div>
+        <div class="section-description">
+          Mapeo de nombres de PC a secciones de configuración. La PC actual es: <strong id="current-machine-name">-</strong> (sección: <strong id="current-machine-section">-</strong>)
+        </div>
+
+        <div id="machines-list">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <div class="setting-item" style="margin-top: 12px;">
+          <div class="input-group" style="flex: 1;">
+            <input type="text" id="new-machine-name" placeholder="COMPUTER-NAME" style="width: 160px;">
+            <input type="text" id="new-machine-section" placeholder="desktop" style="width: 120px;">
+            <button class="btn btn-primary btn-small" onclick="addMachine()">+ Agregar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bookmarks Tab -->
+    <div id="tab-bookmarks" class="tab-content">
+      <div class="alert alert-info">
+        <span class="alert-icon">ℹ</span>
+        <div>
+          <strong>Hotkeys de Bookmarks:</strong> Atajos para el sistema de window bookmarks.
+          Cada hotkey tiene una versión normal (activar/minimizar) y una con Shift (asignar ventana).
+          Modificadores: <code>#</code> = Win, <code>!</code> = Alt, <code>^</code> = Ctrl, <code>+</code> = Shift.
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Hotkeys Definidos</div>
+        <div class="section-description">
+          Administra los atajos de teclado disponibles para bookmarks de ventanas.
+        </div>
+
+        <!-- Add new hotkey form -->
+        <div class="setting-item" style="margin-bottom: 16px;">
+          <div class="setting-label">
+            <div class="setting-name">Agregar nuevo hotkey</div>
+            <div class="setting-desc">Ej: #a (Win+A), !#s (Alt+Win+S), ^#f (Ctrl+Win+F)</div>
+          </div>
+          <div class="input-group">
+            <input type="text" id="new-hotkey-input" placeholder="#a" style="width: 120px;">
+            <button class="btn btn-primary btn-small" onclick="addBookmarkHotkey()">+ Agregar</button>
+          </div>
+        </div>
+
+        <div id="bookmark-hotkeys-list">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <div id="bookmark-hotkey-error" class="alert alert-warning" style="display: none;">
+          <span class="alert-icon">!</span>
+          <div id="bookmark-hotkey-error-msg"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Browsers Tab -->
+    <div id="tab-browsers" class="tab-content">
+      <div class="alert alert-info">
+        <span class="alert-icon">ℹ</span>
+        <div>
+          <strong>Browser Profiles:</strong> Configuración de perfiles de navegador.
+          Cada perfil define un directorio de perfil, opcionalmente un user-data-dir custom, y flags extras.
+          Los cambios requieren reiniciar el script para aplicarse.
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Vivaldi</div>
+        <div id="vivaldi-profiles-list"></div>
+        <div class="setting-item" style="margin-top: 8px;">
+          <div class="input-group" style="flex: 1;">
+            <input type="text" id="new-vivaldi-key" placeholder="key" style="width: 80px;">
+            <input type="text" id="new-vivaldi-profileDir" placeholder="Profile Dir" style="width: 120px;">
+            <input type="text" id="new-vivaldi-userDataDir" placeholder="User Data Dir (optional)" style="width: 180px;">
+            <button class="btn btn-primary btn-small" onclick="addProfile('vivaldi')">+ Agregar</button>
+            <button class="btn btn-secondary btn-small" onclick="detectProfiles('vivaldi')">Auto-detect</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Chrome</div>
+        <div id="chrome-profiles-list"></div>
+        <div class="setting-item" style="margin-top: 8px;">
+          <div class="input-group" style="flex: 1;">
+            <input type="text" id="new-chrome-key" placeholder="key" style="width: 80px;">
+            <input type="text" id="new-chrome-profileDir" placeholder="Profile Dir" style="width: 120px;">
+            <input type="text" id="new-chrome-userDataDir" placeholder="User Data Dir (optional)" style="width: 180px;">
+            <button class="btn btn-primary btn-small" onclick="addProfile('chrome')">+ Agregar</button>
+            <button class="btn btn-secondary btn-small" onclick="detectProfiles('chrome')">Auto-detect</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Vivaldi Local</div>
+        <div id="vivaldiLocal-profiles-list"></div>
+        <div class="setting-item" style="margin-top: 8px;">
+          <div class="input-group" style="flex: 1;">
+            <input type="text" id="new-vivaldiLocal-key" placeholder="key" style="width: 80px;">
+            <input type="text" id="new-vivaldiLocal-profileDir" placeholder="Profile Dir" style="width: 120px;">
+            <input type="text" id="new-vivaldiLocal-userDataDir" placeholder="User Data Dir (optional)" style="width: 180px;">
+            <button class="btn btn-primary btn-small" onclick="addProfile('vivaldiLocal')">+ Agregar</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="detected-profiles-result" class="alert alert-info" style="display: none;">
+        <span class="alert-icon">ℹ</span>
+        <div id="detected-profiles-msg"></div>
+      </div>
     </div>
 
     <!-- About Tab -->
@@ -554,6 +729,16 @@ window.chrome.webview.addEventListener('message', function(event) {
     updatePathStatus(data.key, data.path, data.found);
   } else if (data.action === 'settingUpdated') {
     updateSettingUI(data.key, data.value);
+  } else if (data.action === 'bookmarkHotkeysUpdated') {
+    renderBookmarkHotkeys(data.bookmarkHotkeys);
+  } else if (data.action === 'bookmarkHotkeyError') {
+    showBookmarkError(data.message);
+  } else if (data.action === 'machinesUpdated') {
+    renderMachines(data.machineInfo);
+  } else if (data.action === 'profilesUpdated') {
+    renderAllProfiles(data.browserProfiles);
+  } else if (data.action === 'detectedProfiles') {
+    showDetectedProfiles(data.browser, data.profiles);
   }
 });
 
@@ -586,6 +771,18 @@ function initializeSettings(settings) {
     renderGeneralSettings(settings.general);
   }
   
+  if (settings.bookmarkHotkeys) {
+    renderBookmarkHotkeys(settings.bookmarkHotkeys);
+  }
+
+  if (settings.machineInfo) {
+    renderMachines(settings.machineInfo);
+  }
+
+  if (settings.browserProfiles) {
+    renderAllProfiles(settings.browserProfiles);
+  }
+
   if (settings.info) {
     document.getElementById('version').textContent = settings.info.version || '1.0.0';
     document.getElementById('script-dir').textContent = settings.info.scriptDir || '';
@@ -808,6 +1005,217 @@ document.addEventListener('input', function(e) {
     e.target.saveTimeout = setTimeout(() => {
       sendToAHK('updatePath', { key, path });
     }, 500);
+  }
+});
+
+// ---- Machine Detection ----
+
+function renderMachines(info) {
+  document.getElementById('current-machine-name').textContent = info.currentName || '-';
+  document.getElementById('current-machine-section').textContent = info.currentSection || '-';
+
+  const list = document.getElementById('machines-list');
+  if (!list || !info.machines) return;
+  list.innerHTML = '';
+
+  info.machines.forEach(m => {
+    const isCurrent = m.current === true || m.current === 'true';
+    const div = document.createElement('div');
+    div.className = 'setting-item' + (isCurrent ? ' machine-current' : '');
+    div.innerHTML = `
+      <div class="setting-label">
+        <div class="setting-name">${escapeHtml(m.name)}${isCurrent ? ' (actual)' : ''}</div>
+        <div class="setting-desc">Sección: ${escapeHtml(m.section)}</div>
+      </div>
+      <button class="btn btn-danger btn-small" onclick="removeMachine('${escapeHtml(m.name)}')">✕</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function addMachine() {
+  const nameInput = document.getElementById('new-machine-name');
+  const sectionInput = document.getElementById('new-machine-section');
+  const name = nameInput.value.trim();
+  const section = sectionInput.value.trim();
+  if (!name || !section) return;
+  sendToAHK('addMachine', { name, section });
+  nameInput.value = '';
+  sectionInput.value = '';
+}
+
+function removeMachine(name) {
+  sendToAHK('removeMachine', { name });
+}
+
+// ---- Browser Profiles ----
+
+function renderAllProfiles(profiles) {
+  if (profiles.vivaldi) renderProfileList('vivaldi', profiles.vivaldi);
+  if (profiles.chrome) renderProfileList('chrome', profiles.chrome);
+  if (profiles.vivaldiLocal) renderProfileList('vivaldiLocal', profiles.vivaldiLocal);
+}
+
+function renderProfileList(browser, profiles) {
+  const list = document.getElementById(browser + '-profiles-list');
+  if (!list) return;
+  list.innerHTML = '';
+
+  if (!profiles || profiles.length === 0) {
+    list.innerHTML = '<div class="setting-item"><div class="setting-desc">No hay perfiles configurados.</div></div>';
+    return;
+  }
+
+  profiles.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'setting-item';
+    div.innerHTML = `
+      <div class="profile-key">${escapeHtml(p.key)}</div>
+      <div class="setting-label">
+        <div class="setting-name">${escapeHtml(p.profileDir)}</div>
+        <div class="profile-detail">${p.userDataDir ? escapeHtml(p.userDataDir) : '(default)'}${p.extraFlags ? ' ' + escapeHtml(p.extraFlags) : ''}</div>
+      </div>
+      <button class="btn btn-danger btn-small" onclick="removeProfile('${escapeHtml(browser)}', '${escapeHtml(p.key)}')">✕</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function addProfile(browser) {
+  const keyInput = document.getElementById('new-' + browser + '-key');
+  const profileDirInput = document.getElementById('new-' + browser + '-profileDir');
+  const userDataDirInput = document.getElementById('new-' + browser + '-userDataDir');
+  const key = keyInput.value.trim();
+  const profileDir = profileDirInput.value.trim();
+  if (!key || !profileDir) return;
+  const userDataDir = userDataDirInput ? userDataDirInput.value.trim() : '';
+  sendToAHK('addProfile', { browser, key, profileDir, userDataDir, extraFlags: '' });
+  keyInput.value = '';
+  profileDirInput.value = '';
+  if (userDataDirInput) userDataDirInput.value = '';
+}
+
+function removeProfile(browser, key) {
+  sendToAHK('removeProfile', { browser, key });
+}
+
+function detectProfiles(browser) {
+  sendToAHK('detectProfiles', { browser });
+}
+
+function showDetectedProfiles(browser, profiles) {
+  const el = document.getElementById('detected-profiles-result');
+  const msg = document.getElementById('detected-profiles-msg');
+  if (!el || !msg) return;
+
+  if (!profiles || profiles.length === 0) {
+    msg.innerHTML = '<strong>No se encontraron perfiles para ' + escapeHtml(browser) + '.</strong>';
+  } else {
+    let html = '<strong>Perfiles detectados para ' + escapeHtml(browser) + ':</strong><br>';
+    profiles.forEach(p => {
+      html += escapeHtml(p.dirName) + '<br>';
+    });
+    msg.innerHTML = html;
+  }
+  el.style.display = 'flex';
+  setTimeout(() => { el.style.display = 'none'; }, 10000);
+}
+
+// ---- Bookmark Hotkeys ----
+
+function renderBookmarkHotkeys(hotkeys) {
+  const list = document.getElementById('bookmark-hotkeys-list');
+  if (!list) return;
+  list.innerHTML = '';
+
+  if (!hotkeys || hotkeys.length === 0) {
+    list.innerHTML = '<div class="setting-item"><div class="setting-label"><div class="setting-desc">No hay hotkeys definidos.</div></div></div>';
+    return;
+  }
+
+  list.classList.add('bookmark-grid');
+
+  hotkeys.forEach(item => {
+    const enabled = item.enabled === '1' || item.enabled === 1 || item.enabled === true;
+    const toggleClass = enabled ? 'active' : '';
+    const opacityStyle = enabled ? '' : 'opacity: 0.5;';
+
+    const div = document.createElement('div');
+    div.className = 'setting-item';
+    div.style.cssText = opacityStyle;
+    div.innerHTML = `
+      <div class="hotkey-badge">${escapeHtml(item.hotkey)}</div>
+      <div class="setting-label">
+        <div class="setting-name">${formatHotkey(item.hotkey)}</div>
+      </div>
+      <div class="toggle ${toggleClass}" onclick="toggleBookmarkHotkey('${escapeHtml(item.index)}', ${!enabled})"></div>
+      <button class="btn btn-danger btn-small" onclick="removeBookmarkHotkey('${escapeHtml(item.index)}')">✕</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function formatHotkey(str) {
+  let result = str;
+  // Order matters: replace multi-char patterns awareness
+  // Build human-readable from modifiers
+  let parts = [];
+  if (result.includes('#')) parts.push('Win');
+  if (result.includes('!')) parts.push('Alt');
+  if (result.includes('^')) parts.push('Ctrl');
+  // Check for + as modifier (at start or after other modifiers, not the key itself)
+  let stripped = result.replace(/[#!^+]/g, '');
+  if (result.includes('+') && stripped.length > 0) parts.push('Shift');
+  if (stripped) parts.push(stripped.toUpperCase());
+  return parts.join('+');
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function addBookmarkHotkey() {
+  const input = document.getElementById('new-hotkey-input');
+  const hotkey = input.value.trim();
+  if (!hotkey) return;
+
+  hideBookmarkError();
+  sendToAHK('addBookmarkHotkey', { hotkey });
+  input.value = '';
+}
+
+function removeBookmarkHotkey(index) {
+  hideBookmarkError();
+  sendToAHK('removeBookmarkHotkey', { index });
+}
+
+function toggleBookmarkHotkey(index, enabled) {
+  hideBookmarkError();
+  sendToAHK('toggleBookmarkHotkey', { index, enabled });
+}
+
+function showBookmarkError(msg) {
+  const el = document.getElementById('bookmark-hotkey-error');
+  const msgEl = document.getElementById('bookmark-hotkey-error-msg');
+  if (el && msgEl) {
+    msgEl.textContent = msg;
+    el.style.display = 'flex';
+    setTimeout(() => { el.style.display = 'none'; }, 5000);
+  }
+}
+
+function hideBookmarkError() {
+  const el = document.getElementById('bookmark-hotkey-error');
+  if (el) el.style.display = 'none';
+}
+
+// Handle Enter key in new hotkey input
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && e.target.id === 'new-hotkey-input') {
+    e.preventDefault();
+    addBookmarkHotkey();
   }
 });
 

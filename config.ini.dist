@@ -1,0 +1,67 @@
+[paths]
+; System-wide paths (updated on initialization)
+user_home=
+user_documents=
+user_appdata=
+user_localappdata=
+program_files=
+program_files_x86=
+
+[general]
+lastDate=
+
+[variables]
+cursorKeysEnabled=1
+logVisibility=0
+
+[appInstances]
+
+[desktop]
+; Base directories
+tools_dir=C:\tools
+dev_dir=C:\dev
+scripts_dir=C:\dev\scripts\bin
+
+; Tools and utilities
+tail_exe=C:\tools\Tail.exe
+nircmd_exe=C:\tools\nircmd.exe
+notifu_exe=C:\tools\notifu\notifu.exe
+strokesplus_exe=C:\tools\strokesPlus\StrokesPlus.net.exe
+strokesplus_dir=C:\tools\strokesPlus
+xyplorer_path=C:\tools\XYplorer-portable\XYplorer.exe
+log_file=C:\dev\scripts\bin\log.txt
+
+; Application paths
+whatsapp_path=
+cursor_path=C:\Program Files\cursor\Cursor.exe
+vscode_path=C:\Users\<USERNAME>\AppData\Local\Programs\Microsoft VS Code\Code.exe
+vivaldi_path=C:\tools\vivaldi\Application\vivaldi.exe
+vivaldi_local_path=C:\tools\vivaldi\Application\vivaldi.exe
+chrome_path=C:\Program Files\Google\Chrome\Application\chrome.exe
+zen_path=C:\Program Files\Zen Twilight\zen.exe
+
+[work]
+; Add your work machine-specific paths here if needed
+; Base directories
+tools_dir=C:\tools
+dev_dir=C:\dev
+scripts_dir=C:\dev\scripts\bin
+
+; Tools and utilities
+tail_exe=C:\tools\Tail.exe
+nircmd_exe=C:\tools\nircmd.exe
+notifu_exe=C:\tools\notifu\notifu.exe
+log_file=C:\dev\scripts\bin\log.txt
+
+; Application paths
+cursor_path=C:\Program Files\cursor\Cursor.exe
+vscode_path=C:\Users\<USERNAME>\AppData\Local\Programs\Microsoft VS Code\Code.exe
+chrome_path=C:\Program Files\Google\Chrome\Application\chrome.exe
+
+[bookmarks]
+; Window bookmarks format: key=ahk_id|title
+; Example: 1=ahk_id 12345|My Browser Window
+
+[windowAliases]
+; Window aliases for quick access
+; Example: vivaldi-main=ahk_id 198340

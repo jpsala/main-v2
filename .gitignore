@@ -10,4 +10,9 @@
 # Specific files
 /Flashpost-tests
 
+# Build output
+/dist/
+/main-automation-dist.zip
+/main-automation-setup.exe
+
 nul

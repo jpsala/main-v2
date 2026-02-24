@@ -441,11 +441,13 @@ HandleSettingUpdate(data) {
     ; Reload config
     loadConfig()
     
-    ; Confirm to WebView
+    ; Confirm to WebView - send back as "true"/"false" strings for consistent JS parsing
+    valueToSend := value ? "true" : "false"
+    SettingsDebugLog("Sending confirmation to WebView: key=" . key . ", value=" . valueToSend)
     SendToWebView(Map(
         "action", "settingUpdated",
         "key", key,
-        "value", value
+        "value", valueToSend
     ))
 }
 

@@ -2,7 +2,117 @@ Emptied
 config | carnival | Arr-> [1]:whatsapp_path | [2]:cursor_path | [3]:vscode_path | [4]:vivaldi_path | [5]:vivaldi_local_path | [6]:chrome_path | [7]:zen_path | [8]:xyplorer_path | [9]:strokesplus_exe | [10]:strokesplus_dir
 config | whatsapp_path | C:\Program Files\WindowsApps\5319275A.WhatsAppDesktop_2.2228.14.0_x64__cv1g1gvanyjgm\app\WhatsApp.exe
 config | cursor_path | C:\dev\main\main-automation-setup.exe
-config | vscode_path | 
+config | vscode_path | C:\Program Files\Microsoft VS Code\Code.exe
+config | vivaldi_path | C:\tools\vivaldi\Application\vivaldi.exe
+config | vivaldi_local_path | C:\tools\vivaldi\Application\vivaldi.exe
+config | chrome_path | C:\Program Files\Google\Chrome\Application\chrome.exe
+config | zen_path | 
+config | xyplorer_path | 
+config | strokesplus_exe | C:\tools\strokesPlus\StrokesPlus.net.exe
+config | strokesplus_dir | C:\tools\strokesPlus
+config | carnival | Arr-> [1]:whatsapp_path | [2]:cursor_path | [3]:vscode_path | [4]:vivaldi_path | [5]:vivaldi_local_path | [6]:chrome_path | [7]:zen_path | [8]:xyplorer_path | [9]:strokesplus_exe | [10]:strokesplus_dir
+config | whatsapp_path | C:\Program Files\WindowsApps\5319275A.WhatsAppDesktop_2.2228.14.0_x64__cv1g1gvanyjgm\app\WhatsApp.exe
+config | cursor_path | C:\dev\main\main-automation-setup.exe
+config | vscode_path | C:\Program Files\Microsoft VS Code\Code.exe
+config | vivaldi_path | C:\tools\vivaldi\Application\vivaldi.exe
+config | vivaldi_local_path | C:\tools\vivaldi\Application\vivaldi.exe
+config | chrome_path | C:\Program Files\Google\Chrome\Application\chrome.exe
+config | zen_path | 
+config | xyplorer_path | 
+config | strokesplus_exe | C:\tools\strokesPlus\StrokesPlus.net.exe
+config | strokesplus_dir | C:\tools\strokesPlus
+config | carnival | Arr-> [1]:whatsapp_path | [2]:cursor_path | [3]:vscode_path | [4]:vivaldi_path | [5]:vivaldi_local_path | [6]:chrome_path | [7]:zen_path | [8]:xyplorer_path | [9]:strokesplus_exe | [10]:strokesplus_dir
+config | whatsapp_path | C:\Program Files\WindowsApps\5319275A.WhatsAppDesktop_2.2228.14.0_x64__cv1g1gvanyjgm\app\WhatsApp.exe
+config | cursor_path | C:\dev\main\main-automation-setup.exe
+config | vscode_path | C:\Program Files\Microsoft VS Code\Code.exe
+config | vivaldi_path | C:\tools\vivaldi\Application\vivaldi.exe
+config | vivaldi_local_path | C:\tools\vivaldi\Application\vivaldi.exe
+config | chrome_path | C:\Program Files\Google\Chrome\Application\chrome.exe
+config | zen_path | 
+config | xyplorer_path | 
+config | strokesplus_exe | C:\tools\strokesPlus\StrokesPlus.net.exe
+config | strokesplus_dir | C:\tools\strokesPlus
+config | carnival | Arr-> [1]:whatsapp_path | [2]:cursor_path | [3]:vscode_path | [4]:vivaldi_path | [5]:vivaldi_local_path | [6]:chrome_path | [7]:zen_path | [8]:xyplorer_path | [9]:strokesplus_exe | [10]:strokesplus_dir
+config | whatsapp_path | C:\Program Files\WindowsApps\5319275A.WhatsAppDesktop_2.2228.14.0_x64__cv1g1gvanyjgm\app\WhatsApp.exe
+config | cursor_path | C:\dev\main\main-automation-setup.exe
+config | vscode_path | C:\Program Files\Microsoft VS Code\Code.exe
+config | vivaldi_path | C:\tools\vivaldi\Application\vivaldi.exe
+config | vivaldi_local_path | C:\tools\vivaldi\Application\vivaldi.exe
+config | chrome_path | C:\Program Files\Google\Chrome\Application\chrome.exe
+config | zen_path | 
+config | xyplorer_path | 
+config | strokesplus_exe | C:\tools\strokesPlus\StrokesPlus.net.exe
+config | strokesplus_dir | C:\tools\strokesPlus
+config | carnival | Arr-> [1]:whatsapp_path | [2]:cursor_path | [3]:vscode_path | [4]:vivaldi_path | [5]:vivaldi_local_path | [6]:chrome_path | [7]:zen_path | [8]:xyplorer_path | [9]:strokesplus_exe | [10]:strokesplus_dir
+config | whatsapp_path | C:\Program Files\WindowsApps\5319275A.WhatsAppDesktop_2.2228.14.0_x64__cv1g1gvanyjgm\app\WhatsApp.exe
+config | cursor_path | C:\dev\main\main-automation-setup.exe
+config | vscode_path | C:\Program Files\Microsoft VS Code\Code.exe
+config | vivaldi_path | C:\tools\vivaldi\Application\vivaldi.exe
+config | vivaldi_local_path | C:\tools\vivaldi\Application\vivaldi.exe
+config | chrome_path | C:\Program Files\Google\Chrome\Application\chrome.exe
+config | zen_path | 
+config | xyplorer_path | 
+config | strokesplus_exe | C:\tools\strokesPlus\StrokesPlus.net.exe
+config | strokesplus_dir | C:\tools\strokesPlus
+config | carnival | Arr-> [1]:whatsapp_path | [2]:cursor_path | [3]:vscode_path | [4]:vivaldi_path | [5]:vivaldi_local_path | [6]:chrome_path | [7]:zen_path | [8]:xyplorer_path | [9]:strokesplus_exe | [10]:strokesplus_dir
+config | whatsapp_path | C:\Program Files\WindowsApps\5319275A.WhatsAppDesktop_2.2228.14.0_x64__cv1g1gvanyjgm\app\WhatsApp.exe
+config | cursor_path | C:\dev\main\main-automation-setup.exe
+config | vscode_path | C:\Program Files\Microsoft VS Code\Code.exe
+config | vivaldi_path | C:\tools\vivaldi\Application\vivaldi.exe
+config | vivaldi_local_path | C:\tools\vivaldi\Application\vivaldi.exe
+config | chrome_path | C:\Program Files\Google\Chrome\Application\chrome.exe
+config | zen_path | 
+config | xyplorer_path | 
+config | strokesplus_exe | C:\tools\strokesPlus\StrokesPlus.net.exe
+config | strokesplus_dir | C:\tools\strokesPlus
+config | carnival | Arr-> [1]:whatsapp_path | [2]:cursor_path | [3]:vscode_path | [4]:vivaldi_path | [5]:vivaldi_local_path | [6]:chrome_path | [7]:zen_path | [8]:xyplorer_path | [9]:strokesplus_exe | [10]:strokesplus_dir
+config | whatsapp_path | C:\Program Files\WindowsApps\5319275A.WhatsAppDesktop_2.2228.14.0_x64__cv1g1gvanyjgm\app\WhatsApp.exe
+config | cursor_path | C:\dev\main\main-automation-setup.exe
+config | vscode_path | C:\Program Files\Microsoft VS Code\Code.exe
+config | vivaldi_path | C:\tools\vivaldi\Application\vivaldi.exe
+config | vivaldi_local_path | C:\tools\vivaldi\Application\vivaldi.exe
+config | chrome_path | C:\Program Files\Google\Chrome\Application\chrome.exe
+config | zen_path | 
+config | xyplorer_path | 
+config | strokesplus_exe | C:\tools\strokesPlus\StrokesPlus.net.exe
+config | strokesplus_dir | C:\tools\strokesPlus
+config | carnival | Arr-> [1]:whatsapp_path | [2]:cursor_path | [3]:vscode_path | [4]:vivaldi_path | [5]:vivaldi_local_path | [6]:chrome_path | [7]:zen_path | [8]:xyplorer_path | [9]:strokesplus_exe | [10]:strokesplus_dir
+config | whatsapp_path | C:\Program Files\WindowsApps\5319275A.WhatsAppDesktop_2.2228.14.0_x64__cv1g1gvanyjgm\app\WhatsApp.exe
+config | cursor_path | C:\dev\main\main-automation-setup.exe
+config | vscode_path | C:\Program Files\Microsoft VS Code\Code.exe
+config | vivaldi_path | C:\tools\vivaldi\Application\vivaldi.exe
+config | vivaldi_local_path | C:\tools\vivaldi\Application\vivaldi.exe
+config | chrome_path | C:\Program Files\Google\Chrome\Application\chrome.exe
+config | zen_path | 
+config | xyplorer_path | 
+config | strokesplus_exe | C:\tools\strokesPlus\StrokesPlus.net.exe
+config | strokesplus_dir | C:\tools\strokesPlus
+config | carnival | Arr-> [1]:whatsapp_path | [2]:cursor_path | [3]:vscode_path | [4]:vivaldi_path | [5]:vivaldi_local_path | [6]:chrome_path | [7]:zen_path | [8]:xyplorer_path | [9]:strokesplus_exe | [10]:strokesplus_dir
+config | whatsapp_path | C:\Program Files\WindowsApps\5319275A.WhatsAppDesktop_2.2228.14.0_x64__cv1g1gvanyjgm\app\WhatsApp.exe
+config | cursor_path | C:\dev\main\main-automation-setup.exe
+config | vscode_path | C:\Program Files\Microsoft VS Code\Code.exe
+config | vivaldi_path | C:\tools\vivaldi\Application\vivaldi.exe
+config | vivaldi_local_path | C:\tools\vivaldi\Application\vivaldi.exe
+config | chrome_path | C:\Program Files\Google\Chrome\Application\chrome.exe
+config | zen_path | 
+config | xyplorer_path | 
+config | strokesplus_exe | C:\tools\strokesPlus\StrokesPlus.net.exe
+config | strokesplus_dir | C:\tools\strokesPlus
+config | carnival | Arr-> [1]:whatsapp_path | [2]:cursor_path | [3]:vscode_path | [4]:vivaldi_path | [5]:vivaldi_local_path | [6]:chrome_path | [7]:zen_path | [8]:xyplorer_path | [9]:strokesplus_exe | [10]:strokesplus_dir
+config | whatsapp_path | C:\Program Files\WindowsApps\5319275A.WhatsAppDesktop_2.2228.14.0_x64__cv1g1gvanyjgm\app\WhatsApp.exe
+config | cursor_path | C:\dev\main\main-automation-setup.exe
+config | vscode_path | C:\Program Files\Microsoft VS Code\Code.exe
+config | vivaldi_path | C:\tools\vivaldi\Application\vivaldi.exe
+config | vivaldi_local_path | C:\tools\vivaldi\Application\vivaldi.exe
+config | chrome_path | C:\Program Files\Google\Chrome\Application\chrome.exe
+config | zen_path | 
+config | xyplorer_path | 
+config | strokesplus_exe | C:\tools\strokesPlus\StrokesPlus.net.exe
+config | strokesplus_dir | C:\tools\strokesPlus
+config | carnival | Arr-> [1]:whatsapp_path | [2]:cursor_path | [3]:vscode_path | [4]:vivaldi_path | [5]:vivaldi_local_path | [6]:chrome_path | [7]:zen_path | [8]:xyplorer_path | [9]:strokesplus_exe | [10]:strokesplus_dir
+config | whatsapp_path | C:\Program Files\WindowsApps\5319275A.WhatsAppDesktop_2.2228.14.0_x64__cv1g1gvanyjgm\app\WhatsApp.exe
+config | cursor_path | C:\dev\main\main-automation-setup.exe
+config | vscode_path | C:\Program Files\Microsoft VS Code\Code.exe
 config | vivaldi_path | C:\tools\vivaldi\Application\vivaldi.exe
 config | vivaldi_local_path | C:\tools\vivaldi\Application\vivaldi.exe
 config | chrome_path | C:\Program Files\Google\Chrome\Application\chrome.exe

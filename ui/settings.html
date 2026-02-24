@@ -656,7 +656,11 @@ function renderGeneralSettings(settings) {
 function updateToggle(id, active) {
   const toggle = document.getElementById(id);
   if (toggle) {
+    console.log('updateToggle:', {id, active, hadActive: toggle.classList.contains('active')});
     toggle.classList.toggle('active', active);
+    console.log('updateToggle after:', {id, hasActive: toggle.classList.contains('active')});
+  } else {
+    console.error('updateToggle: element not found:', id);
   }
 }
 
@@ -709,7 +713,7 @@ function toggleSetting(key) {
 }
 
 function updateSettingUI(key, value) {
-  console.log('updateSettingUI:', key, value);
+  console.log('updateSettingUI called:', {key, value, type: typeof value});
   
   // Map setting keys to their toggle IDs
   const idMap = {
@@ -726,7 +730,11 @@ function updateSettingUI(key, value) {
   
   const toggle = document.getElementById(toggleId);
   if (toggle) {
-    updateToggle(toggleId, value === true || value === 'true');
+    const shouldBeActive = (value === true || value === 'true');
+    console.log('Updating toggle:', {toggleId, shouldBeActive, currentlyActive: toggle.classList.contains('active')});
+    updateToggle(toggleId, shouldBeActive);
+  } else {
+    console.error('Toggle element not found:', toggleId);
   }
 }
 

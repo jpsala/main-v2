@@ -4,64 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Menu Picker</title>
+<link rel="stylesheet" href="shared.css">
 <style>
-  :root {
-    --bg-primary: #1E1E1E;
-    --bg-input: #252526;
-    --bg-hover: #2A2A2A;
-    --bg-active: #094771;
-    --text-primary: #F0F0F0;
-    --text-secondary: #AAAAAA;
-    --text-muted: #666666;
-    --accent: #007ACC;
-    --border: #333333;
-    --font-mono: 'Consolas', 'Courier New', monospace;
-    --font-ui: 'Segoe UI', sans-serif;
-    --radius: 4px;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    font-family: var(--font-ui);
-    font-size: 13px;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    user-select: none;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-  }
-
-  /* Drag bar */
-  .drag-bar {
-    -webkit-app-region: drag;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px 6px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .grip {
-    display: grid;
-    grid-template-columns: repeat(3, 4px);
-    grid-template-rows: repeat(2, 4px);
-    gap: 2px;
-    opacity: 0.3;
-    flex-shrink: 0;
-  }
-
-  .grip span {
-    width: 4px;
-    height: 4px;
-    border-radius: 1px;
-    background: #888;
-  }
-
   .drag-bar h2 {
     font-size: 13px;
     font-weight: 500;
@@ -108,23 +52,6 @@
     overflow-y: auto;
     overflow-x: hidden;
     scroll-behavior: smooth;
-  }
-
-  .items-container::-webkit-scrollbar {
-    width: 10px;
-  }
-
-  .items-container::-webkit-scrollbar-track {
-    background: var(--bg-primary);
-  }
-
-  .items-container::-webkit-scrollbar-thumb {
-    background: #555;
-    border-radius: 5px;
-  }
-
-  .items-container::-webkit-scrollbar-thumb:hover {
-    background: #777;
   }
 
   .item {
@@ -275,6 +202,7 @@
     <span id="item-count">0 items</span>
   </div>
 
+<script src="ahk-bridge.js"></script>
 <script>
 let allItems = [];
 let filteredItems = [];
@@ -439,13 +367,9 @@ function moveSelection(delta) {
   renderItems();
 }
 
+// Menu-style AHK sender (wraps data in an envelope)
 function sendToAHK(action, data) {
-  if (window.chrome && window.chrome.webview) {
-    window.chrome.webview.postMessage({
-      action: action,
-      data: data
-    });
-  }
+  postToAHK({ action, data });
 }
 
 function focusInput() {

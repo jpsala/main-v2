@@ -4,136 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Configuración - Main Automation</title>
+<link rel="stylesheet" href="shared.css">
 <style>
-  :root {
-    --bg-primary: #1E1E1E;
-    --bg-secondary: #252526;
-    --bg-tertiary: #2A2A2A;
-    --bg-hover: #2D2D2D;
-    --bg-active: #094771;
-    --text-primary: #F0F0F0;
-    --text-secondary: #AAAAAA;
-    --text-muted: #666666;
-    --accent: #007ACC;
-    --accent-hover: #1E8AD6;
-    --success: #4EC9B0;
-    --warning: #CE9178;
-    --error: #F14C4C;
-    --border: #333333;
-    --shadow: rgba(0, 0, 0, 0.4);
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 13px;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    user-select: none;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-  }
-
-  /* Header */
-  .header {
-    -webkit-app-region: drag;
-    flex-shrink: 0;
-    height: 40px;
-    padding: 0 0 0 12px;
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .grip {
-    display: grid;
-    grid-template-columns: repeat(3, 4px);
-    grid-template-rows: repeat(2, 4px);
-    gap: 3px;
-    opacity: 0.3;
-    flex-shrink: 0;
-  }
-
-  .grip span {
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: var(--text-primary);
-  }
-
-  .header h1 {
-    flex: 1;
-    font-size: 13px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    color: var(--text-primary);
-  }
-
-  .header h1::before {
-    content: "⚙";
-    font-size: 14px;
-    opacity: 0.8;
-  }
-
-  .window-controls {
-    -webkit-app-region: no-drag;
-    display: flex;
-  }
-
-  .win-btn {
-    width: 40px;
-    height: 40px;
-    border: none;
-    background: transparent;
-    color: var(--text-secondary);
-    font-size: 16px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.15s, color 0.15s;
-  }
-
-  .win-btn:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
-  }
-
-  .win-close:hover {
-    background: #c42b1c;
-    color: white;
-  }
-
   /* Main Content */
   .content {
     flex: 1;
     overflow-y: auto;
     padding: 20px;
-  }
-
-  .content::-webkit-scrollbar {
-    width: 12px;
-  }
-
-  .content::-webkit-scrollbar-track {
-    background: var(--bg-primary);
-  }
-
-  .content::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: 6px;
-  }
-
-  .content::-webkit-scrollbar-thumb:hover {
-    background: #444444;
   }
 
   /* Tabs */
@@ -481,12 +358,15 @@
 </style>
 </head>
 <body>
-  <div class="header">
+  <div class="titlebar">
     <div class="grip">
       <span></span><span></span><span></span>
       <span></span><span></span><span></span>
     </div>
-    <h1>Configuración</h1>
+    <div class="titlebar-title">
+      <span class="titlebar-icon">⚙</span>
+      Configuración
+    </div>
     <div class="window-controls">
       <button class="win-btn win-minimize" onclick="minimizeWindow()" title="Minimizar">&#x2212;</button>
       <button class="win-btn win-close" onclick="closeWindow()" title="Cerrar">&#x2715;</button>
@@ -761,7 +641,14 @@
     </div>
   </div>
 
+<script src="ahk-bridge.js"></script>
 <script>
+// Settings-style AHK sender (spreads data as top-level props)
+function sendToAHK(action, data = {}) {
+  console.log('Sending to AHK:', { action, ...data });
+  postToAHK({ action, ...data });
+}
+
 // Communication with AHK
 window.chrome.webview.addEventListener('message', function(event) {
   const data = event.data;
@@ -785,12 +672,6 @@ window.chrome.webview.addEventListener('message', function(event) {
     showDetectedProfiles(data.browser, data.profiles);
   }
 });
-
-function sendToAHK(action, data = {}) {
-  const message = { action, ...data };
-  console.log('Sending to AHK:', message);
-  window.chrome.webview.postMessage(message);
-}
 
 // Tab switching
 function switchTab(tabName) {
@@ -1034,13 +915,7 @@ function openDoc(filename) {
   sendToAHK('openDoc', { filename });
 }
 
-function minimizeWindow() {
-  sendToAHK('minimize');
-}
-
-function closeWindow() {
-  sendToAHK('close');
-}
+// minimizeWindow() and closeWindow() provided by ahk-bridge.js
 
 // Handle path input changes
 document.addEventListener('input', function(e) {

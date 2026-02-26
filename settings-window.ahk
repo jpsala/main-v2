@@ -10,6 +10,53 @@ global SETTINGS_READY := false
 global SETTINGS_PATHS_DATA := []
 global SETTINGS_DEBUG_FILE := A_ScriptDir . "\settings-debug.txt"
 
+;-------------------------------------------------------------------------------
+; RESIZE SUPPORT — WM_NCHITTEST override for borderless (+Resize -Caption) window
+; Expands the invisible resize grab zone to 6px on all edges/corners.
+;-------------------------------------------------------------------------------
+OnMessage(0x0084, _Settings_WM_NCHITTEST)
+
+_Settings_WM_NCHITTEST(wParam, lParam, msg, hwnd) {
+    global SETTINGS_GUI
+    if (!SETTINGS_GUI || hwnd != SETTINGS_GUI.Hwnd)
+        return  ; Not our window — let default handling proceed
+
+    static BORDER     := 6
+    static HTLEFT     := 10, HTRIGHT      := 11
+    static HTTOP      := 12, HTBOTTOM     := 15
+    static HTTOPLEFT  := 13, HTTOPRIGHT   := 14
+    static HTBOTTOMLEFT := 16, HTBOTTOMRIGHT := 17
+
+    ; Extract signed 16-bit screen coordinates from lParam
+    x := lParam << 48 >> 48
+    y := lParam << 32 >> 48
+
+    WinGetPos(&wx, &wy, &ww, &wh, hwnd)
+
+    onLeft   := x < wx + BORDER
+    onRight  := x >= wx + ww - BORDER
+    onTop    := y < wy + BORDER
+    onBottom := y >= wy + wh - BORDER
+
+    if (onTop && onLeft)
+        return HTTOPLEFT
+    if (onTop && onRight)
+        return HTTOPRIGHT
+    if (onBottom && onLeft)
+        return HTBOTTOMLEFT
+    if (onBottom && onRight)
+        return HTBOTTOMRIGHT
+    if (onLeft)
+        return HTLEFT
+    if (onRight)
+        return HTRIGHT
+    if (onTop)
+        return HTTOP
+    if (onBottom)
+        return HTBOTTOM
+    ; Interior — let default handling return HTCLIENT
+}
+
 ; Debug logging function (always writes, independent of logVisibility)
 SettingsDebugLog(msg) {
     global SETTINGS_DEBUG_FILE

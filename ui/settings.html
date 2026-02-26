@@ -532,6 +532,14 @@
           </div>
           <div class="toggle" id="toggle-cursor-keys" onclick="toggleSetting('cursorKeysEnabled')"></div>
         </div>
+
+        <div class="setting-item">
+          <div class="setting-label">
+            <div class="setting-name">Iniciar con Windows</div>
+            <div class="setting-desc">La aplicación se abrirá automáticamente cuando enciendas tu computadora</div>
+          </div>
+          <div class="toggle" id="toggle-autostart" onclick="toggleSetting('autostart')"></div>
+        </div>
       </div>
 
       <div class="section">
@@ -848,6 +856,7 @@ function renderGeneralSettings(settings) {
   updateToggle('toggle-show-summary', settings.showPathsSummary === true || settings.showPathsSummary === 'true');
   updateToggle('toggle-logging', settings.loggingEnabled === true || settings.loggingEnabled === 'true');
   updateToggle('toggle-cursor-keys', settings.cursorKeysEnabled === true || settings.cursorKeysEnabled === 'true');
+  updateToggle('toggle-autostart', settings.autostart === true || settings.autostart === 'true');
 }
 
 function updateToggle(id, active) {
@@ -883,11 +892,11 @@ function autoDetectAll() {
 }
 
 function toggleSetting(key) {
-  // Map setting keys to their toggle IDs
   const idMap = {
     'showPathsSummary': 'toggle-show-summary',
     'loggingEnabled': 'toggle-logging',
-    'cursorKeysEnabled': 'toggle-cursor-keys'
+    'cursorKeysEnabled': 'toggle-cursor-keys',
+    'autostart': 'toggle-autostart'
   };
   
   const toggleId = idMap[key];
@@ -911,12 +920,11 @@ function toggleSetting(key) {
 
 function updateSettingUI(key, value) {
   console.log('updateSettingUI called:', {key, value, type: typeof value});
-  
-  // Map setting keys to their toggle IDs
   const idMap = {
     'showPathsSummary': 'toggle-show-summary',
     'loggingEnabled': 'toggle-logging',
-    'cursorKeysEnabled': 'toggle-cursor-keys'
+    'cursorKeysEnabled': 'toggle-cursor-keys',
+    'autostart': 'toggle-autostart'
   };
   
   const toggleId = idMap[key];

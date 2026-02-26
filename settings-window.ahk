@@ -267,7 +267,8 @@ SendInitialData() {
     general := Map(
         "showPathsSummary", (hidePathsSummary = "0" ? "true" : "false"),
         "loggingEnabled", (logVisibility = "1" ? "true" : "false"),
-        "cursorKeysEnabled", (cursorKeys = "1" ? "true" : "false")
+        "cursorKeysEnabled", (cursorKeys = "1" ? "true" : "false"),
+        "autostart", (IsAutostartEnabled() ? "true" : "false")
     )
     
     ; Debug logging
@@ -484,6 +485,14 @@ HandleSettingUpdate(data) {
             IniWrite(iniValue, "config.ini", "variables", "cursorKeysEnabled")
             cursorKeysEnabled := iniValue  ; Update global variable
             SettingsDebugLog("Wrote cursorKeysEnabled=" . iniValue . ", updated global variable")
+
+        case "autostart":
+            if (value) {
+                EnableAutostart()
+            } else {
+                DisableAutostart()
+            }
+            SettingsDebugLog("Autostart toggled to: " . (value ? "enabled" : "disabled"))
     }
     
     ; Reload config
@@ -501,6 +510,54 @@ HandleSettingUpdate(data) {
 
 ;-------------------------------------------------------------------------------
 ; MACHINE DETECTION OPERATIONS
+;-------------------------------------------------------------------------------
+; AUTOSTART OPERATIONS
+;-------------------------------------------------------------------------------
+
+/**
+ * Checks if the app is enabled in Windows autostart registry
+ * @return {Boolean} true if app is set to autostart, false otherwise
+ */
+IsAutostartEnabled() {
+    try {
+        regPath := "HKCU\Software\Microsoft\Windows\CurrentVersion\Run"
+        value := RegRead(regPath, "MainAutomation", "")
+        return (value != "") ? true : false
+    } catch {
+        return false
+    }
+}
+
+/**
+ * Adds the app to Windows autostart
+ */
+EnableAutostart() {
+    try {
+        exePath := A_ScriptFullPath
+        regPath := "HKCU\Software\Microsoft\Windows\CurrentVersion\Run"
+        RegWrite(exePath, "REG_SZ", regPath, "MainAutomation")
+        SettingsDebugLog("Autostart enabled - registered: " . exePath)
+    } catch as err {
+        SettingsDebugLog("Error enabling autostart: " . err.Message)
+    }
+}
+
+/**
+ * Removes the app from Windows autostart
+ */
+DisableAutostart() {
+    try {
+        regPath := "HKCU\Software\Microsoft\Windows\CurrentVersion\Run"
+        RegDelete(regPath, "MainAutomation")
+        SettingsDebugLog("Autostart disabled - registry entry removed")
+    } catch as err {
+        SettingsDebugLog("Error disabling autostart: " . err.Message)
+    }
+}
+
+;-------------------------------------------------------------------------------
+; MACHINE DETECTION OPERATIONS
+;-------------------------------------------------------------------------------
 ;-------------------------------------------------------------------------------
 
 HandleAddMachine(data) {

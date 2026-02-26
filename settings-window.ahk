@@ -77,7 +77,7 @@ CreateSettingsWindow(initialTab := "paths") {
     try {
         dllPath := A_ScriptDir . "\lib\" . (A_PtrSize * 8) . "bit\WebView2Loader.dll"
         
-        SETTINGS_GUI := WebViewGui("+Resize", "Configuración - Main Automation",, {DllPath: dllPath})
+        SETTINGS_GUI := WebViewGui("+Resize -Caption", "Configuración - Main Automation",, {DllPath: dllPath})
         SETTINGS_GUI.BackColor := "1E1E1E"
         
         ; Set up window events
@@ -208,6 +208,9 @@ HandleSettingsMessage(wv, args) {
 
             case "toggleBookmarkHotkey":
                 HandleToggleBookmarkHotkey(data)
+
+            case "minimize":
+                SETTINGS_GUI.Minimize()
 
             case "close":
                 CloseSettingsWindow()

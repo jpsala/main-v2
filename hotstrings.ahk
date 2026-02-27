@@ -104,6 +104,28 @@
 
 
 ; API keys
+AIGetApiKey(provider) {
+  envKey := "AI_" . StrUpper(provider) . "_API_KEY"
+  fromEnv := EnvGet(envKey)
+  if (fromEnv != "") {
+    return fromEnv
+  }
+
+  ; config.ini fallback candidates
+  keys := [
+    provider . "_api_key",
+    provider . "ApiKey",
+    "api_key_" . provider
+  ]
+  for keyName in keys {
+    value := IniRead("config.ini", "api", keyName, "")
+    if (value != "") {
+      return value
+    }
+  }
+  return ""
+}
+
 :?C:.apior:: {
   key := AIGetApiKey("openrouter")
   if (key != "")

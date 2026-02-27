@@ -226,6 +226,13 @@ BuildProfileCmd(exePath, section, key) {
   userDataDir := pipeParts.Length >= 2 ? pipeParts[2] : ""
   extraFlags := pipeParts.Length >= 3 ? pipeParts[3] : ""
 
+  ; Backward compatibility: old main Vivaldi setup used explicit Main profile
+  ; and dedicated user-data-dir under C:\tools\vivaldi\main\User Data.
+  if (section = "vivaldi-profiles" && key = "main" && profileDir = "Profile 1" && !userDataDir) {
+    profileDir := "Main"
+    userDataDir := "C:\tools\vivaldi\main\User Data"
+  }
+
   if (!profileDir)
     return ""
 

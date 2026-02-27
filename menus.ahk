@@ -174,7 +174,8 @@ mainSeqW() {
         case 'D':
             run(vivaldiWithDebugProfile)
         case 'f':
-            Roa('vivaldi-main', vivaldiWithMainProfile, '#f')
+            if (!Roa('vivaldi-main', vivaldiWithMainProfile, '#f'))
+                Run(vivaldiWithMainProfile)
         case 'v':
             Roa('vivaldi-youtube', vivaldiWithYoutubeProfile, '#v')
         case 'sc':

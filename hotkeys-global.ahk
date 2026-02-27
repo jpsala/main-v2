@@ -9,10 +9,6 @@
     ShowSettingsWindow()
 }
 
-#!s:: {  ; Win+Alt+S alternative shortcut
-    ShowSettingsWindow()
-}
-
 #HotIf WinActive('ahk_exe code.exe')
 #HotIf
 
@@ -264,9 +260,8 @@
       if (data) {
         BlockInput(true)
         Send('#!c') ; Assuming this toggles CopyQ window
-        WinWaitActive('ahk_exe copyq.exe', , 2) ; Wait max 2 seconds
-        if ErrorLevel
-        {
+        waitResult := WinWaitActive('ahk_exe copyq.exe', , 2) ; Wait max 2 seconds
+        if (!waitResult) {
           msg("CopyQ window not found.")
           BlockInput(false)
           return

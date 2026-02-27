@@ -82,6 +82,10 @@ notify(title := 'Main.ahk', text := '', seconds := 5, icon := '', muted := False
     SetTimer(RemoveNotify, milli)
 }
 
+RemoveNotify() {
+    TrayTip()
+}
+
 notifu(message, type := 'info', seconds := 5, title := 'main.ahk', persistent := false) {
     log(seconds)
     notifuExe := GetCachedConfig("desktop", "notifu_exe", "")

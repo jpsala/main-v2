@@ -36,40 +36,6 @@ GetCachedConfig(section, key, default := "") {
 }
 
 ;===============================================================================
-; CONFIG MANAGEMENT
-;===============================================================================
-
-/**
- * Read a value from config.ini with path expansion
- * @param {string} section - The section name in config.ini
- * @param {string} key - The key to read
- * @param {string} defaultValue - Default value if key not found
- * @returns {string} The expanded value from config.ini
- */
-IniReadWithExpansion(section, key, defaultValue := "") {
-    value := IniRead("config.ini", section, key, defaultValue)
-
-    ; Replace %variable% with actual values
-    if (InStr(value, "%")) {
-        ; Replace user paths
-        value := StrReplace(value, "%user_home%", IniRead("config.ini", "paths", "user_home"))
-        value := StrReplace(value, "%user_documents%", IniRead("config.ini", "paths", "user_documents"))
-        value := StrReplace(value, "%user_appdata%", IniRead("config.ini", "paths", "user_appdata"))
-        value := StrReplace(value, "%user_localappdata%", IniRead("config.ini", "paths", "user_localappdata"))
-
-        ; Replace program files paths
-        value := StrReplace(value, "%program_files%", IniRead("config.ini", "paths", "program_files"))
-        value := StrReplace(value, "%program_files_x86%", IniRead("config.ini", "paths", "program_files_x86"))
-
-        ; Replace dev paths
-        value := StrReplace(value, "%dev_dir%", IniRead("config.ini", "paths", "dev_dir"))
-        value := StrReplace(value, "%scripts_dir%", IniRead("config.ini", "paths", "scripts_dir"))
-    }
-
-    return value
-}
-
-;===============================================================================
 ; CONFIG CACHING & AUTO-REFRESH (PORTABILITY)
 ;===============================================================================
 global Config := Map()
@@ -91,26 +57,10 @@ loadConfig() {
     }
 
     ; Cache desktop tools
-    desktopKeys := [
-        "nircmd_exe", "notifu_exe", "tail_exe", "kenv_scripts_dir", "kit_dir", "fsTouch_exe"
-    ]
+    desktopKeys := ["nircmd_exe", "notifu_exe"]
     Config["desktop"] := Map()
     for key in desktopKeys {
         Config["desktop"][key] := IniRead("config.ini", "desktop", key, "")
-    }
-
-    ; Cache Programs section
-    programKeys := ["ChromePath"]
-    Config["Programs"] := Map()
-    for key in programKeys {
-        Config["Programs"][key] := IniRead("config.ini", "Programs", key, "")
-    }
-
-    ; Cache paths section
-    pathKeys := ["user_home", "user_documents", "user_appdata", "user_localappdata", "program_files", "program_files_x86", "dev_dir", "scripts_dir"]
-    Config["paths"] := Map()
-    for key in pathKeys {
-        Config["paths"][key] := IniRead("config.ini", "paths", key, "")
     }
 
     ; Cache general section

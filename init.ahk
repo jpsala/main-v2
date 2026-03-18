@@ -89,6 +89,8 @@ if (!A_IsCompiled) {
     {path: './chrome.ahk', lastModVar: FileGetTime('./chrome.ahk', "M")},
     {path: './lib/chord-hotkeys.ahk', lastModVar: FileGetTime('./lib/chord-hotkeys.ahk', "M")},
     {path: './hotkeys-global.ahk', lastModVar: FileGetTime('./hotkeys-global.ahk', "M")},
+    {path: './vim-mode.ahk', lastModVar: FileGetTime('./vim-mode.ahk', "M")},
+    {path: './vim-keymap.ahk', lastModVar: FileGetTime('./vim-keymap.ahk', "M")},
     {path: './roa.ahk', lastModVar: FileGetTime('./roa.ahk', "M")},
     {path: './menu.ahk', lastModVar: FileGetTime('./menu.ahk', "M")},
     {path: './tray-menu.ahk', lastModVar: FileGetTime('./tray-menu.ahk', "M")},
@@ -226,11 +228,18 @@ BuildProfileCmd(exePath, section, key) {
   userDataDir := pipeParts.Length >= 2 ? pipeParts[2] : ""
   extraFlags := pipeParts.Length >= 3 ? pipeParts[3] : ""
 
-  ; Backward compatibility: old main Vivaldi setup used explicit Main profile
+  ; Backward compatibility: old main Vivaldi setup uses explicit Main profile
   ; and dedicated user-data-dir under C:\tools\vivaldi\main\User Data.
   if (section = "vivaldi-profiles" && key = "main" && profileDir = "Profile 1" && !userDataDir) {
     profileDir := "Main"
     userDataDir := "C:\tools\vivaldi\main\User Data"
+  }
+
+  ; These launchers must never expose a remote debugging port, even if config.ini
+  ; still contains an older flag.
+  if ((section = "chrome-profiles" && key = "debug")
+    || (section = "vivaldi-profiles" && key = "main")) {
+    extraFlags := StripRemoteDebuggingPort(extraFlags)
   }
 
   if (!profileDir)
@@ -245,6 +254,13 @@ BuildProfileCmd(exePath, section, key) {
   return cmd . ' '
 }
 
+StripRemoteDebuggingPort(flags) {
+  if (!flags)
+    return ""
+  cleaned := RegExReplace(flags, "\s*--remote-debugging-port=\d+")
+  return Trim(cleaned)
+}
+
 SeedDefaultProfiles() {
   if (IniRead("config.ini", "vivaldi-profiles",, "") = "") {
     defaults := Map(
@@ -257,7 +273,7 @@ SeedDefaultProfiles() {
       "trading", "Trading||",
       "gordos", "Gordos||",
       "books", "Books|d:\vivaldi-profiles|",
-      "debug", "Debug||--remote-debugging-port=9222 --no-first-run"
+      "debug", "Debug||--no-first-run"
     )
     for k, v in defaults
       IniWrite(v, "config.ini", "vivaldi-profiles", k)

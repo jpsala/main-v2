@@ -38,5 +38,7 @@ if(A_IsAdmin){
 #Include ".\system.ahk"
 #Include ".\chrome.ahk"
 #Include ".\hotkeys-global.ahk"
+#Include ".\vim-mode.ahk"
+#Include ".\vim-keymap.ahk"
 #Include ".\menu.ahk"
 #Include ".\menu-webview.ahk"

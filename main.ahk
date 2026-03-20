@@ -30,6 +30,7 @@ if(A_IsAdmin){
 #include '.\init.ahk'
 #Include ".\bookmarks.ahk"
 #Include ".\menus.ahk"
+#Include ".\menus-whichkey.ahk"
 #Include ".\code.ahk"
 #Include ".\settings-window.ahk"
 #Include ".\tray-menu.ahk"
@@ -40,5 +41,9 @@ if(A_IsAdmin){
 #Include ".\hotkeys-global.ahk"
 #Include ".\vim-mode.ahk"
 #Include ".\vim-keymap.ahk"
+#Include ".\vim-keymap-code.ahk"
+#Include ".\chord-examples.ahk"
 #Include ".\menu.ahk"
 #Include ".\menu-webview.ahk"
+
+InitMenusWhichKey()

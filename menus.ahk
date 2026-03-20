@@ -1,268 +1,214 @@
 ; ===================================================================
 ; Apps
 ; ===================================================================
-#a:: mainSeqA()
-mainSeqA() {
-    options := {
-        waitml: 800,
+global vivaldiExe := "C:\Program Files\Vivaldi\Application\vivaldi.exe"
+global cursorExe := "C:\Users\jpsal\AppData\Local\Programs\cursor\cursor.exe"
+global xyplorerExe := "C:\tools\xyplorer-portable\XYplorer.exe"
+global vscodeExe := "C:\Program Files\Microsoft VS Code\Code.exe"
+global wisprFlowExe := "C:\Users\jpsal\AppData\Local\WisprFlow\Wispr Flow.exe"
+
+; ===================================================================
+; Generic menu action dispatch
+; ===================================================================
+BuildActionMap(items, prefix := "") {
+    actionMap := Map()
+    for _, item in items {
+        if !IsObject(item) || !item.HasOwnProp("key")
+            continue
+        fullKey := prefix . item.key
+        if (item.HasOwnProp("action"))
+            actionMap[fullKey] := item.action
+        if (item.HasOwnProp("items") && IsObject(item.items))
+            for k, v in BuildActionMap(item.items, fullKey)
+                actionMap[k] := v
+    }
+    return actionMap
+}
+
+RunMenuAction(actionMap, key) {
+    if actionMap.Has(key)
+        actionMap[key].Call()
+}
+
+; ===================================================================
+; Menu A — Apps
+; ===================================================================
+GetMainSeqAOptions() {
+    return {
+        waitml: 1000,
         items: [
-            { key: '7', label: '70% date for SQ' },
-            { key: 'a', label: 'Algo', items: [
-                { key: '1', label: 'SQ 14' },
-                { key: 'b', label: 'Bots' },
-                { key: 'g', label: 'Get-settings' },
-                { key: 'e', label: 'Get-settings sources' },
-                { key: 'p', label: 'SQ Projects folder in xyplorer' },
-                { key: 'x', label: 'SQ Scripts in cursor' },
-                { key: 'l', label: 'Lab.v2 Vault' },
-                { key: 's', label: 'Leer settings de un proyecto' },
-            ]},
-            { key: '#b', label: 'Show Bookmarks' },
-            { key: 'c', label: 'SpeedCrunch' },
-            { key: 'C', label: 'LibreOffice Calc' },
-            { key: 'D', label: 'Run Tail.exe (Debug)' },
-            { key: 'f', label: 'File Explorer' },
-            { key: 'M', label: 'Mixer' },
-            { key: 'r', label: 'rust' },
-            { key: 's', label: 'Spotify' },
-            { key: 'S', label: 'ShareX screenshots' },
+            { key: '#b', label: 'Show Bookmarks', chordKey: 'b', action: () => showBookmarks() },
+            { key: 'c', label: 'SpeedCrunch', action: () => Roa('SpeedCrunch', 'C:\tools\speedcrunch\speedcrunch.exe') },
+            { key: 'C', label: 'LibreOffice Calc', action: () => Roa('libreoffice-calc', 'C:\Program Files\LibreOffice\program\scalc.exe') },
+            { key: 'f', label: 'File Explorer', action: () => Roa('file-explorer', 'C:\Windows\explorer.exe') },
+            { key: 'M', label: 'Mixer', action: () => openMixer() },
+            { key: 's', label: 'Spotify', action: () => Roa('spotify', 'spotify.exe') },
+            { key: 'S', label: 'ShareX screenshots', action: () => Roa('sharex-folder', xyplorerExe . ' C:/Users/jpsal/Pictures/sharex') },
+            { key: 'w', label: 'Restart Wispr Flow', action: () => RestartWisprFlow() },
             { key: 't', label: 'tablet/telegram/terminal', items: [
-                { key: 't', label: 'Windows Terminal' },
-                { key: 'w', label: 'Warp Terminal' },
-                { key: 'T', label: 'Telegram' },
-                { key: 'a', label: 'Tablet' },
-                { key: 'p1', label: 'Phone 500px' },
-                { key: 'p2', label: 'Phone 550px' },
-                { key: 'p3', label: 'Phone 700px' },
-                { key: 'p4', label: 'Phone 900px' },
-                { key: 'W', label: 'Tablet WIFI' }
-            ]},
-            { key: 'w', label: 'WhatsApp' },
-            { key: 'x', label: 'XYplorer', items: [
-                { key: 'x', label: 'XYplorer' },
-                { key: 's', label: 'ShareX' },
-                { key: 'd', label: 'dev' },
-            ]},
-            { key: 'y', label: 'Window Spy' },
-        ]
-    }
-    
-    ; key := customMenu(options)
-    key := customMenuWebView(options)
-
-    ; Handle the selected key - can be single key or multi-key sequence
-    switch key {
-        case '7':
-            Roa('test-calc', 'C:\dev\scripts\oss\70.exe')
-        case 'a1':
-            Roa('strategyquant-x', 'D:\SQX\142\StrategyQuantX_nocheck.exe')
-        case 'ab':
-            Roa('Bots', 'c:\tools\bots.exe')
-        case 'as':
-            Roa('sq-admin', 'C:\dev\aguila\sq-admin\build\bin\sq-admin.exe')
-        case 'ae':
-            Roa('sq-admin-project', cursorExe ' C:\dev\aguila\sq-admin')
-            case 'ap':
-            Roa('sqx-projects', xyplorerExe . ' ' . 'D:\SQX\142\user\projects')
-        case 'ax':
-            Roa('sq-scripts', cursorExe . ' ' . 'C:\dev\aguila\SQ-scripts')
-        case '#b':
-            showBookmarks()
-        case 'c':
-            Roa('SpeedCrunch', 'C:\tools\speedcrunch\speedcrunch.exe')
-        case 'C':
-            Roa('libreoffice-calc', 'C:\Program Files\LibreOffice\program\scalc.exe')
-        case 'D':
-            runLogExe()
-        case 'f':
-            Roa('file-explorer', 'C:\Windows\explorer.exe')
-        case 'M':
-            openMixer()
-        case 'r':
-            Roa('rustdesk', "C:\Program Files\RustDesk\rustdesk.exe --connect 21920093", '#r')
-        case 's':
-            Roa('spotify', 'spotify.exe')
-        case 'S':
-            Roa('sharex-folder', xyplorerExe . ' ' . 'C:/Users/jpsal/Pictures/sharex')
-        case 'tt':
-            Roa('windows-terminal', "C:\Program Files\WindowsApps\Microsoft.WindowsTerminal_1.23.20211.0_x64__8wekyb3d8bbwe\wt.exe")
-        case 'tw':
-            Roa('warp-terminal', "C:\Users\jpsal\AppData\Local\Programs\Warp\warp.exe")
-        case 'tT':
-            Roa('telegram', '"C:\tools\Telegram\Telegram.exe"')
-        case 'ta':
-            Roa('scrcpy-tablet', 'c:\tools\scrcpy\scrcpy-noconsole.vbs --select-usb --turn-screen-off --stay-awake')
-        case 'tp1':
-            Roa('scrcpy-phone-500px', 'c:\tools\scrcpy\scrcpy-noconsole.vbs --no-power-on --select-usb --turn-screen-off --stay-awake --window-title="My phone" --window-borderless -b 2M -m 800 --max-fps=15  --max-size 1024 --turn-screen-off --stay-awake --max-size 500')
-        case 'tp2':
-            Roa('scrcpy-phone-550px', 'c:\tools\scrcpy\scrcpy-noconsole.vbs --no-power-on --select-usb --turn-screen-off --stay-awake --window-title="My phone" --window-borderless -b 2M -m 550 --max-fps=15  --max-size 550 --turn-screen-off --stay-awake --max-size 550')
-        case 'tp3':
-            Roa('scrcpy-phone-700px', 'c:\tools\scrcpy\scrcpy-noconsole.vbs --no-power-on --select-usb --turn-screen-off --stay-awake --window-title="My phone" --window-borderless -b 2M -m 800 --max-fps=15  --max-size 1024 --turn-screen-off --stay-awake --max-size 700')
-        case 'tp4':
-            Roa('scrcpy-phone-900px', 'c:\tools\scrcpy\scrcpy-noconsole.vbs --no-power-on --select-usb --turn-screen-off --stay-awake --window-title="My phone" --window-borderless -b 2M -m 800 --max-fps=15  --max-size 1024 --turn-screen-off --stay-awake --max-size 900')
-        case 'tW':
-            Roa('scrcpy-wifi', 'c:\tools\scrcpy\scrcpy-noconsole.vbs -b 1M -m 1024')
-        case 'w':
-            RoAWithPattern('WhatsApp Beta', '"C:\Program Files\WindowsApps\5319275A.51895FA4EA97F_2.2564.350.0_x64__cv1g1gvanyjgm\whatsapp.exe"')
-        case 'xx':
-            Roa('xyplorer', 'C:\tools\xyplorer-portable\XYplorer.exe')
-        case 'xs':
-            Roa('sharex-folder', xyplorerExe . ' ' . 'C:/Users/jpsal/Pictures/sharex')
-        case 'xd':
-            Roa('dev-folder', xyplorerExe . ' ' . 'C:/dev')
-        case 'y':
-            Roa('window-spy', 'C:\Program Files\AutoHotkey\UX\WindowSpy.ahk')
-    }
-}
-; ===================================================================
-; Browser & Web
-; ===================================================================
-#w:: mainSeqW()
-mainSeqW() {
-    options := {
-        waitml: 800,
-        items: [
-            { key: '$', label: 'USD' },
-            { key: 'a', label: 'AI' },
-            { key: 'A', label: 'Amaia' },
-            { key: 'b', label: 'Browser Books' },
-            { key: 'c', label: 'Browser Carnival' },
-            { key: '#c', label: 'chrome-main' },
-            { key: 'd', label: 'Debug with chrome' },
-            { key: '#d', label: 'Debug with chrome' },
-            { key: 'D', label: 'Debug with vivaldi' },
-            { key: 'f', label: 'Browser Main' },
-            { key: 's', label: 'Sites', items: [
-                { key: 'c', label: 'Google Calendar' },
-                { key: 'g', label: 'Gemini' },
-                { key: 'j', label: 'Jitsi' },
-                { key: 'k', label: 'Google Keep' },
-                { key: 'm', label: 'Google Mail' },
-                { key: 'cu', label: 'Cursor Dashboard' },
-                { key: 'd', label: 'Google Drive' },
-                { key: 't', label: 'TradingView' },
+                { key: 't', label: 'Windows Terminal', action: () => Roa('windows-terminal', "C:\Program Files\WindowsApps\Microsoft.WindowsTerminal_1.23.20211.0_x64__8wekyb3d8bbwe\wt.exe") },
+                { key: 'T', label: 'Telegram', action: () => Roa('telegram', '"C:\tools\Telegram\Telegram.exe"') },
+                { key: 'a', label: 'Tablet', action: () => RunScrcpyTablet() },
+                { key: 'p3', label: 'Phone 700px', chordPath: ['p', '3'], chordPathLabel: 'Phone', action: () => RunScrcpyPhone(700) },
+                { key: 'p4', label: 'Phone 900px', chordPath: ['p', '4'], chordPathLabel: 'Phone', action: () => RunScrcpyPhone(900) },
             ] },
-            { key: 'F', label: 'Chrome Debug' },
-            { key: 'g', label: 'Browser AI' },
-            { key: 'G', label: 'Browser Gordos' },
-            { key: 'r', label: 'Debug' },
-            { key: 'w', label: 'Work' },
-            { key: '#w', label: 'Work (Alt)' },
-            { key: '#d', label: 'chrome-debug (Alt)' },
-            { key: 'v', label: 'Youtube' },
-            { key: 'yv', label: 'YouTube Video Downloader' },
-            { key: 'ya', label: 'YouTube Audio Downloader' },
-            { key: 'V', label: 'Vivaldi (App)' }
+            { key: 'x', label: 'XYplorer', action: () => Roa('xyplorer', xyplorerExe) },
+            { key: 'y', label: 'Window Spy', action: () => Roa('window-spy', 'C:\Program Files\AutoHotkey\UX\WindowSpy.ahk') },
         ]
     }
+}
 
-    ; key := customMenu(options)
-    key := customMenuWebView(options)
+; --- Scrcpy helpers ---
 
-    switch key {
-        case 'a':
-            Roa('ai-project', cursorExe . ' c:\dev\ai')
-        case 'A':
-            Roa('amaia-project', cursorExe . ' c:\dev\amaia')
-        case 'c':
-            Roa('chrome-carnival', vivaldiWithCarnivalProfile)
-        case '#c':
-            Roa('chrome-main', browserWithChromeMainProfile)
-        case 'd', '#d':
-            A_Clipboard := chromeWithDebugProfile
-            run(chromeWithDebugProfile)
-        case 'D':
-            run(vivaldiWithDebugProfile)
-        case 'f':
-            if (!Roa('vivaldi-main', vivaldiWithMainProfile, '#f'))
-                Run(vivaldiWithMainProfile)
-        case 'v':
-            Roa('vivaldi-youtube', vivaldiWithYoutubeProfile, '#v')
-        case 'sc':
-            Roa('google-calendar', vivaldiWithMainProfile . ' https://calendar.google.com/calendar/u/0/r')
-        case 'sg':
-            Roa('vivaldi-gemini', vivaldiWithGeminProfile . ' https://gemini.google.com/ --new-window', '#i')
-        case 'sj':
-            Roa('jitsi-meet', vivaldiWithMainProfile . ' https://meet.jit.si/JP_ALFRE_REDACTED_SECRET')
-        case 'sk':
-            Roa('google-keep', vivaldiWithMainProfile . ' https://keep.google.com/')
-        case 'sm':
-            Roa('google-mail', vivaldiWithMainProfile . ' https://mail.google.com')
-        case 'scu':
-            Roa('cursor-dashboard', vivaldiWithMainProfile . ' https://cursor.com/dashboard?tab=billing')
-        case 'sd':
-            Roa('google-drive', vivaldiWithMainProfile . ' https://drive.google.com/drive/my-drive?ths=true')
-        case 'st':
-            Roa('tradingview', vivaldiWithMainProfile . ' https://www.tradingview.com/chart')
-        case 'b':
-            Roa('vivaldi-books', vivaldiWithBooksProfile, '#b')
-        case 'F':
-            run(chromeWithDebugProfile)
-        case 'g':
-            Roa('vivaldi-ai', vivaldiWithAIProfile, '#g')
-        case 'G':
-            run(vivaldiWithGordosProfile)
-        case 'w', 'w':
-            Roa('browser-work', chromeWithWorkProfile)
-        case 'yv':
-            DownloadYouTubeVideoFromClipboard()
-        case 'ya':
-            DownloadYouTubeAudioFromClipboard()
-        case 'V':
-            Roa('vivaldi', vivaldiExe)
+GetScrcpyLauncher() {
+    global deviceSection
+    launcher := IniRead("config.ini", deviceSection, "scrcpy_launcher", "")
+    if (!launcher)
+        launcher := IniRead("config.ini", "desktop", "scrcpy_launcher", "C:\tools\scrcpy\scrcpy-noconsole.vbs")
+
+    if (!FileExist(launcher)) {
+        msg("scrcpy launcher no encontrado: " . launcher, { seconds: 4 })
+        return ""
+    }
+    return '"' . launcher . '"'
+}
+
+GetScrcpyTargetArg(deviceKey) {
+    global deviceSection
+    serial := IniRead("config.ini", deviceSection, deviceKey . "_serial", "")
+    if (!serial)
+        serial := IniRead("config.ini", "desktop", deviceKey . "_serial", "")
+    return serial ? '--serial "' . serial . '"' : "--select-usb"
+}
+
+RunScrcpyTablet() {
+    launcher := GetScrcpyLauncher()
+    if (!launcher)
+        return
+    cmd := launcher . " " . GetScrcpyTargetArg("tablet") . " --turn-screen-off --stay-awake"
+    Roa("scrcpy-tablet", cmd)
+}
+
+RunScrcpyPhone(maxSize) {
+    launcher := GetScrcpyLauncher()
+    if (!launcher)
+        return
+    quotedTitle := Chr(34) . "My phone" . Chr(34)
+    cmd := launcher . " --no-power-on " . GetScrcpyTargetArg("phone") . " --turn-screen-off --stay-awake --window-title=" . quotedTitle . " --window-borderless -b 2M --max-fps=15 --max-size " . maxSize
+    Roa("scrcpy-phone-" . maxSize . "px", cmd)
+}
+
+RunScrcpyWifi() {
+    launcher := GetScrcpyLauncher()
+    if (!launcher)
+        return
+    Roa("scrcpy-wifi", launcher . " -b 1M -m 1024")
+}
+
+; --- Wispr Flow ---
+
+RestartWisprFlow() {
+    global wisprFlowExe
+    processName := "Wispr Flow.exe"
+    existingWisprHwnds := Map()
+
+    for hwnd in WinGetList("ahk_exe " processName) {
+        existingWisprHwnds[String(hwnd)] := true
+    }
+
+    if (ProcessExist(processName)) {
+        Loop 5 {
+            pid := ProcessExist(processName)
+            if (!pid)
+                break
+            try ProcessClose(pid)
+            Sleep(200)
+        }
+    }
+
+    if (!FileExist(wisprFlowExe)) {
+        msg("Wispr Flow no encontrado: " . wisprFlowExe, { seconds: 4 })
+        return
+    }
+
+    try {
+        Run('"' . wisprFlowExe . '"')
+        CloseWisprStartupPopup()
+        msg("Wispr Flow reiniciado", { seconds: 1 })
+    } catch Error as e {
+        msg("Error reiniciando Wispr Flow: " . e.Message, { seconds: 4 })
     }
 }
+
+CloseWisprStartupPopup() {
+    deadline := A_TickCount + 3000
+    while (A_TickCount < deadline) {
+        ; precise match: only the Hub popup window
+        hwnd := WinExist("Hub ahk_class Chrome_WidgetWin_1 ahk_exe Wispr Flow.exe")
+        if hwnd {
+            WinClose("ahk_id " hwnd)   ; closes window only, not process
+            return true
+        }
+        Sleep(100)
+    }
+    return false
+}
+
 ; ===================================================================
-; Code
+; Menu W — Browser & Web
 ; ===================================================================
-#c:: mainSeqC()
-mainSeqC() {
-    options := {
-        waitml: 800,
+OpenChromeDebugCopy() {
+    A_Clipboard := chromeWithDebugProfile
+    Run(chromeWithDebugProfile)
+}
+
+OpenMainBrowser() {
+    if (!Roa('vivaldi-main', vivaldiWithMainProfile, '#f'))
+        Run(vivaldiWithMainProfile)
+}
+
+GetMainSeqWOptions() {
+    return {
+        waitml: 1000,
         items: [
-            { key: 'M', label: 'Main script with cursor' },
-            { key: 'm', label: 'Main script with vscode' },
-            { key: 's', label: 'Scripts folder' },
-            { key: 't', label: 'Chat' },
-            { key: 'C', label: 'Code' },
-            { key: 'c', label: 'Cursor' },
-            { key: 'l', label: 'Claude Code' },
-            { key: 'q', label: 'copyQ data' },
-            { key: 'p', label: 'Passwords' },
+            ; { key: '$', label: 'USD' },
+            { key: 'a', label: 'AI', action: () => Roa('ai-project', cursorExe . ' c:\dev\ai') },
+            ; { key: 'A', label: 'Amaia', action: () => Roa('amaia-project', cursorExe . ' c:\dev\amaia') },
+            ; { key: 'b', label: 'Browser Books', action: () => Roa('vivaldi-books', vivaldiWithBooksProfile, '#b') },
+            { key: 'c', label: 'Browser Carnival', action: () => Roa('chrome-carnival', vivaldiWithCarnivalProfile) },
+            { key: '#c', label: 'chrome-main', chordKey: 'm', action: () => Roa('chrome-main', browserWithChromeMainProfile) },
+            { key: 'd', label: 'Debug with chrome', chordHidden: true },
+            ; { key: '#d', label: 'Chrome Debug', chordKey: 'x', action: () => OpenChromeDebugCopy() },
+            { key: 'D', label: 'Debug with vivaldi', action: () => Run(vivaldiWithDebugProfile) },
+            { key: 'f', label: 'Browser Main', action: () => OpenMainBrowser() },
+            { key: 'd', label: 'Vivaldi debug', action: () => Run(vivaldiWithDebugProfile) },
+            { key: 's', label: 'Sites', items: [
+                { key: 'c', label: 'Google Calendar', action: () => Roa('google-calendar', vivaldiWithMainProfile . ' https://calendar.google.com/calendar/u/0/r') },
+                ; { key: 'g', label: 'Gemini', action: () => Roa('vivaldi-gemini', vivaldiWithGeminProfile . ' https://gemini.google.com/ --new-window', '#i') },
+                ; { key: 'j', label: 'Jitsi', action: () => Roa('jitsi-meet', vivaldiWithMainProfile . ' https://meet.jit.si/JP_ALFRE_REDACTED_SECRET') },
+                { key: 'k', label: 'Google Keep', action: () => Roa('google-keep', vivaldiWithMainProfile . ' https://keep.google.com/') },
+                ; { key: 'm', label: 'Google Mail', action: () => Roa('google-mail', vivaldiWithMainProfile . ' https://mail.google.com') },
+                ; { key: 'cu', label: 'Cursor Dashboard', chordKey: 'u', action: () => Roa('cursor-dashboard', vivaldiWithMainProfile . ' https://cursor.com/dashboard?tab=billing') },
+                { key: 'd', label: 'Google Drive', action: () => Roa('google-drive', vivaldiWithMainProfile . ' https://drive.google.com/drive/my-drive?ths=true') },
+                ; { key: 't', label: 'TradingView', action: () => Roa('tradingview', vivaldiWithMainProfile . ' https://www.tradingview.com/chart') },
+            ] },
+            ; { key: 'F', label: 'Chrome Debug', action: () => Run(chromeWithDebugProfile) },
+            ; { key: 'g', label: 'Browser AI', action: () => Roa('vivaldi-ai', vivaldiWithAIProfile, '#g') },
+            ; { key: 'G', label: 'Browser Gordos', action: () => Run(vivaldiWithGordosProfile) },
+            ; { key: 'r', label: 'Debug', chordHidden: true },
+            ; { key: 'w', label: 'Work', action: () => Roa('browser-work', chromeWithWorkProfile) },
+            ; { key: '#w', label: 'Work (Alt)', chordHidden: true },
+            ; { key: '#d', label: 'chrome-debug (Alt)', chordHidden: true },
+            { key: 'v', label: 'Youtube', action: () => Roa('vivaldi-youtube', vivaldiWithYoutubeProfile, '#v') },
+            ; { key: 'yv', label: 'YouTube Video Downloader', chordPath: ['y', 'v'], chordPathLabel: 'YouTube DL', action: () => DownloadYouTubeVideoFromClipboard() },
+            ; { key: 'ya', label: 'YouTube Audio Downloader', chordPath: ['y', 'a'], chordPathLabel: 'YouTube DL', action: () => DownloadYouTubeAudioFromClipboard() },
+            ; { key: 'V', label: 'Vivaldi (App)', action: () => Roa('vivaldi', vivaldiExe) },
         ]
-    }
-
-    ; key := customMenu(options)
-    key := customMenuWebView(options)
-    switch key {
-        case 'p':
-            Roa('passwords-backup', cursorExe . ' "D:\user-home-in-d\Documents\Chrome Passwords Backup.csv"')
-        case 'M':
-            Roa('main-scripts', cursorExe . ' c:\dev\scripts\main', '!m')
-        case 'm':
-            Roa('main-scripts', vscodeExe . ' c:\dev\scripts\main', '!m')
-        case 's':
-            Roa('scripts-folder', cursorExe . ' c:\dev\scripts', '!s')
-        case 't':
-            Roa('chat', cursorExe . ' c:\dev\chat', '#t')
-        case 'C':
-            RoAWithPattern('ahk_exe Code.exe', vscodeExe, '^!c')
-        case 'c':
-            Roa('cursor', cursorExe)
-        case 'l':
-            Roa('claude-code', 'wt --size 90,35 -p "Claude" -- claude --dangerously-skip-permissions --chrome --ide ')
-        case 'q':
-            Roa('chrome-passwords-copyq', cursorExe ' "D:\user-home-in-d\Documents\copyq-backup"')
-        case 'P':
-            Roa('chrome-passwords-copyq', cursorExe ' "D:\user-home-in-d\Documents\copyq-backup"')
-        case 'p':
-            Roa('chrome-passwords-csv', cursorExe ' "D:\user-home-in-d\Documents\Chrome Passwords.csv"')
     }
 }
 
+; --- YouTube download helpers ---
 
-
-; YouTube download helper functions
 DownloadYouTubeVideoFromClipboard() {
     url := A_Clipboard
     if (!InStr(url, 'https://www.youtube.com/watch?') and !InStr(url, 'https://youtu.be') and !InStr(url, 'https://www.youtube.com/shorts/')) {
@@ -292,8 +238,21 @@ DownloadYouTubeAudioFromClipboard() {
 }
 
 ; ===================================================================
-; Test menus (commented out - WebView menu now used in main menus)
+; Menu C — Code
 ; ===================================================================
-; #-:: testMenuWebView()
-; #+-:: testSimpleMenu()
-; #^-:: testLargeMenu()
+GetMainSeqCOptions() {
+    return {
+        waitml: 1000,
+        items: [
+            { key: 'M', label: 'Main script with cursor', action: () => Roa('main-scripts', cursorExe . ' c:\dev\scripts\main', '!m') },
+            { key: 'm', label: 'Main script with vscode', action: () => Roa('main-scripts', vscodeExe . ' c:\dev\scripts\main', '!m') },
+            { key: 's', label: 'Scripts folder', action: () => Roa('scripts-folder', cursorExe . ' c:\dev\scripts', '!s') },
+            { key: 't', label: 'Chat', action: () => Roa('chat', cursorExe . ' c:\dev\chat', '#t') },
+            { key: 'C', label: 'Code', action: () => RoAWithPattern('ahk_exe Code.exe', vscodeExe, '^!c') },
+            { key: 'c', label: 'Cursor', action: () => Roa('cursor', cursorExe) },
+            { key: 'l', label: 'Claude Code', action: () => Roa('claude-code', 'wt --size 90,35 -p "Claude" -- claude --dangerously-skip-permissions --chrome --ide ') },
+            { key: 'q', label: 'copyQ data', action: () => Roa('copyq-backup', cursorExe . ' "D:\user-home-in-d\Documents\copyq-backup"') },
+            { key: 'p', label: 'Passwords', action: () => Roa('passwords-backup', cursorExe . ' "D:\user-home-in-d\Documents\Chrome Passwords Backup.csv"') },
+        ]
+    }
+}

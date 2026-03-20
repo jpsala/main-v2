@@ -83,6 +83,7 @@ if (!A_IsCompiled) {
     {path: './init.ahk', lastModVar: FileGetTime('./init.ahk', "M")},
     {path: './bookmarks.ahk', lastModVar: FileGetTime('./bookmarks.ahk', "M")},
     {path: './menus.ahk', lastModVar: FileGetTime('./menus.ahk', "M")},
+    {path: './menus-whichkey.ahk', lastModVar: FileGetTime('./menus-whichkey.ahk', "M")},
     {path: './code.ahk', lastModVar: FileGetTime('./code.ahk', "M")},
     {path: './hotstrings.ahk', lastModVar: FileGetTime('./hotstrings.ahk', "M")},
     {path: './system.ahk', lastModVar: FileGetTime('./system.ahk', "M")},
@@ -91,6 +92,9 @@ if (!A_IsCompiled) {
     {path: './hotkeys-global.ahk', lastModVar: FileGetTime('./hotkeys-global.ahk', "M")},
     {path: './vim-mode.ahk', lastModVar: FileGetTime('./vim-mode.ahk', "M")},
     {path: './vim-keymap.ahk', lastModVar: FileGetTime('./vim-keymap.ahk', "M")},
+    {path: './vim-keymap-code.ahk', lastModVar: FileGetTime('./vim-keymap-code.ahk', "M")},
+    {path: './chord-examples.ahk', lastModVar: FileGetTime('./chord-examples.ahk', "M")},
+    {path: './ui/chord-hint.html', lastModVar: FileGetTime('./ui/chord-hint.html', "M")},
     {path: './roa.ahk', lastModVar: FileGetTime('./roa.ahk', "M")},
     {path: './menu.ahk', lastModVar: FileGetTime('./menu.ahk', "M")},
     {path: './tray-menu.ahk', lastModVar: FileGetTime('./tray-menu.ahk', "M")},
@@ -177,10 +181,6 @@ if (!A_IsCompiled) {
 
 ; let make some noise when the script is loaded
 
-volumeGui := Gui(,'volumeGui ')
-volumeGui.BackColor := "Black"
-volumeGui.Opt("-Caption	+AlwaysOnTop -SysMenu +ToolWindow ")
-volumeGui.Add("progress", "w50 h10 vMyProgress c8d8793", 0) 
 
 if(isGordos) {
   SetTimer(chequearLaHoraParaElBrillo, 60000*5)

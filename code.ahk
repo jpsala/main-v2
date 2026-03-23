@@ -86,13 +86,7 @@ toggleLog(hk)
 }
 #HotIf
 
-#HotIf (toggleCodeDebug)
-F10:: msgV1(toggleCodeDebug)
-!z:: Send('{F10}')
-!r:: Send('{f5}')
-!e:: Send('{f10}')
-F1:: toggleLog(1)
-#HotIf
+
 ; ***********************
 ; Hotstrings
 ; ***********************

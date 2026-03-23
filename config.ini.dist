@@ -47,6 +47,9 @@ scripts_dir=C:\dev\scripts\bin
 tail_exe=C:\tools\Tail.exe
 nircmd_exe=C:\tools\nircmd.exe
 notifu_exe=C:\tools\notifu\notifu.exe
+scrcpy_launcher=C:\tools\scrcpy\scrcpy-noconsole.vbs
+phone_serial=
+tablet_serial=
 strokesplus_exe=C:\tools\strokesPlus\StrokesPlus.net.exe
 strokesplus_dir=C:\tools\strokesPlus
 xyplorer_path=C:\tools\XYplorer-portable\XYplorer.exe
@@ -103,7 +106,7 @@ ai=AI|C:\tools\vivaldi\User Data|
 trading=Trading||
 gordos=Gordos||
 books=Books|d:\vivaldi-profiles|
-debug=Debug||--remote-debugging-port=9222 --no-first-run
+debug=Debug||--no-first-run
 
 [chrome-profiles]
 work=Work|C:\tools\chrome\User Data|

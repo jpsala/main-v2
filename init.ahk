@@ -83,12 +83,18 @@ if (!A_IsCompiled) {
     {path: './init.ahk', lastModVar: FileGetTime('./init.ahk', "M")},
     {path: './bookmarks.ahk', lastModVar: FileGetTime('./bookmarks.ahk', "M")},
     {path: './menus.ahk', lastModVar: FileGetTime('./menus.ahk', "M")},
+    {path: './menus-whichkey.ahk', lastModVar: FileGetTime('./menus-whichkey.ahk', "M")},
     {path: './code.ahk', lastModVar: FileGetTime('./code.ahk', "M")},
     {path: './hotstrings.ahk', lastModVar: FileGetTime('./hotstrings.ahk', "M")},
     {path: './system.ahk', lastModVar: FileGetTime('./system.ahk', "M")},
     {path: './chrome.ahk', lastModVar: FileGetTime('./chrome.ahk', "M")},
     {path: './lib/chord-hotkeys.ahk', lastModVar: FileGetTime('./lib/chord-hotkeys.ahk', "M")},
     {path: './hotkeys-global.ahk', lastModVar: FileGetTime('./hotkeys-global.ahk', "M")},
+    {path: './vim-mode.ahk', lastModVar: FileGetTime('./vim-mode.ahk', "M")},
+    {path: './vim-keymap.ahk', lastModVar: FileGetTime('./vim-keymap.ahk', "M")},
+    {path: './vim-keymap-code.ahk', lastModVar: FileGetTime('./vim-keymap-code.ahk', "M")},
+    {path: './chord-examples.ahk', lastModVar: FileGetTime('./chord-examples.ahk', "M")},
+    {path: './ui/chord-hint.html', lastModVar: FileGetTime('./ui/chord-hint.html', "M")},
     {path: './roa.ahk', lastModVar: FileGetTime('./roa.ahk', "M")},
     {path: './menu.ahk', lastModVar: FileGetTime('./menu.ahk', "M")},
     {path: './tray-menu.ahk', lastModVar: FileGetTime('./tray-menu.ahk', "M")},
@@ -175,10 +181,6 @@ if (!A_IsCompiled) {
 
 ; let make some noise when the script is loaded
 
-volumeGui := Gui(,'volumeGui ')
-volumeGui.BackColor := "Black"
-volumeGui.Opt("-Caption	+AlwaysOnTop -SysMenu +ToolWindow ")
-volumeGui.Add("progress", "w50 h10 vMyProgress c8d8793", 0) 
 
 if(isGordos) {
   SetTimer(chequearLaHoraParaElBrillo, 60000*5)
@@ -226,11 +228,18 @@ BuildProfileCmd(exePath, section, key) {
   userDataDir := pipeParts.Length >= 2 ? pipeParts[2] : ""
   extraFlags := pipeParts.Length >= 3 ? pipeParts[3] : ""
 
-  ; Backward compatibility: old main Vivaldi setup used explicit Main profile
+  ; Backward compatibility: old main Vivaldi setup uses explicit Main profile
   ; and dedicated user-data-dir under C:\tools\vivaldi\main\User Data.
   if (section = "vivaldi-profiles" && key = "main" && profileDir = "Profile 1" && !userDataDir) {
     profileDir := "Main"
     userDataDir := "C:\tools\vivaldi\main\User Data"
+  }
+
+  ; These launchers must never expose a remote debugging port, even if config.ini
+  ; still contains an older flag.
+  if ((section = "chrome-profiles" && key = "debug")
+    || (section = "vivaldi-profiles" && key = "main")) {
+    extraFlags := StripRemoteDebuggingPort(extraFlags)
   }
 
   if (!profileDir)
@@ -245,6 +254,13 @@ BuildProfileCmd(exePath, section, key) {
   return cmd . ' '
 }
 
+StripRemoteDebuggingPort(flags) {
+  if (!flags)
+    return ""
+  cleaned := RegExReplace(flags, "\s*--remote-debugging-port=\d+")
+  return Trim(cleaned)
+}
+
 SeedDefaultProfiles() {
   if (IniRead("config.ini", "vivaldi-profiles",, "") = "") {
     defaults := Map(
@@ -257,7 +273,7 @@ SeedDefaultProfiles() {
       "trading", "Trading||",
       "gordos", "Gordos||",
       "books", "Books|d:\vivaldi-profiles|",
-      "debug", "Debug||--remote-debugging-port=9222 --no-first-run"
+      "debug", "Debug||--no-first-run"
     )
     for k, v in defaults
       IniWrite(v, "config.ini", "vivaldi-profiles", k)

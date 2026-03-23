@@ -231,6 +231,9 @@ BuildProfileCmd(exePath, section, key) {
   userDataDir := pipeParts.Length >= 2 ? pipeParts[2] : ""
   extraFlags := pipeParts.Length >= 3 ? pipeParts[3] : ""
 
+  if (userDataDir)
+    userDataDir := ExpandEnvVars(userDataDir)
+
   ; Backward compatibility: old main Vivaldi setup uses explicit Main profile
   ; and dedicated user-data-dir under C:\tools\vivaldi\main\User Data.
   if (section = "vivaldi-profiles" && key = "main" && profileDir = "Profile 1" && !userDataDir) {
@@ -265,17 +268,23 @@ StripRemoteDebuggingPort(flags) {
 }
 
 SeedDefaultProfiles() {
+  vivaldiUserDataDir := EnvGet("LOCALAPPDATA") . "\Vivaldi\User Data"
+  chromeUserDataDir := EnvGet("LOCALAPPDATA") . "\Google\Chrome\User Data"
+  chromeDebugUserDataDir := EnvGet("LOCALAPPDATA") . "\Chrome Debug"
+  userProfileDir := EnvGet("USERPROFILE")
+  booksProfileDir := userProfileDir ? userProfileDir . "\vivaldi-profiles" : ""
+
   if (IniRead("config.ini", "vivaldi-profiles",, "") = "") {
     defaults := Map(
       "main", "Profile 1||",
-      "carnival", "Carnival|C:\tools\vivaldi\User Data|",
-      "youtube", "Youtube|C:\tools\vivaldi\User Data|",
+      "carnival", "Carnival|" . vivaldiUserDataDir . "|",
+      "youtube", "Youtube|" . vivaldiUserDataDir . "|",
       "mainalt", "Main.alt||",
       "gemin", "Gemin||",
-      "ai", "AI|C:\tools\vivaldi\User Data|",
+      "ai", "AI|" . vivaldiUserDataDir . "|",
       "trading", "Trading||",
       "gordos", "Gordos||",
-      "books", "Books|d:\vivaldi-profiles|",
+      "books", "Books|" . booksProfileDir . "|",
       "debug", "Debug||--no-first-run"
     )
     for k, v in defaults
@@ -283,8 +292,8 @@ SeedDefaultProfiles() {
   }
   if (IniRead("config.ini", "chrome-profiles",, "") = "") {
     defaults := Map(
-      "work", "Work|C:\tools\chrome\User Data|",
-      "debug", "Profile 3|c:\chrome-debug|--flag-switches-begin --flag-switches-end --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors",
+      "work", "Work|" . chromeUserDataDir . "|",
+      "debug", "Profile 3|" . chromeDebugUserDataDir . "|--flag-switches-begin --flag-switches-end --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors",
       "main", "Profile 1||"
     )
     for k, v in defaults

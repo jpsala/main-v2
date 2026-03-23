@@ -99,14 +99,69 @@ CloseWisprStartupPopup() {
 
 ; --- Browser ---
 
+QuoteBrowserExe(path) {
+    if (!path)
+        return ""
+    return InStr(path, " ") ? '"' . path . '"' : path
+}
+
+GetMainBrowserLauncher() {
+    global vivaldiWithMainProfile
+    global browserWithChromeMainProfile
+    global vivaldiExe
+    global chromeExe
+
+    if (vivaldiWithMainProfile)
+        return vivaldiWithMainProfile
+    if (browserWithChromeMainProfile)
+        return browserWithChromeMainProfile
+    if (vivaldiExe)
+        return QuoteBrowserExe(vivaldiExe) . " "
+    if (chromeExe)
+        return QuoteBrowserExe(chromeExe) . " "
+    return ""
+}
+
+GetBrowserLauncher(preferredLauncher := "") {
+    return preferredLauncher ? preferredLauncher : GetMainBrowserLauncher()
+}
+
+OpenBrowserProfile(alias, preferredLauncher := "", bookmark := false) {
+    launcher := GetBrowserLauncher(preferredLauncher)
+    if (!launcher) {
+        msg("No encontre un navegador configurado para " . alias, { seconds: 4 })
+        return false
+    }
+    return Roa(alias, launcher, bookmark)
+}
+
+OpenUrlWithBrowser(alias, url, preferredLauncher := "", bookmark := false) {
+    launcher := GetBrowserLauncher(preferredLauncher)
+    if (!launcher) {
+        try {
+            Run(url)
+            return true
+        } catch Error as e {
+            msg("No pude abrir la URL: " . e.Message, { seconds: 4 })
+            return false
+        }
+    }
+    return Roa(alias, RTrim(launcher) . " " . url, bookmark)
+}
+
 OpenChromeDebugCopy() {
     A_Clipboard := chromeWithDebugProfile
     Run(chromeWithDebugProfile)
 }
 
 OpenMainBrowser() {
-    if (!Roa('vivaldi-main', vivaldiWithMainProfile, '#f'))
-        Run(vivaldiWithMainProfile)
+    launcher := GetMainBrowserLauncher()
+    if (!launcher) {
+        msg("No encontre un navegador principal configurado", { seconds: 4 })
+        return false
+    }
+    if (!Roa('vivaldi-main', launcher, '#f'))
+        Run(launcher)
 }
 
 ; --- YouTube download ---

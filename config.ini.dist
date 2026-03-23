@@ -98,19 +98,19 @@ avdp-1310=carnival
 ; Format: key=profileDir|userDataDir|extraFlags
 ; userDataDir and extraFlags are optional (leave empty for browser default)
 main=Profile 1||
-carnival=Carnival|C:\tools\vivaldi\User Data|
-youtube=Youtube|C:\tools\vivaldi\User Data|
+carnival=Carnival|%LocalAppData%\Vivaldi\User Data|
+youtube=Youtube|%LocalAppData%\Vivaldi\User Data|
 mainalt=Main.alt||
 gemin=Gemin||
-ai=AI|C:\tools\vivaldi\User Data|
+ai=AI|%LocalAppData%\Vivaldi\User Data|
 trading=Trading||
 gordos=Gordos||
-books=Books|d:\vivaldi-profiles|
+books=Books|%UserProfile%\vivaldi-profiles|
 debug=Debug||--no-first-run
 
 [chrome-profiles]
-work=Work|C:\tools\chrome\User Data|
-debug=Profile 3|c:\chrome-debug|--flag-switches-begin --flag-switches-end --origin-trial-disabled-features=CanvasTextNg\|WebAssemblyCustomDescriptors
+work=Work|%LocalAppData%\Google\Chrome\User Data|
+debug=Profile 3|%LocalAppData%\Chrome Debug|--flag-switches-begin --flag-switches-end --origin-trial-disabled-features=CanvasTextNg\|WebAssemblyCustomDescriptors
 main=Profile 1||
 
 [vivaldi-local-profiles]

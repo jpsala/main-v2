@@ -786,7 +786,7 @@ ChordHintInit() {
 
     CHORD_HINT_READY := false
     dllPath := A_ScriptDir . "\lib\" . (A_PtrSize * 8) . "bit\WebView2Loader.dll"
-    CHORD_HINT_GUI := WebViewGui("+AlwaysOnTop -Caption +ToolWindow", "Chord Hint",, {DllPath: dllPath, DefaultWidth: 240, DefaultHeight: 160})
+    CHORD_HINT_GUI := WebViewGui("+AlwaysOnTop -Caption +ToolWindow -DPIScale", "Chord Hint",, {DllPath: dllPath, DefaultWidth: 240, DefaultHeight: 160})
     CHORD_HINT_GUI.OnEvent("Close", (*) => ChordHideHint())
 
     if (A_IsCompiled)

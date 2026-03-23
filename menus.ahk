@@ -1,34 +1,8 @@
 ; ===================================================================
-; Apps
+; Menu definitions — pure data, no helpers
+; Action helpers live in menu-actions.ahk
+; Engine/dispatch lives in menus-whichkey.ahk
 ; ===================================================================
-global vivaldiExe := "C:\Program Files\Vivaldi\Application\vivaldi.exe"
-global cursorExe := "C:\Users\jpsal\AppData\Local\Programs\cursor\cursor.exe"
-global xyplorerExe := "C:\tools\xyplorer-portable\XYplorer.exe"
-global vscodeExe := "C:\Program Files\Microsoft VS Code\Code.exe"
-global wisprFlowExe := "C:\Users\jpsal\AppData\Local\WisprFlow\Wispr Flow.exe"
-
-; ===================================================================
-; Generic menu action dispatch
-; ===================================================================
-BuildActionMap(items, prefix := "") {
-    actionMap := Map()
-    for _, item in items {
-        if !IsObject(item) || !item.HasOwnProp("key")
-            continue
-        fullKey := prefix . item.key
-        if (item.HasOwnProp("action"))
-            actionMap[fullKey] := item.action
-        if (item.HasOwnProp("items") && IsObject(item.items))
-            for k, v in BuildActionMap(item.items, fullKey)
-                actionMap[k] := v
-    }
-    return actionMap
-}
-
-RunMenuAction(actionMap, key) {
-    if actionMap.Has(key)
-        actionMap[key].Call()
-}
 
 ; ===================================================================
 ; Menu A — Apps
@@ -58,115 +32,9 @@ GetMainSeqAOptions() {
     }
 }
 
-; --- Scrcpy helpers ---
-
-GetScrcpyLauncher() {
-    global deviceSection
-    launcher := IniRead("config.ini", deviceSection, "scrcpy_launcher", "")
-    if (!launcher)
-        launcher := IniRead("config.ini", "desktop", "scrcpy_launcher", "C:\tools\scrcpy\scrcpy-noconsole.vbs")
-
-    if (!FileExist(launcher)) {
-        msg("scrcpy launcher no encontrado: " . launcher, { seconds: 4 })
-        return ""
-    }
-    return '"' . launcher . '"'
-}
-
-GetScrcpyTargetArg(deviceKey) {
-    global deviceSection
-    serial := IniRead("config.ini", deviceSection, deviceKey . "_serial", "")
-    if (!serial)
-        serial := IniRead("config.ini", "desktop", deviceKey . "_serial", "")
-    return serial ? '--serial "' . serial . '"' : "--select-usb"
-}
-
-RunScrcpyTablet() {
-    launcher := GetScrcpyLauncher()
-    if (!launcher)
-        return
-    cmd := launcher . " " . GetScrcpyTargetArg("tablet") . " --turn-screen-off --stay-awake"
-    Roa("scrcpy-tablet", cmd)
-}
-
-RunScrcpyPhone(maxSize) {
-    launcher := GetScrcpyLauncher()
-    if (!launcher)
-        return
-    quotedTitle := Chr(34) . "My phone" . Chr(34)
-    cmd := launcher . " --no-power-on " . GetScrcpyTargetArg("phone") . " --turn-screen-off --stay-awake --window-title=" . quotedTitle . " --window-borderless -b 2M --max-fps=15 --max-size " . maxSize
-    Roa("scrcpy-phone-" . maxSize . "px", cmd)
-}
-
-RunScrcpyWifi() {
-    launcher := GetScrcpyLauncher()
-    if (!launcher)
-        return
-    Roa("scrcpy-wifi", launcher . " -b 1M -m 1024")
-}
-
-; --- Wispr Flow ---
-
-RestartWisprFlow() {
-    global wisprFlowExe
-    processName := "Wispr Flow.exe"
-    existingWisprHwnds := Map()
-
-    for hwnd in WinGetList("ahk_exe " processName) {
-        existingWisprHwnds[String(hwnd)] := true
-    }
-
-    if (ProcessExist(processName)) {
-        Loop 5 {
-            pid := ProcessExist(processName)
-            if (!pid)
-                break
-            try ProcessClose(pid)
-            Sleep(200)
-        }
-    }
-
-    if (!FileExist(wisprFlowExe)) {
-        msg("Wispr Flow no encontrado: " . wisprFlowExe, { seconds: 4 })
-        return
-    }
-
-    try {
-        Run('"' . wisprFlowExe . '"')
-        CloseWisprStartupPopup()
-        msg("Wispr Flow reiniciado", { seconds: 1 })
-    } catch Error as e {
-        msg("Error reiniciando Wispr Flow: " . e.Message, { seconds: 4 })
-    }
-}
-
-CloseWisprStartupPopup() {
-    deadline := A_TickCount + 3000
-    while (A_TickCount < deadline) {
-        ; precise match: only the Hub popup window
-        hwnd := WinExist("Hub ahk_class Chrome_WidgetWin_1 ahk_exe Wispr Flow.exe")
-        if hwnd {
-            WinClose("ahk_id " hwnd)   ; closes window only, not process
-            return true
-        }
-        Sleep(100)
-    }
-    return false
-}
-
 ; ===================================================================
 ; Menu W — Browser & Web
 ; ===================================================================
-OpenChromeDebugCopy() {
-    A_Clipboard := chromeWithDebugProfile
-    Run(chromeWithDebugProfile)
-}
-
-OpenMainBrowser() {
-    if (!Roa('vivaldi-main', vivaldiWithMainProfile, '#f'))
-        Run(vivaldiWithMainProfile)
-}
-
 GetMainSeqWOptions() {
     return {
         waitml: 1000,
@@ -184,6 +52,8 @@ GetMainSeqWOptions() {
             { key: 'd', label: 'Vivaldi debug', action: () => Run(vivaldiWithDebugProfile) },
             { key: 's', label: 'Sites', items: [
                 { key: 'c', label: 'Google Calendar', action: () => Roa('google-calendar', vivaldiWithMainProfile . ' https://calendar.google.com/calendar/u/0/r') },
+                { key: 'a', label: 'jpsala.ai', action: () => Roa('jpsala-ai', vivaldiWithJpsalaAiProfile . ' https://claude.ai/settings/billing') },
+                { key: 'A', label: 'jpsala.alt', action: () => Roa('jpsala-alt', vivaldiWithJpsalaAltProfile . ' https://claude.ai/settings/billing') },
                 ; { key: 'g', label: 'Gemini', action: () => Roa('vivaldi-gemini', vivaldiWithGeminProfile . ' https://gemini.google.com/ --new-window', '#i') },
                 ; { key: 'j', label: 'Jitsi', action: () => Roa('jitsi-meet', vivaldiWithMainProfile . ' https://meet.jit.si/JP_ALFRE_REDACTED_SECRET') },
                 { key: 'k', label: 'Google Keep', action: () => Roa('google-keep', vivaldiWithMainProfile . ' https://keep.google.com/') },
@@ -204,36 +74,6 @@ GetMainSeqWOptions() {
             ; { key: 'ya', label: 'YouTube Audio Downloader', chordPath: ['y', 'a'], chordPathLabel: 'YouTube DL', action: () => DownloadYouTubeAudioFromClipboard() },
             ; { key: 'V', label: 'Vivaldi (App)', action: () => Roa('vivaldi', vivaldiExe) },
         ]
-    }
-}
-
-; --- YouTube download helpers ---
-
-DownloadYouTubeVideoFromClipboard() {
-    url := A_Clipboard
-    if (!InStr(url, 'https://www.youtube.com/watch?') and !InStr(url, 'https://youtu.be') and !InStr(url, 'https://www.youtube.com/shorts/')) {
-        MsgBox('Clipboard does not contain a valid YouTube video or shorts URL.`n`n' url, 'Invalid URL', 'IconWarning')
-        return
-    }
-    command := 'c:\tools\ytd.bat "' . url . '"'
-    try {
-        Run(command)
-    } catch Error as e {
-        MsgBox('Failed to run YouTube video download command:`n' command '`n`nError: ' e.Message, 'Execution Error', 'IconError')
-    }
-}
-
-DownloadYouTubeAudioFromClipboard() {
-    url := A_Clipboard
-    if (!InStr(url, 'https://www.youtube.com/watch?') and !InStr(url, 'https://youtu.be')) {
-        MsgBox('Clipboard does not contain a valid YouTube URL for audio download.`n`n' url, 'Invalid URL', 'IconWarning')
-        return
-    }
-    command := 'c:\tools\ytd-audio.bat "' . url . '"'
-    try {
-        Run(command)
-    } catch Error as e {
-        MsgBox('Failed to run YouTube audio download command:`n' command '`n`nError: ' e.Message, 'Execution Error', 'IconError')
     }
 }
 

@@ -29,6 +29,7 @@ if(A_IsAdmin){
 #Include '.\roa.ahk'
 #include '.\init.ahk'
 #Include ".\bookmarks.ahk"
+#Include ".\menu-actions.ahk"
 #Include ".\menus.ahk"
 #Include ".\menus-whichkey.ahk"
 #Include ".\code.ahk"

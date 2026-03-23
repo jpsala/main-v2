@@ -1,10 +1,35 @@
 ; Bridge menu definitions from menus.ahk into the chord-hotkeys engine.
 ; Each menu item carries its own action closure — no separate handler needed.
 
+; ===================================================================
+; Generic menu action dispatch
+; ===================================================================
+BuildActionMap(items, prefix := "") {
+    actionMap := Map()
+    for _, item in items {
+        if !IsObject(item) || !item.HasOwnProp("key")
+            continue
+        fullKey := prefix . item.key
+        if (item.HasOwnProp("action"))
+            actionMap[fullKey] := item.action
+        if (item.HasOwnProp("items") && IsObject(item.items))
+            for k, v in BuildActionMap(item.items, fullKey)
+                actionMap[k] := v
+    }
+    return actionMap
+}
+
+RunMenuAction(actionMap, key) {
+    if actionMap.Has(key)
+        actionMap[key].Call()
+}
+
 InitMenusWhichKey(defaultTimeout := 10) {
     MenuWhichKeyRegisterWithActions("#a", GetMainSeqAOptions(), defaultTimeout)
     MenuWhichKeyRegisterWithActions("#w", GetMainSeqWOptions(), defaultTimeout)
     MenuWhichKeyRegisterWithActions("#c", GetMainSeqCOptions(), defaultTimeout)
+    ; Pre-initialize the hint WebView so it's ready on first use
+    SetTimer(() => ChordHintInit(), -500)
 }
 
 MenuWhichKeyRegisterWithActions(prefixHotkey, options, defaultTimeout := 0) {

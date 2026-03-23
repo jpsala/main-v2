@@ -58,6 +58,8 @@ vivaldiWithTradingProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "tr
 vivaldiWithGordosProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "gordos")
 vivaldiWithBooksProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "books")
 vivaldiWithDebugProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "debug")
+vivaldiWithJpsalaAiProfile  := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "jpsala-ai")
+vivaldiWithJpsalaAltProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "jpsala-alt")
 
 ; Chrome profiles
 chromeWithWorkProfile := BuildProfileCmd(chromeExe, "chrome-profiles", "work")
@@ -82,6 +84,7 @@ if (!A_IsCompiled) {
     {path: './functions.ahk', lastModVar: FileGetTime('./functions.ahk', "M")},
     {path: './init.ahk', lastModVar: FileGetTime('./init.ahk', "M")},
     {path: './bookmarks.ahk', lastModVar: FileGetTime('./bookmarks.ahk', "M")},
+    {path: './menu-actions.ahk', lastModVar: FileGetTime('./menu-actions.ahk', "M")},
     {path: './menus.ahk', lastModVar: FileGetTime('./menus.ahk', "M")},
     {path: './menus-whichkey.ahk', lastModVar: FileGetTime('./menus-whichkey.ahk', "M")},
     {path: './code.ahk', lastModVar: FileGetTime('./code.ahk', "M")},

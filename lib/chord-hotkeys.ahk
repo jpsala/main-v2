@@ -990,7 +990,7 @@ ChordFormatSuffixForHint(suffixKey) {
         if RegExMatch(suffixKey, "^f([1-9]|1[0-2])$")
             return StrUpper(suffixKey)
         if (StrLen(suffixKey) = 1)
-            return StrUpper(suffixKey)
+            return suffixKey
     }
     return suffixKey
 }
@@ -1035,10 +1035,25 @@ ChordShowHint(prefixHotkey, items, path) {
     prefixText := ChordBuildHintPrefixText(prefixHotkey, path)
     hintJson := ChordHintBuildJSON(prefixText, rows, columns, rowsHeight)
 
-    screenW := A_ScreenWidth
-    screenH := A_ScreenHeight
-    x := Round((screenW - width) / 2)
-    y := Max(topMargin, screenH - height - bottomMargin)
+    cm := CoordMode("Mouse", "Screen")
+    MouseGetPos(&mouseX, &mouseY)
+    CoordMode("Mouse", cm)
+
+    monLeft := 0, monTop := 0, monRight := A_ScreenWidth, monBottom := A_ScreenHeight
+    loop MonitorGetCount() {
+        MonitorGet(A_Index, &mL, &mT, &mR, &mB)
+        if (mouseX >= mL && mouseX <= mR && mouseY >= mT && mouseY <= mB) {
+            monLeft := mL, monTop := mT, monRight := mR, monBottom := mB
+            break
+        }
+    }
+    screenW := monRight - monLeft
+    screenH := monBottom - monTop
+
+    x := monLeft + Max(0, Min(mouseX - monLeft - Round(width / 2), screenW - width))
+    yAbove := mouseY - height - 12
+    yBelow := mouseY + 12
+    y := (yAbove >= monTop + topMargin) ? yAbove : Min(yBelow, monBottom - height - bottomMargin)
 
     ChordHintInit()
     if !ChordHintWaitUntilReady()

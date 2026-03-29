@@ -15,8 +15,8 @@
 ; - VimAction("line_operator", "d" | "c" | "y")
 ; - VimAction("send", "^z")
 ; - VimAction("set_mode", false)
-; - VimAction("insert_after", "{Right}")
-; - VimAction("insert_here", "{Home}")
+; - VimAction("insert_after", "{Right}") ; move, then exit Vim mode
+; - VimAction("insert_here", "{Home}") ; move, then exit Vim mode
 ; - VimAction("escape")
 
 global vimKeymap := Map(
@@ -56,9 +56,10 @@ global vimKeymap := Map(
     "y", VimAction("operator", "y"),
     "+y", VimAction("line_operator", "y"),
     "p", VimAction("paste"),
+    "+p", VimAction("paste_before"),
     "u", VimAction("send", "^z"),
 
-    ; Exit / insert-like commands
+    ; Exit to typing
     "i", VimAction("insert_here"),
     "+i", VimAction("insert_here", "{Home}"),
     "a", VimAction("insert_after", "{Right}"),

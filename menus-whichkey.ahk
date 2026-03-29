@@ -55,6 +55,8 @@ MenuWhichKeyGetRegisterOptions(options, defaultTimeout := 0) {
         registerOptions.timeout := options.chordTimeout
     else if (defaultTimeout > 0)
         registerOptions.timeout := defaultTimeout
+    if (options.HasOwnProp("chordPrefixLabel"))
+        registerOptions.prefixLabel := options.chordPrefixLabel
 
     return registerOptions
 }

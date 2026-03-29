@@ -9,8 +9,6 @@ OnExit exitScript
 ; Enables alias-based window management (e.g., "code" -> specific VS Code window)
 LoadAliasMap()
 
-A_Clipboard := A_ComputerName
-
 ;===============================================================================
 ; PATH VALIDATION & AUTO-DETECTION
 ; Validates paths from config.ini, auto-detects common locations,

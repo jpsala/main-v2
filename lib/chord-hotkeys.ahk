@@ -294,6 +294,8 @@ ChordNormalizeRegisterOptions(registerOptions?) {
         settings.hintDelay := registerOptions.hintDelay
     if (registerOptions.HasOwnProp("timeout"))
         settings.timeout := registerOptions.timeout
+    if (registerOptions.HasOwnProp("prefixLabel"))
+        settings.prefixLabel := registerOptions.prefixLabel
 
     return settings
 }
@@ -590,9 +592,12 @@ ChordClearPending(*) {
 
 ChordHandlePrefix(prefixHotkey, *) {
     global CHORD_PREFIX_MAP
-    if !CHORD_PREFIX_MAP.Has(prefixHotkey)
+    if !CHORD_PREFIX_MAP.Has(prefixHotkey) {
+        ChordDebug("prefix not registered: " . prefixHotkey)
         return
+    }
 
+    ChordDebug("prefix triggered: " . prefixHotkey)
     ChordRunPendingSession(prefixHotkey, CHORD_PREFIX_MAP[prefixHotkey])
 }
 
@@ -668,11 +673,13 @@ ChordCaptureInput(timeoutMs) {
 
 ChordWaitForStep(prefixHotkey, items, path, hintDelayMs := 0) {
     visibleHintMs := ChordGetVisibleHintMs(prefixHotkey)
+    ChordDebug("waiting for step: " . prefixHotkey . " path=" . ChordJoin(path, ">") . " hintDelayMs=" . hintDelayMs . " visibleHintMs=" . visibleHintMs)
 
     if (hintDelayMs > 0) {
         ChordSetPendingState(prefixHotkey, items, path, hintDelayMs, hintDelayMs)
         ChordHideHint()
         earlyKey := ChordCaptureInput(hintDelayMs)
+        ChordDebug("early key: " . (earlyKey != "" ? earlyKey : "<none>"))
         if (earlyKey != "")
             return earlyKey
     }
@@ -682,23 +689,28 @@ ChordWaitForStep(prefixHotkey, items, path, hintDelayMs := 0) {
 
     ChordSetPendingState(prefixHotkey, items, path, visibleHintMs, hintDelayMs)
     ChordShowHint(prefixHotkey, items, path)
-    return ChordCaptureInput(visibleHintMs)
+    key := ChordCaptureInput(visibleHintMs)
+    ChordDebug("captured key: " . (key != "" ? key : "<none>"))
+    return key
 }
 
 ChordRunPendingSession(prefixHotkey, rootItems) {
     currentItems := rootItems
     currentPath := []
     currentHintDelayMs := ChordGetHintDelayMs(prefixHotkey)
+    ChordDebug("session start: " . prefixHotkey)
 
     while true {
         key := ChordWaitForStep(prefixHotkey, currentItems, currentPath, currentHintDelayMs)
         if (key = "") {
+            ChordDebug("session timeout/empty: " . prefixHotkey)
             ChordClearPending()
             return
         }
 
         if (key = "esc") {
             if (currentPath.Length = 0) {
+                ChordDebug("session cancelled at root: " . prefixHotkey)
                 ChordClearPending()
                 return
             }
@@ -706,14 +718,17 @@ ChordRunPendingSession(prefixHotkey, rootItems) {
             currentPath.Pop()
             currentItems := ChordGetItemsForPath(prefixHotkey, currentPath)
             if !IsObject(currentItems) {
+                ChordDebug("session invalid path after esc: " . prefixHotkey)
                 ChordClearPending()
                 return
             }
             currentHintDelayMs := ChordGetHintDelayForPath(prefixHotkey, currentPath)
+            ChordDebug("session backtrack: " . prefixHotkey . " path=" . ChordJoin(currentPath, ">"))
             continue
         }
 
         if !currentItems.Has(key) {
+            ChordDebug("session invalid key: " . prefixHotkey . " key=" . key)
             ChordClearPending()
             return
         }
@@ -724,11 +739,13 @@ ChordRunPendingSession(prefixHotkey, rootItems) {
             currentPath.Push(key)
             currentItems := childItems
             currentHintDelayMs := ChordEntryGetHintDelayMs(entry, 0)
+            ChordDebug("session enter submenu: " . prefixHotkey . " path=" . ChordJoin(currentPath, ">"))
             continue
         }
 
         ChordClearPending()
         commandName := ChordEntryGetCommand(entry)
+        ChordDebug("session execute: " . prefixHotkey . " command=" . commandName)
         executeFn := ""
         if IsObject(entry) && entry.HasOwnProp("executeFn")
             executeFn := entry.executeFn
@@ -841,6 +858,14 @@ ChordHintBuildJSON(prefixText, rows, columns := 1, rowsHeight := 0) {
 }
 
 ChordFormatPrefixForHint(prefixHotkey) {
+    global CHORD_PREFIX_SETTINGS
+
+    if (prefixHotkey != "" && CHORD_PREFIX_SETTINGS.Has(prefixHotkey)) {
+        settings := CHORD_PREFIX_SETTINGS[prefixHotkey]
+        if (settings.HasOwnProp("prefixLabel") && settings.prefixLabel != "")
+            return settings.prefixLabel
+    }
+
     hotkey := prefixHotkey
     if (SubStr(hotkey, 1, 1) = "$")
         hotkey := SubStr(hotkey, 2)

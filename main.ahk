@@ -48,3 +48,4 @@ if(A_IsAdmin){
 #Include ".\menu-webview.ahk"
 
 InitMenusWhichKey()
+InitVSCodeControllerChords()

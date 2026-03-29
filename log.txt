@@ -1,1 +1,87 @@
 Emptied
+[vscode-chord] ChordRegister called with 1 prefixes
+[vscode-chord]   Prefix: ^!g with 16 suffixes
+[vscode-chord]     ^!g,1 -> 1
+[vscode-chord]     ^!g,2 -> 2
+[vscode-chord]     ^!g,3 -> 3
+[vscode-chord]     ^!g,a -> <submenu>
+[vscode-chord]     ^!g,b -> b
+[vscode-chord]     ^!g,e -> e
+[vscode-chord]     ^!g,f -> f
+[vscode-chord]     ^!g,g -> g
+[vscode-chord]     ^!g,j -> <submenu>
+[vscode-chord]     ^!g,q -> q
+[vscode-chord]     ^!g,r -> r
+[vscode-chord]     ^!g,s -> s
+[vscode-chord]     ^!g,t -> t
+[vscode-chord]     ^!g,v -> <submenu>
+[vscode-chord]     ^!g,w -> w
+[vscode-chord]     ^!g,x -> <submenu>
+[vscode-chord] Registering prefix: ^!g -> $^!g
+[vscode-chord]   -> SUCCESS registered prefix
+[vscode-chord] ChordRegister called with 1 prefixes
+[vscode-chord]   Prefix: ^!b with 4 suffixes
+[vscode-chord]     ^!b,a -> a
+[vscode-chord]     ^!b,l -> l
+[vscode-chord]     ^!b,n -> n
+[vscode-chord]     ^!b,t -> t
+[vscode-chord] Registering prefix: ^!b -> $^!b
+[vscode-chord]   -> SUCCESS registered prefix
+[vscode-chord] ChordRegister called with 1 prefixes
+[vscode-chord]   Prefix: ^!c with 5 suffixes
+[vscode-chord]     ^!c,b -> b
+[vscode-chord]     ^!c,i -> i
+[vscode-chord]     ^!c,r -> r
+[vscode-chord]     ^!c,t -> t
+[vscode-chord]     ^!c,x -> x
+[vscode-chord] Registering prefix: ^!c -> $^!c
+[vscode-chord]   -> SUCCESS registered prefix
+[vscode-chord] ChordRegister called with 1 prefixes
+[vscode-chord]   Prefix: ^!t with 12 suffixes
+[vscode-chord]     ^!t,a -> a
+[vscode-chord]     ^!t,b -> b
+[vscode-chord]     ^!t,c -> c
+[vscode-chord]     ^!t,d -> d
+[vscode-chord]     ^!t,f -> f
+[vscode-chord]     ^!t,q -> q
+[vscode-chord]     ^!t,r -> r
+[vscode-chord]     ^!t,s -> s
+[vscode-chord]     ^!t,t -> t
+[vscode-chord]     ^!t,v -> v
+[vscode-chord]     ^!t,w -> w
+[vscode-chord]     ^!t,x -> x
+[vscode-chord] Registering prefix: ^!t -> $^!t
+[vscode-chord]   -> SUCCESS registered prefix
+[vscode-chord] ChordRegister called with 1 prefixes
+[vscode-chord]   Prefix: !f with 6 suffixes
+[vscode-chord]     !f,a -> a
+[vscode-chord]     !f,c -> c
+[vscode-chord]     !f,n -> n
+[vscode-chord]     !f,r -> r
+[vscode-chord]     !f,t -> t
+[vscode-chord]     !f,w -> w
+[vscode-chord] Registering prefix: !f -> $!f
+[vscode-chord]   -> SUCCESS registered prefix
+[vscode-chord] ChordRegister called with 1 prefixes
+[vscode-chord]   Prefix: ^!z with 6 suffixes
+[vscode-chord]     ^!z,c -> c
+[vscode-chord]     ^!z,d -> d
+[vscode-chord]     ^!z,e -> e
+[vscode-chord]     ^!z,f -> f
+[vscode-chord]     ^!z,r -> r
+[vscode-chord]     ^!z,t -> t
+[vscode-chord] Registering prefix: ^!z -> $^!z
+[vscode-chord]   -> SUCCESS registered prefix
+[vscode-chord] ChordRegister called with 1 prefixes
+[vscode-chord]   Prefix: ^!s with 8 suffixes
+[vscode-chord]     ^!s,a -> a
+[vscode-chord]     ^!s,f -> f
+[vscode-chord]     ^!s,i -> i
+[vscode-chord]     ^!s,k -> k
+[vscode-chord]     ^!s,o -> o
+[vscode-chord]     ^!s,p -> p
+[vscode-chord]     ^!s,s -> s
+[vscode-chord]     ^!s,u -> u
+[vscode-chord] Registering prefix: ^!s -> $^!s
+[vscode-chord]   -> SUCCESS registered prefix
+[vscode-chord] init complete | prefixes=^!g,^!b,^!c,^!t,!f,^!z,^!s

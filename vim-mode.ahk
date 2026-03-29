@@ -2,11 +2,12 @@ global vimMode := false
 global vimCurrentMode := "off"
 global vimVisualMode := false
 global vimPendingOperator := ""
-global vimModeGui := 0
-global vimModeLabel := 0
+global vimModeGuiTopLeft := 0
+global vimModeLabelTopLeft := 0
+global vimModeGuiBottomRight := 0
+global vimModeLabelBottomRight := 0
 global vimLAltDownTick := 0
 global vimTapThresholdMs := 180
-global vimInsertMode := false
 global vimTextEntryMode := false
 global vimTextEntryLabel := ""
 global vimCharPending := ""
@@ -15,35 +16,51 @@ global vimVisualLineMode := false
 global vimRegisteredHotkeys := []
 global vimSuppressedHotkeys := []
 
-ShowVimModeIndicator() {
-    global vimModeGui, vimModeLabel
+VimCreateModeIndicatorGui() {
+    indicatorGui := Gui("+AlwaysOnTop -Caption +ToolWindow +Disabled +E0x20")
+    indicatorGui.BackColor := "9E2A2B"
+    indicatorGui.MarginX := 7
+    indicatorGui.MarginY := 3
+    indicatorGui.SetFont("s8 bold", "Segoe UI")
+    label := indicatorGui.AddText("cWhite", "VIM")
+    return { gui: indicatorGui, label: label }
+}
 
-    if (!vimModeGui) {
-        vimModeGui := Gui("+AlwaysOnTop -Caption +ToolWindow +Disabled +E0x20")
-        vimModeGui.BackColor := "245C3A"
-        vimModeGui.MarginX := 10
-        vimModeGui.MarginY := 6
-        vimModeGui.SetFont("s10 bold", "Segoe UI")
-        vimModeLabel := vimModeGui.AddText("cWhite", "VIM")
+ShowVimModeIndicator() {
+    global vimModeGuiTopLeft, vimModeLabelTopLeft, vimModeGuiBottomRight, vimModeLabelBottomRight
+
+    if (!vimModeGuiTopLeft) {
+        indicator := VimCreateModeIndicatorGui()
+        vimModeGuiTopLeft := indicator.gui
+        vimModeLabelTopLeft := indicator.label
+    }
+
+    if (!vimModeGuiBottomRight) {
+        indicator := VimCreateModeIndicatorGui()
+        vimModeGuiBottomRight := indicator.gui
+        vimModeLabelBottomRight := indicator.label
     }
 
     VimRefreshIndicator()
 }
 
 HideVimModeIndicator() {
-    global vimModeGui
+    global vimModeGuiTopLeft, vimModeGuiBottomRight
 
-    if (vimModeGui) {
-        vimModeGui.Hide()
+    if (vimModeGuiTopLeft) {
+        vimModeGuiTopLeft.Hide()
+    }
+
+    if (vimModeGuiBottomRight) {
+        vimModeGuiBottomRight.Hide()
     }
 }
 
 VimSetPrimaryMode(mode) {
-    global vimCurrentMode, vimMode, vimInsertMode, vimVisualMode, vimVisualLineMode
+    global vimCurrentMode, vimMode, vimVisualMode, vimVisualLineMode
 
     vimCurrentMode := mode
     vimMode := (mode != "off")
-    vimInsertMode := (mode = "insert")
     vimVisualMode := (mode = "visual")
     vimVisualLineMode := (mode = "visual_line")
 }
@@ -57,8 +74,6 @@ VimModeLabelText() {
     global vimCurrentMode
 
     switch vimCurrentMode {
-        case "insert":
-            return "INSERT"
         case "visual":
             return "VISUAL"
         case "visual_line":
@@ -71,14 +86,14 @@ VimModeLabelText() {
 }
 
 VimRefreshIndicator() {
-    global vimMode, vimModeGui, vimModeLabel, vimPendingOperator, vimTextEntryMode, vimTextEntryLabel, vimCharPending
+    global vimMode, vimModeGuiTopLeft, vimModeLabelTopLeft, vimModeGuiBottomRight, vimModeLabelBottomRight, vimPendingOperator, vimTextEntryMode, vimTextEntryLabel, vimCharPending
 
     if (!vimMode) {
         HideVimModeIndicator()
         return
     }
 
-    if (!vimModeGui) {
+    if (!vimModeGuiTopLeft || !vimModeGuiBottomRight) {
         ShowVimModeIndicator()
         return
     }
@@ -94,9 +109,15 @@ VimRefreshIndicator() {
         text .= " " . StrUpper(vimCharPending)
     }
 
-    vimModeLabel.Text := text
+    vimModeLabelTopLeft.Text := text
+    vimModeLabelBottomRight.Text := text
     monitor := getMonitorInfo()
-    vimModeGui.Show("NoActivate x" (monitor.left_screen + 10) " y" (monitor.top_screen + 35) " AutoSize")
+    vimModeGuiTopLeft.Show("NoActivate x" (monitor.left_screen + 10) " y" (monitor.top_screen + 20) " AutoSize")
+
+    WinGetPos(, , &indicatorWidth, &indicatorHeight, "ahk_id " . vimModeGuiTopLeft.Hwnd)
+    bottomRightX := monitor.right_screen - indicatorWidth - 12
+    bottomRightY := monitor.bottom_screen - indicatorHeight - 12
+    vimModeGuiBottomRight.Show("NoActivate x" bottomRightX " y" bottomRightY " AutoSize")
 }
 
 VimClearPendingOperator() {
@@ -131,20 +152,6 @@ SetVimMode(enabled) {
     }
 }
 
-SetVimInsertMode(enabled := true) {
-    global vimPendingOperator, vimTextEntryMode, vimTextEntryLabel, vimCharPending
-
-    VimSetPrimaryMode(enabled ? "insert" : "normal")
-    if (enabled) {
-        vimPendingOperator := ""
-        vimTextEntryMode := false
-        vimTextEntryLabel := ""
-        vimCharPending := ""
-    }
-
-    VimRefreshIndicator()
-}
-
 ToggleVimMode() {
     global vimMode
     SetVimMode(!vimMode)
@@ -168,7 +175,7 @@ VimAction(kind, value?) {
 VimHotIf(*) {
     global vimMode, vimTextEntryMode, vimCharPending
     try
-        return vimMode && VimIsPrimaryMode("normal") && !vimTextEntryMode && vimCharPending = ""
+        return vimMode && (VimIsPrimaryMode("normal") || VimIsPrimaryMode("visual") || VimIsPrimaryMode("visual_line")) && !vimTextEntryMode && vimCharPending = ""
     catch
         return false
 }
@@ -177,6 +184,13 @@ VimHotIfEnabled(*) {
     global vimMode
     try
         return vimMode
+    catch
+        return false
+}
+
+VimHotIfNotCode(*) {
+    try
+        return VimHotIf() && !WinActive("ahk_exe Code.exe") && !WinActive("ahk_exe Cursor.exe")
     catch
         return false
 }
@@ -209,6 +223,8 @@ VimActionNeedsShiftRelease(actionSpec) {
         case "motion":
             return true
         case "delete_char":
+            return true
+        case "search":
             return true
         case "history_nav":
             return true
@@ -284,8 +300,15 @@ VimRegisterSuppressedPrintables(keymap, hotIfFunc?) {
         if (allowedKeys.Has(hotkeyName)) {
             continue
         }
+        suppressHotIf := hotIfFunc
+        if ((hotkeyName = "/" || hotkeyName = "+7") && hotIfFunc == VimHotIf) {
+            suppressHotIf := VimHotIfNotCode
+        }
+
+        HotIf(suppressHotIf)
         Hotkey(hotkeyName, VimNoOp, "On")
-        vimSuppressedHotkeys.Push({ key: hotkeyName, hotIf: hotIfFunc })
+        vimSuppressedHotkeys.Push({ key: hotkeyName, hotIf: suppressHotIf })
+        HotIf(hotIfFunc)
     }
     HotIf()
 }
@@ -309,6 +332,8 @@ VimExecuteAction(actionSpec) {
             VimHandleOperator(actionSpec.value)
         case "paste":
             VimPaste()
+        case "paste_before":
+            VimPasteBefore()
         case "line_operator":
             VimApplyLineOperator(actionSpec.value)
         case "search":
@@ -372,7 +397,7 @@ VimCancelCharMotion() {
 VimHotIfCharPending(*) {
     global vimMode, vimTextEntryMode, vimCharPending
     try
-        return vimMode && !VimIsPrimaryMode("insert") && !vimTextEntryMode && vimCharPending != ""
+        return vimMode && !vimTextEntryMode && vimCharPending != ""
     catch
         return false
 }
@@ -562,7 +587,7 @@ VimApplyOperator(op, motion) {
             Send("{Delete}")
         case "c":
             Send("{Delete}")
-            SetVimInsertMode(true)
+            SetVimMode(false)
         case "y":
             Send("^c")
     }
@@ -576,7 +601,7 @@ VimApplyLineOperator(op) {
             Send("{Delete}")
         case "c":
             Send("{Delete}")
-            SetVimInsertMode(true)
+            SetVimMode(false)
         case "y":
             Send("^c")
     }
@@ -604,7 +629,7 @@ VimHandleOperator(op) {
                 Send("{Delete}")
             case "c":
                 Send("{Delete}")
-                SetVimInsertMode(true)
+                SetVimMode(false)
                 return
             case "y":
                 Send("^c")
@@ -642,7 +667,18 @@ VimPaste() {
     if (VimIsPrimaryMode("visual") || VimIsPrimaryMode("visual_line")) {
         VimSetPrimaryMode("normal")
         VimRefreshIndicator()
+        return
     }
+}
+
+VimPasteBefore() {
+    if (VimIsPrimaryMode("visual") || VimIsPrimaryMode("visual_line")) {
+        Send("^v")
+        VimSetPrimaryMode("normal")
+        VimRefreshIndicator()
+        return
+    }
+    Send("{Left}^v")
 }
 
 VimEscape() {
@@ -664,11 +700,6 @@ VimEscape() {
         return
     }
 
-    if (VimIsPrimaryMode("insert")) {
-        SetVimInsertMode(false)
-        return
-    }
-
     if (VimIsPrimaryMode("visual") || VimIsPrimaryMode("visual_line")) {
         VimSetPrimaryMode("normal")
         VimRefreshIndicator()
@@ -684,14 +715,14 @@ VimInsertAfter(moveKeys := "") {
     if (moveKeys != "") {
         Send(moveKeys)
     }
-    SetVimInsertMode(true)
+    SetVimMode(false)
 }
 
 VimInsertHere(moveKeys := "") {
     if (moveKeys != "") {
         Send(moveKeys)
     }
-    SetVimInsertMode(true)
+    SetVimMode(false)
 }
 
 ToggleVimVisualLineMode() {

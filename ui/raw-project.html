@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RAW WhatsApp Project</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .content { flex: 1; overflow: auto; padding: 18px; display: grid; gap: 14px; }
+    .titlebar-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 7px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #1f9d66, #117a8b);
+      color: white;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 6px 18px rgba(31,157,102,.22);
+    }
+    .hero { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; }
+    .headline { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+    .subtle { color: var(--text-secondary); font-size: 12px; }
+    .pill { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); background: var(--bg-secondary); padding: 6px 10px; border-radius: 999px; font-size: 12px; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--text-muted); box-shadow: 0 0 0 3px rgba(255,255,255,.04); }
+    .dot.ok { background: var(--success); }
+    .dot.warn { background: var(--warning); }
+    .dot.err { background: var(--error); }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; padding: 14px; box-shadow: 0 12px 28px rgba(0,0,0,.18); }
+    .card h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-secondary); margin-bottom: 10px; }
+    .metric { display: grid; gap: 6px; font-size: 13px; }
+    .metric strong { color: var(--text-primary); }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .btn { border: 1px solid var(--border); background: var(--bg-tertiary); color: var(--text-primary); padding: 8px 11px; border-radius: 7px; cursor: pointer; font-size: 12px; }
+    .btn:hover { background: var(--bg-hover); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+    .btn.danger { border-color: rgba(241,76,76,.45); color: #ffb1b1; }
+    .mono { font-family: var(--font-mono); font-size: 12px; }
+    .process { display: grid; gap: 4px; padding: 8px; border: 1px solid rgba(255,255,255,.08); border-radius: 7px; background: rgba(0,0,0,.16); margin-bottom: 8px; }
+    pre { background: #0f141a; border: 1px solid var(--border); border-radius: 8px; padding: 10px; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 180px; overflow: auto; color: #d4d4d4; }
+    .message { color: var(--success); min-height: 18px; }
+    @media (max-width: 720px) { .hero, .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="titlebar">
+    <div class="grip"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="titlebar-title"><span class="titlebar-icon">Ro</span> WhatsApp Ro</div>
+    <div class="window-controls">
+      <button class="win-btn win-minimize" onclick="minimizeWindow()" title="Minimize">&#x2212;</button>
+      <button class="win-btn win-close" onclick="closeWindow()" title="Close">&#x2715;</button>
+    </div>
+  </div>
+
+  <main class="content">
+    <section class="hero">
+      <div>
+        <div class="headline">WhatsApp Ro local assistant</div>
+        <div class="subtle" id="root">C:\dev\WhatsApp</div>
+      </div>
+      <div class="pill"><span class="dot" id="overall-dot"></span><span id="overall-text">Loading...</span></div>
+    </section>
+
+    <div class="message" id="message"></div>
+
+    <section class="actions">
+      <button class="btn primary" onclick="sendToAHK('refresh')">Refresh</button>
+      <button class="btn" onclick="sendToAHK('startWatcher')">Start Watcher</button>
+      <button class="btn danger" onclick="sendToAHK('stopWatcher')">Stop Watcher</button>
+      <button class="btn" onclick="sendToAHK('restartWatcher')">Restart Watcher</button>
+      <button class="btn" onclick="sendToAHK('openDashboard')">Open App</button>
+      <button class="btn" onclick="sendToAHK('openLogs')">Logs</button>
+      <button class="btn" onclick="sendToAHK('openProject')">Folder</button>
+      <button class="btn" onclick="sendToAHK('openStatusTerminal')">Terminal Status</button>
+      <button class="btn" onclick="sendToAHK('runConfigCheck')">Config Check</button>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>App Server</h2>
+        <div class="metric">
+          <div>Status: <strong id="app-status">-</strong></div>
+          <div>PID: <span class="mono" id="app-pid">-</span></div>
+          <div>Started: <span class="mono" id="app-started">-</span></div>
+          <div>URL: <span class="mono" id="app-url">-</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Watcher</h2>
+        <div class="metric">
+          <div>Task: <strong id="watcher-state">-</strong></div>
+          <div>Processes: <span class="mono" id="watcher-count">-</span></div>
+          <div>Task name: <span class="mono" id="watcher-task">-</span></div>
+          <div>Updated: <span class="mono" id="updated-at">-</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Processes</h2>
+      <div id="processes" class="mono subtle">Loading...</div>
+    </section>
+
+    <section class="grid">
+      <div class="card"><h2>Launcher Log</h2><pre id="launcher-log"></pre></div>
+      <div class="card"><h2>Watcher Stdout</h2><pre id="stdout-log"></pre></div>
+    </section>
+    <section class="card"><h2>Sync Log</h2><pre id="sync-log"></pre></section>
+  </main>
+
+  <script src="ahk-bridge.js"></script>
+  <script>
+    function sendToAHK(action, data = {}) { postToAHK({ action, ...data }); }
+    function setText(id, value) { document.getElementById(id).textContent = value ?? '-'; }
+    function lines(value) { return Array.isArray(value) ? value.join('\n') : (value || ''); }
+
+    function render(state) {
+      if (!state || state.action !== 'state') return;
+      const appRunning = !!state.app?.running;
+      const watcherTaskRunning = state.watcher?.state === 'Running';
+      const processCount = Number(state.watcher?.processCount || 0);
+      const watcherActive = watcherTaskRunning || processCount > 0;
+      const ok = appRunning && watcherActive;
+      const warn = appRunning || watcherActive;
+      const dot = document.getElementById('overall-dot');
+      dot.className = 'dot ' + (ok ? 'ok' : warn ? 'warn' : 'err');
+      setText('overall-text', ok ? 'Activo' : warn ? 'Incompleto' : 'Detenido');
+      setText('message', state.message || '');
+      setText('root', state.root || '');
+      setText('app-status', appRunning ? 'RUNNING' : 'STOPPED');
+      setText('app-pid', state.app?.pid);
+      setText('app-started', state.app?.started);
+      setText('app-url', state.dashboardUrl);
+      const watcherState = state.watcher?.state || '-';
+      setText('watcher-state', processCount > 0 && watcherState !== 'Running' ? `${watcherState} (procesos activos)` : watcherState);
+      setText('watcher-count', processCount);
+      setText('watcher-task', state.watcher?.taskName);
+      setText('updated-at', state.generatedAt);
+      document.getElementById('launcher-log').textContent = lines(state.logs?.launcher);
+      document.getElementById('stdout-log').textContent = lines(state.logs?.stdout);
+      document.getElementById('sync-log').textContent = lines(state.logs?.sync);
+
+      const processes = Array.isArray(state.processes) ? state.processes : [];
+      document.getElementById('processes').innerHTML = processes.length
+        ? processes.map(p => `<div class="process"><strong>${p.Name || ''} #${p.ProcessId || ''}</strong><span>${escapeHtml(p.CommandLine || '')}</span></div>`).join('')
+        : '<span class="subtle">No RAW/Ro watcher processes found.</span>';
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+    }
+
+    if (window.chrome?.webview) {
+      window.chrome.webview.addEventListener('message', event => render(event.data));
+    }
+    window.addEventListener('DOMContentLoaded', () => sendToAHK('ready'));
+  </script>
+</body>
+</html>

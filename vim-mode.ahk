@@ -150,6 +150,8 @@ SetVimMode(enabled) {
     } else {
         HideVimModeIndicator()
     }
+
+    return vimMode
 }
 
 ToggleVimMode() {
@@ -162,6 +164,10 @@ VimExitOnMouse(*) {
     if (vimMode) {
         SetVimMode(false)
     }
+}
+
+VimNotifyMouseInteraction(button := "") {
+    VimExitOnMouse()
 }
 
 VimAction(kind, value?) {
@@ -771,8 +777,6 @@ Enter:: VimConfirmSearch()
 #HotIf VimHotIfEnabled()
 Esc:: VimEscape()
 ~LButton:: VimExitOnMouse()
-~RButton:: VimExitOnMouse()
-~MButton:: VimExitOnMouse()
 ~XButton1:: VimExitOnMouse()
 ~XButton2:: VimExitOnMouse()
 #HotIf

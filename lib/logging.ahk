@@ -18,6 +18,7 @@ log(params*) {
     ; Set default options
     showLog := false
     isError := false
+    logFilePath := ""
     
     ; Check if logOptions has the properties
     if (logOptions) {
@@ -26,6 +27,9 @@ log(params*) {
         }
         if (logOptions.HasOwnProp("isError")) {
             isError := logOptions["isError"]
+        }
+        if (logOptions.HasOwnProp("logFilePath")) {
+            logFilePath := logOptions.logFilePath
         }
     }
     
@@ -53,8 +57,8 @@ log(params*) {
                 result .= String(param) . separator
             }
         }
-        ; Use error.txt for error logs, log.txt for normal logs
-        logFile := A_ScriptDir . '\' . (isError ? 'error.txt' : 'log.txt')
+        ; Default to the repo log files unless a custom target was provided.
+        logFile := logFilePath ? logFilePath : A_ScriptDir . '\' . (isError ? 'error.txt' : 'log.txt')
         if (!logFile) {
             msgV1("Error: Missing log file path", 3)
             return
@@ -74,7 +78,7 @@ log(params*) {
             }
         }
         if (showLog or logVisibility) {
-            runLogExe()
+            runLogExe(logFile)
             Sleep 100
         }
     } catch Error as e {
@@ -82,10 +86,10 @@ log(params*) {
     }
 }
 
-runLogExe() {
+runLogExe(logFile := "") {
     if (!WinExist("ahk_exe Tail.exe")) {
         tailExe := GetCachedConfig("desktop", "tail_exe", "")
-        logFile := A_ScriptDir . '\log.txt'
+        logFile := logFile ? logFile : A_ScriptDir . '\log.txt'
 
         if (!tailExe) {
             msgV1("Error: Missing tail path in config.ini", 3)

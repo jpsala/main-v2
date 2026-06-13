@@ -1,6 +1,9 @@
 ; Bridge menu definitions from menus.ahk into the chord-hotkeys engine.
 ; Each menu item carries its own action closure — no separate handler needed.
 
+global MENU_WHICHKEY_DEFAULT_IDLE_TIMEOUT_SECONDS := 10
+global MENU_WHICHKEY_DEFAULT_HOLD_OPEN_KEYS := ["space"]
+
 ; ===================================================================
 ; Generic menu action dispatch
 ; ===================================================================
@@ -24,41 +27,67 @@ RunMenuAction(actionMap, key) {
         actionMap[key].Call()
 }
 
-InitMenusWhichKey(defaultTimeout := 10) {
-    MenuWhichKeyRegisterWithActions("#a", GetMainSeqAOptions(), defaultTimeout)
-    MenuWhichKeyRegisterWithActions("#w", GetMainSeqWOptions(), defaultTimeout)
-    MenuWhichKeyRegisterWithActions("#c", GetMainSeqCOptions(), defaultTimeout)
+InitMenusWhichKey() {
+    MenuWhichKeyRegisterWithActions("#a", GetMainSeqAOptions())
+    MenuWhichKeyRegisterWithActions("#w", GetMainSeqWOptions())
+    MenuWhichKeyRegisterWithActions("#c", GetMainSeqCOptions())
+    MenuWhichKeyRegisterWithActions("#``", GetCopyQOptions())
     ; Pre-initialize the hint WebView so it's ready on first use
     SetTimer(() => ChordHintInit(), -500)
 }
 
-MenuWhichKeyRegisterWithActions(prefixHotkey, options, defaultTimeout := 0) {
+MenuWhichKeyRegisterWithActions(prefixHotkey, options) {
     actionMap := BuildActionMap(options.items)
-    MenuWhichKeyRegister(prefixHotkey, options, RunMenuAction.Bind(actionMap), defaultTimeout)
+    MenuWhichKeyRegister(prefixHotkey, options, RunMenuAction.Bind(actionMap))
 }
 
-MenuWhichKeyRegister(prefixHotkey, options, executeFn, defaultTimeout := 0) {
+MenuWhichKeyRegister(prefixHotkey, options, executeFn) {
     if !IsObject(options) || !options.HasOwnProp("items") || !IsObject(options.items)
         return
 
     prefixMap := Map()
     prefixMap[prefixHotkey] := MenuWhichKeyBuildItems(options.items)
-    ChordRegister(prefixMap, executeFn, MenuWhichKeyGetRegisterOptions(options, defaultTimeout))
+    ChordRegister(prefixMap, executeFn, MenuWhichKeyGetRegisterOptions(options))
 }
 
-MenuWhichKeyGetRegisterOptions(options, defaultTimeout := 0) {
+MenuWhichKeyGetRegisterOptions(options) {
+    global MENU_WHICHKEY_DEFAULT_IDLE_TIMEOUT_SECONDS, MENU_WHICHKEY_DEFAULT_HOLD_OPEN_KEYS
     registerOptions := {}
 
-    if (options.HasOwnProp("chordHintDelay"))
-        registerOptions.hintDelay := options.chordHintDelay
-    if (options.HasOwnProp("chordTimeout"))
-        registerOptions.timeout := options.chordTimeout
-    else if (defaultTimeout > 0)
-        registerOptions.timeout := defaultTimeout
+    showDelaySeconds := MenuWhichKeyGetShowDelaySeconds(options)
+    if (showDelaySeconds != "")
+        registerOptions.hintDelay := showDelaySeconds
+
+    idleTimeoutSeconds := MenuWhichKeyGetIdleTimeoutSeconds(options)
+    registerOptions.timeout := idleTimeoutSeconds != "" ? idleTimeoutSeconds : MENU_WHICHKEY_DEFAULT_IDLE_TIMEOUT_SECONDS
+
     if (options.HasOwnProp("chordPrefixLabel"))
         registerOptions.prefixLabel := options.chordPrefixLabel
 
+    if (options.HasOwnProp("holdOpenKeys"))
+        registerOptions.holdOpenKeys := options.holdOpenKeys
+    else if (options.HasOwnProp("holdOpenKey"))
+        registerOptions.holdOpenKey := options.holdOpenKey
+    else
+        registerOptions.holdOpenKeys := MENU_WHICHKEY_DEFAULT_HOLD_OPEN_KEYS
+
     return registerOptions
+}
+
+MenuWhichKeyGetShowDelaySeconds(options) {
+    if (options.HasOwnProp("showDelaySeconds"))
+        return options.showDelaySeconds
+    if (options.HasOwnProp("waitSeconds"))
+        return options.waitSeconds
+    if (options.HasOwnProp("waitml"))
+        return options.waitml / 1000
+    return ""
+}
+
+MenuWhichKeyGetIdleTimeoutSeconds(options) {
+    if (options.HasOwnProp("idleTimeoutSeconds"))
+        return options.idleTimeoutSeconds
+    return ""
 }
 
 MenuWhichKeyBuildItems(menuItems, legacyPrefix := "") {
@@ -82,6 +111,7 @@ MenuWhichKeyBuildItems(menuItems, legacyPrefix := "") {
                 label: entryLabel,
                 items: MenuWhichKeyBuildItems(item.items, fullLegacyKey)
             }
+            MenuWhichKeyApplyEntryTiming(entry, item)
         } else {
             entry := ChordEntry(fullLegacyKey, entryLabel)
         }
@@ -90,6 +120,16 @@ MenuWhichKeyBuildItems(menuItems, legacyPrefix := "") {
     }
 
     return chordItems
+}
+
+MenuWhichKeyApplyEntryTiming(entry, item) {
+    showDelaySeconds := MenuWhichKeyGetShowDelaySeconds(item)
+    if (showDelaySeconds != "")
+        entry.hintDelay := showDelaySeconds
+
+    idleTimeoutSeconds := MenuWhichKeyGetIdleTimeoutSeconds(item)
+    if (idleTimeoutSeconds != "")
+        entry.timeout := idleTimeoutSeconds
 }
 
 MenuWhichKeyGetLabel(item) {
@@ -113,7 +153,7 @@ MenuWhichKeyGetPath(item) {
         return path
     }
 
-    keySpec := item.HasOwnProp("chordKey") ? item.chordKey : item.key
+    keySpec := item.key
     normalizedKey := ChordNormalizeSuffixKey(keySpec)
     if (normalizedKey = "")
         return []
@@ -158,4 +198,3 @@ MenuWhichKeyGetPathLabel(sourceItem, fallbackKey) {
     return ChordFormatSuffixForHint(fallbackKey)
 }
 
-InitMenusWhichKey()

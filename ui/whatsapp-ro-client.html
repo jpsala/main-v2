@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp Ro Client</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    body { background: #0b141a; }
+    .titlebar { background: #111b21; border-bottom-color: #233138; }
+    .titlebar-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 1px solid #00a884;
+      color: #00a884;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+    }
+    .toolbar {
+      -webkit-app-region: no-drag;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-right: 8px;
+    }
+    .tool-btn {
+      border: 1px solid #2a3942;
+      background: #202c33;
+      color: #d1d7db;
+      border-radius: 7px;
+      padding: 5px 9px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .tool-btn:hover { background: #2a3942; color: #fff; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #667781; }
+    .status-dot.ok { background: #00a884; }
+    .status-dot.warn { background: #f59e0b; }
+    .frame-wrap { flex: 1; position: relative; min-height: 0; }
+    iframe { width: 100%; height: 100%; border: 0; background: #0b141a; display: block; }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0b141a;
+      color: #d1d7db;
+      font-size: 13px;
+      z-index: 2;
+    }
+    .overlay.hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="titlebar">
+    <div class="grip"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="titlebar-title"><span class="titlebar-icon">Ro</span> WhatsApp Ro Client</div>
+    <div class="toolbar">
+      <span id="status-dot" class="status-dot"></span>
+      <button class="tool-btn" onclick="sendToAHK('reloadClient')">Reload</button>
+      <button class="tool-btn" onclick="sendToAHK('status')">Status</button>
+      <button class="tool-btn" onclick="sendToAHK('openBrowser')">Browser</button>
+    </div>
+    <div class="window-controls">
+      <button class="win-btn win-minimize" onclick="minimizeWindow()" title="Minimize">&#x2212;</button>
+      <button class="win-btn win-close" onclick="closeWindow()" title="Close">&#x2715;</button>
+    </div>
+  </div>
+  <div class="frame-wrap">
+    <div id="overlay" class="overlay">Starting WhatsApp Ro client...</div>
+    <iframe id="client-frame" title="WhatsApp Ro Client"></iframe>
+  </div>
+
+  <script src="ahk-bridge.js"></script>
+  <script>
+    let frameLoaded = false;
+
+    function sendToAHK(action, data = {}) { postToAHK({ action, ...data }); }
+
+    function render(state) {
+      if (!state || state.action !== 'state') return;
+      const frame = document.getElementById('client-frame');
+      const overlay = document.getElementById('overlay');
+      const dot = document.getElementById('status-dot');
+      dot.className = 'status-dot ' + (state.serverRunning ? 'ok' : 'warn');
+      overlay.textContent = state.serverRunning ? 'Loading client...' : 'Server is starting...';
+      if (state.url && frame.src !== state.url) frame.src = state.url;
+      if (!frameLoaded) overlay.classList.remove('hidden');
+    }
+
+    document.getElementById('client-frame').addEventListener('load', () => {
+      frameLoaded = true;
+      document.getElementById('overlay').classList.add('hidden');
+    });
+
+    if (window.chrome?.webview) {
+      window.chrome.webview.addEventListener('message', event => render(event.data));
+    }
+    window.addEventListener('DOMContentLoaded', () => sendToAHK('ready'));
+  </script>
+</body>
+</html>

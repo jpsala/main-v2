@@ -15,6 +15,7 @@
 ; - ChordEntry(command, label := "")
 ; - ChordSetHintLabelResolver(fn)
 ; - ChordSetDebugLogger(fn)
+; - register option holdOpenKeys: key or array of keys that keeps a visible hint open until the next key
 ;
 ; Example:
 ; prefixMap := Map(
@@ -296,8 +297,60 @@ ChordNormalizeRegisterOptions(registerOptions?) {
         settings.timeout := registerOptions.timeout
     if (registerOptions.HasOwnProp("prefixLabel"))
         settings.prefixLabel := registerOptions.prefixLabel
+    if (registerOptions.HasOwnProp("holdOpenKeys"))
+        settings.holdOpenKeys := ChordNormalizeHoldOpenKeys(registerOptions.holdOpenKeys)
+    else if (registerOptions.HasOwnProp("holdOpenKey"))
+        settings.holdOpenKeys := ChordNormalizeHoldOpenKeys(registerOptions.holdOpenKey)
 
     return settings
+}
+
+ChordNormalizeHoldOpenKeys(holdOpenKeys) {
+    normalizedKeys := Map()
+
+    if IsObject(holdOpenKeys) {
+        for _, keySpec in holdOpenKeys {
+            normalizedKey := ChordNormalizeSuffixKey(keySpec)
+            if (normalizedKey != "")
+                normalizedKeys[normalizedKey] := true
+        }
+    } else {
+        normalizedKey := ChordNormalizeSuffixKey(holdOpenKeys)
+        if (normalizedKey != "")
+            normalizedKeys[normalizedKey] := true
+    }
+
+    return normalizedKeys
+}
+
+ChordIsHoldOpenKey(prefixHotkey, key) {
+    global CHORD_PREFIX_SETTINGS
+
+    if (prefixHotkey = "" || key = "")
+        return false
+    if !CHORD_PREFIX_SETTINGS.Has(prefixHotkey)
+        return false
+
+    settings := CHORD_PREFIX_SETTINGS[prefixHotkey]
+    if !(settings.HasOwnProp("holdOpenKeys") && IsObject(settings.holdOpenKeys))
+        return false
+
+    return settings.holdOpenKeys.Has(key)
+}
+
+ChordGetHoldOpenKeyLabel(prefixHotkey) {
+    global CHORD_PREFIX_SETTINGS
+
+    if (prefixHotkey = "" || !CHORD_PREFIX_SETTINGS.Has(prefixHotkey))
+        return ""
+
+    settings := CHORD_PREFIX_SETTINGS[prefixHotkey]
+    if !(settings.HasOwnProp("holdOpenKeys") && IsObject(settings.holdOpenKeys))
+        return ""
+
+    for key, _ in settings.holdOpenKeys
+        return ChordFormatSuffixForHint(key)
+    return ""
 }
 
 ChordNormalizeEntry(entry, executeFn?) {
@@ -671,8 +724,9 @@ ChordCaptureInput(timeoutMs) {
     return ChordNormalizeCapturedInput(ih)
 }
 
-ChordWaitForStep(prefixHotkey, items, path, hintDelayMs := 0) {
-    visibleHintMs := ChordGetVisibleHintMs(prefixHotkey)
+ChordWaitForStep(prefixHotkey, items, path, hintDelayMs := 0, visibleHintMs := "") {
+    if (visibleHintMs = "")
+        visibleHintMs := ChordGetVisibleHintMs(prefixHotkey)
     ChordDebug("waiting for step: " . prefixHotkey . " path=" . ChordJoin(path, ">") . " hintDelayMs=" . hintDelayMs . " visibleHintMs=" . visibleHintMs)
 
     if (hintDelayMs > 0) {
@@ -680,28 +734,41 @@ ChordWaitForStep(prefixHotkey, items, path, hintDelayMs := 0) {
         ChordHideHint()
         earlyKey := ChordCaptureInput(hintDelayMs)
         ChordDebug("early key: " . (earlyKey != "" ? earlyKey : "<none>"))
-        if (earlyKey != "")
-            return earlyKey
+        if (ChordIsHoldOpenKey(prefixHotkey, earlyKey)) {
+            ChordDebug("early hold-open key shows hint immediately: " . earlyKey)
+        } else if (earlyKey != "")
+            return { key: earlyKey, hintShown: false }
     }
 
     if (visibleHintMs <= 0)
-        return ""
+        return { key: "", hintShown: false }
 
     ChordSetPendingState(prefixHotkey, items, path, visibleHintMs, hintDelayMs)
     ChordShowHint(prefixHotkey, items, path)
     key := ChordCaptureInput(visibleHintMs)
+    if (ChordIsHoldOpenKey(prefixHotkey, key)) {
+        ChordDebug("hold-open key: " . key)
+        ChordSetPendingState(prefixHotkey, items, path, 0, hintDelayMs)
+        ChordShowHint(prefixHotkey, items, path, true)
+        key := ChordCaptureInput(2147483647)
+    }
     ChordDebug("captured key: " . (key != "" ? key : "<none>"))
-    return key
+    return { key: key, hintShown: true }
 }
 
 ChordRunPendingSession(prefixHotkey, rootItems) {
     currentItems := rootItems
     currentPath := []
     currentHintDelayMs := ChordGetHintDelayMs(prefixHotkey)
+    currentTimeoutMs := ChordGetVisibleHintMs(prefixHotkey)
+    sessionHintShown := false
     ChordDebug("session start: " . prefixHotkey)
 
     while true {
-        key := ChordWaitForStep(prefixHotkey, currentItems, currentPath, currentHintDelayMs)
+        stepResult := ChordWaitForStep(prefixHotkey, currentItems, currentPath, currentHintDelayMs, currentTimeoutMs)
+        if (stepResult.hintShown)
+            sessionHintShown := true
+        key := stepResult.key
         if (key = "") {
             ChordDebug("session timeout/empty: " . prefixHotkey)
             ChordClearPending()
@@ -722,7 +789,8 @@ ChordRunPendingSession(prefixHotkey, rootItems) {
                 ChordClearPending()
                 return
             }
-            currentHintDelayMs := ChordGetHintDelayForPath(prefixHotkey, currentPath)
+            currentHintDelayMs := sessionHintShown ? 0 : ChordGetHintDelayForPath(prefixHotkey, currentPath)
+            currentTimeoutMs := ChordGetTimeoutForPath(prefixHotkey, currentPath)
             ChordDebug("session backtrack: " . prefixHotkey . " path=" . ChordJoin(currentPath, ">"))
             continue
         }
@@ -738,7 +806,8 @@ ChordRunPendingSession(prefixHotkey, rootItems) {
         if (IsObject(childItems) && childItems.Count > 0) {
             currentPath.Push(key)
             currentItems := childItems
-            currentHintDelayMs := ChordEntryGetHintDelayMs(entry, 0)
+            currentHintDelayMs := sessionHintShown ? 0 : ChordEntryGetHintDelayMs(entry, ChordGetHintDelayMs(prefixHotkey))
+            currentTimeoutMs := ChordEntryGetTimeoutMs(entry, ChordGetVisibleHintMs(prefixHotkey))
             ChordDebug("session enter submenu: " . prefixHotkey . " path=" . ChordJoin(currentPath, ">"))
             continue
         }
@@ -795,6 +864,12 @@ ChordEntryGetHintDelayMs(entry, defaultMs := 0) {
     return defaultMs
 }
 
+ChordEntryGetTimeoutMs(entry, defaultMs := 0) {
+    if IsObject(entry) && entry.HasOwnProp("timeout")
+        return ChordSecondsToMs(entry.timeout, defaultMs)
+    return defaultMs
+}
+
 ChordHintInit() {
     global CHORD_HINT_GUI, CHORD_HINT_READY
 
@@ -839,10 +914,12 @@ ChordHintEscapeString(value) {
     return '"' . text . '"'
 }
 
-ChordHintBuildJSON(prefixText, rows, columns := 1, rowsHeight := 0) {
+ChordHintBuildJSON(prefixText, rows, columns := 1, rowsHeight := 0, holdOpenKey := "", holdOpenActive := false) {
     json := '{"prefix":' . ChordHintEscapeString(prefixText)
     json .= ',"columns":' . columns
     json .= ',"rowsHeight":' . rowsHeight
+    json .= ',"holdOpenKey":' . ChordHintEscapeString(holdOpenKey)
+    json .= ',"holdOpenActive":' . (holdOpenActive ? "true" : "false")
     json .= ',"entries":['
     for index, row in rows {
         if (index > 1)
@@ -946,6 +1023,31 @@ ChordGetHintDelayForPath(prefixHotkey, path) {
     return 0
 }
 
+ChordGetTimeoutForPath(prefixHotkey, path) {
+    global CHORD_PREFIX_MAP
+
+    defaultMs := ChordGetVisibleHintMs(prefixHotkey)
+    if (path.Length = 0)
+        return defaultMs
+    if !CHORD_PREFIX_MAP.Has(prefixHotkey)
+        return defaultMs
+
+    items := CHORD_PREFIX_MAP[prefixHotkey]
+    lastEntry := 0
+    for _, stepKey in path {
+        if !items.Has(stepKey)
+            return defaultMs
+        lastEntry := items[stepKey]
+        items := ChordEntryGetItems(lastEntry)
+        if !IsObject(items)
+            break
+    }
+
+    if IsObject(lastEntry)
+        return ChordEntryGetTimeoutMs(lastEntry, defaultMs)
+    return defaultMs
+}
+
 ChordFormatSuffixForHint(suffixKey) {
     if RegExMatch(suffixKey, "^([\^\!\+\#]*)(.+)$", &m) {
         mods := m[1]
@@ -1020,7 +1122,26 @@ ChordFormatSuffixForHint(suffixKey) {
     return suffixKey
 }
 
-ChordShowHint(prefixHotkey, items, path) {
+ChordHintMeasureColumnWidth(rows) {
+    minWidth := 240
+    maxWidth := 400
+    chromeWidth := 64
+    labelCharWidth := 7
+    keyCharWidth := 8
+    longestWidth := minWidth
+
+    for _, row in rows {
+        keyWidth := Max(26, (StrLen(row.key) * keyCharWidth) + 14)
+        labelWidth := StrLen(row.label) * labelCharWidth
+        submenuWidth := row.submenu ? 18 : 0
+        rowWidth := chromeWidth + keyWidth + labelWidth + submenuWidth
+        longestWidth := Max(longestWidth, rowWidth)
+    }
+
+    return Min(maxWidth, longestWidth)
+}
+
+ChordShowHint(prefixHotkey, items, path, holdOpenActive := false) {
     global CHORD_HINT_GUI
 
     if !IsObject(items)
@@ -1043,11 +1164,12 @@ ChordShowHint(prefixHotkey, items, path) {
 
     ChordSortRowsByKey(rows)
 
-    baseWidth := 240
+    columnWidth := ChordHintMeasureColumnWidth(rows)
     columnGap := 14
     rowHeight := 30
     headerHeight := 22
-    paddingY := 26
+    footerHeight := ChordGetHoldOpenKeyLabel(prefixHotkey) != "" ? 22 : 0
+    paddingY := 26 + footerHeight
     bottomMargin := 60
     topMargin := 32
     availableHeight := Max(160, A_ScreenHeight - bottomMargin - topMargin)
@@ -1055,10 +1177,11 @@ ChordShowHint(prefixHotkey, items, path) {
     columns := Max(1, Ceil(rows.Length / rowsPerColumn))
     usedRows := Min(rows.Length, rowsPerColumn)
     rowsHeight := usedRows * rowHeight
-    width := (baseWidth * columns) + (columnGap * Max(0, columns - 1))
+    width := (columnWidth * columns) + (columnGap * Max(0, columns - 1))
     height := paddingY + headerHeight + rowsHeight
     prefixText := ChordBuildHintPrefixText(prefixHotkey, path)
-    hintJson := ChordHintBuildJSON(prefixText, rows, columns, rowsHeight)
+    holdOpenKey := ChordGetHoldOpenKeyLabel(prefixHotkey)
+    hintJson := ChordHintBuildJSON(prefixText, rows, columns, rowsHeight, holdOpenKey, holdOpenActive)
 
     cm := CoordMode("Mouse", "Screen")
     MouseGetPos(&mouseX, &mouseY)

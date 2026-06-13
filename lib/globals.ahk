@@ -46,6 +46,7 @@ global toggleCodeDebug := false
 global toggleChromeDebug := false
 global toggleObsidanDebug := false
 global cursorKeysEnabled := false
+global terminalShiftVPasteEnabled := false
 
 ;-------------------------------------------------------------------------------
 ; Mouse & Window Tracking

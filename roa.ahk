@@ -508,7 +508,14 @@ CompareWindowLists(oldList, newList, logIt := false) {
  * @param {string|boolean} bookmark - Bookmark identifier to set for the window
  * @returns {object|boolean} Window handle on success, false on failure
  */
-Roa(alias, launchCmd := "", bookmark := false, logIt := false) {
+Roa(alias, launchCmd := "", bookmark := false, logIt := false, launchConfig := false) {
+        launchMode := ""
+        if (IsObject(launchConfig) && launchConfig.HasOwnProp("launchMode"))
+            launchMode := launchConfig.launchMode
+
+        if (launchMode = "background")
+            return RoaLaunchBackground(alias, launchCmd, logIt, launchConfig)
+
         ; Try to find window by alias first
         winHandle := getAliasHandle(alias, false)
 
@@ -526,6 +533,132 @@ Roa(alias, launchCmd := "", bookmark := false, logIt := false) {
             return RoaLaunch(alias, launchCmd, bookmark, logIt)
         }
 
+}
+
+RoaLaunchBackground(alias, launchCmd, logIt := false, launchConfig := false) {
+        workingDir := ""
+        runOptions := ""
+        hideDescendantWindows := false
+        hideDescendantDurationMs := 15000
+        hideDescendantPollMs := 75
+
+        if (IsObject(launchConfig)) {
+            if (launchConfig.HasOwnProp("workingDir"))
+                workingDir := launchConfig.workingDir
+            if (launchConfig.HasOwnProp("runOptions"))
+                runOptions := launchConfig.runOptions
+            if (launchConfig.HasOwnProp("hideDescendantWindows"))
+                hideDescendantWindows := launchConfig.hideDescendantWindows
+            if (launchConfig.HasOwnProp("hideDescendantDurationMs"))
+                hideDescendantDurationMs := launchConfig.hideDescendantDurationMs
+            if (launchConfig.HasOwnProp("hideDescendantPollMs"))
+                hideDescendantPollMs := launchConfig.hideDescendantPollMs
+        }
+
+        try {
+            rootPid := 0
+            Run(launchCmd, workingDir, runOptions, &rootPid)
+            if (hideDescendantWindows && rootPid)
+                StartDescendantWindowHideMonitor(rootPid, hideDescendantDurationMs, hideDescendantPollMs, logIt)
+            if (logIt)
+                log('RoaLaunchBackground: launched "' . alias . '" with options "' . runOptions . '"')
+            return true
+        } catch Error as e {
+            msg('No se pudo lanzar la app: ' . alias, { seconds: 3 })
+            if (logIt)
+                log('RoaLaunchBackground error for "' . alias . '": ' . e.Message)
+            return false
+        }
+}
+
+StartDescendantWindowHideMonitor(rootPid, durationMs := 15000, pollMs := 75, logIt := false) {
+    global roaBackgroundHideMonitors
+    static monitorSeq := 0
+
+    if (!IsSet(roaBackgroundHideMonitors))
+        roaBackgroundHideMonitors := Map()
+
+    monitorSeq += 1
+    monitorId := "pid-" . rootPid . "-" . monitorSeq
+    callback := DescendantWindowHideMonitorTick.Bind(monitorId)
+
+    roaBackgroundHideMonitors[monitorId] := {
+        rootPid: rootPid,
+        deadline: A_TickCount + durationMs,
+        callback: callback,
+        logIt: logIt
+    }
+
+    callback.Call()
+    SetTimer(callback, pollMs)
+}
+
+StopDescendantWindowHideMonitor(monitorId) {
+    global roaBackgroundHideMonitors
+
+    if (!IsSet(roaBackgroundHideMonitors) || !roaBackgroundHideMonitors.Has(monitorId))
+        return
+
+    monitor := roaBackgroundHideMonitors[monitorId]
+    SetTimer(monitor.callback, 0)
+    roaBackgroundHideMonitors.Delete(monitorId)
+}
+
+DescendantWindowHideMonitorTick(monitorId) {
+    global roaBackgroundHideMonitors
+
+    if (!IsSet(roaBackgroundHideMonitors) || !roaBackgroundHideMonitors.Has(monitorId))
+        return
+
+    monitor := roaBackgroundHideMonitors[monitorId]
+    if (A_TickCount >= monitor.deadline) {
+        StopDescendantWindowHideMonitor(monitorId)
+        return
+    }
+
+    pidMap := GetDescendantPidMap(monitor.rootPid)
+
+    for hwnd in WinGetList() {
+        try pid := WinGetPID("ahk_id " hwnd)
+        catch
+            continue
+
+        if (!pidMap.Has(String(pid)))
+            continue
+
+        try WinHide("ahk_id " hwnd)
+    }
+}
+
+GetDescendantPidMap(rootPid) {
+    pidMap := Map()
+    pidMap[String(rootPid)] := true
+    processRows := []
+
+    try {
+        wmi := ComObjGet("winmgmts:")
+        for process in wmi.ExecQuery("SELECT ProcessId, ParentProcessId FROM Win32_Process") {
+            processRows.Push({
+                pid: Integer(process.ProcessId),
+                parentPid: Integer(process.ParentProcessId),
+            })
+        }
+    } catch {
+        return pidMap
+    }
+
+    changed := true
+    while (changed) {
+        changed := false
+        for _, process in processRows {
+            if (pidMap.Has(String(process.parentPid)) && !pidMap.Has(String(process.pid))) {
+                pidMap[String(process.pid)] := true
+                changed := true
+            }
+        }
+    }
+
+    return pidMap
 }
 
 /**

@@ -10,6 +10,9 @@
 global VOLUME_HUD_GUI   := false
 global VOLUME_HUD_READY := false
 global VOLUME_HUD_SHOWN := false
+global AUDIO_DEVICE_GUI := false
+global AUDIO_DEVICE_READY := false
+global AUDIO_DEVICE_FAVORITES := false
 
 VolumeHudInit() {
     global VOLUME_HUD_GUI, VOLUME_HUD_READY
@@ -186,6 +189,384 @@ showNirCmdAudioDevices() {
         return
     }
     run(nircmdExe . ' showsounddevices')
+}
+
+;===============================================================================
+; AUDIO DEVICE SWITCHER
+;===============================================================================
+
+ShowAudioDeviceSwitcher() {
+    global AUDIO_DEVICE_GUI, AUDIO_DEVICE_READY
+
+    if (AUDIO_DEVICE_GUI) {
+        try {
+            AUDIO_DEVICE_GUI.Show()
+            WinActivate(AUDIO_DEVICE_GUI.hwnd)
+            AudioDeviceSwitcherSendState()
+            return
+        } catch {
+            AUDIO_DEVICE_GUI := false
+        }
+    }
+
+    AUDIO_DEVICE_READY := false
+    try {
+        dllPath := A_ScriptDir . "\lib\" . (A_PtrSize * 8) . "bit\WebView2Loader.dll"
+        AUDIO_DEVICE_GUI := WebViewGui("+Resize -Caption +AlwaysOnTop", "Audio Devices",, {DllPath: dllPath, DefaultWidth: 760, DefaultHeight: 560})
+        AUDIO_DEVICE_GUI.BackColor := "15151D"
+        AUDIO_DEVICE_GUI.OnEvent("Close", (*) => CloseAudioDeviceSwitcher())
+        AUDIO_DEVICE_GUI.OnEvent("Escape", (*) => CloseAudioDeviceSwitcher())
+        AUDIO_DEVICE_GUI.Control.wv.add_WebMessageReceived(AudioDeviceSwitcherHandleMessage)
+        AUDIO_DEVICE_GUI.Control.wv.add_NavigationCompleted(AudioDeviceSwitcherNavigationCompleted)
+        AUDIO_DEVICE_GUI.Navigate("ui/audio-devices.html")
+        AUDIO_DEVICE_GUI.Show("w760 h560 Hide")
+        WebViewWindowStateRestoreOrCenter(AUDIO_DEVICE_GUI, "audioDevices", 760, 560, true, true)
+        AUDIO_DEVICE_GUI.Show()
+    } catch Error as e {
+        AUDIO_DEVICE_GUI := false
+        MsgBox("Error creando selector de audio: " . e.Message, "Audio Devices", "Icon!")
+    }
+}
+
+AudioDeviceSwitcherNavigationCompleted(wv, args) {
+    global AUDIO_DEVICE_READY
+    AUDIO_DEVICE_READY := true
+    AudioDeviceSwitcherSendState()
+}
+
+AudioDeviceSwitcherHandleMessage(wv, args) {
+    global AUDIO_DEVICE_GUI
+    try {
+        json := args.WebMessageAsJson
+        data := JsonLoad(&json)
+        action := data.Has("action") ? data["action"] : ""
+
+        switch action {
+            case "ready":
+                AudioDeviceSwitcherSendState()
+            case "refresh":
+                AudioDeviceSwitcherSendState()
+            case "activate":
+                if (data.Has("name")) {
+                    changeAudioDevice(data["name"])
+                    AudioDeviceSwitcherRefreshSoon()
+                }
+            case "toggleFavorite":
+                if (data.Has("kind") && data.Has("name")) {
+                    AudioDeviceSwitcherToggleFavorite(data["kind"], data["name"])
+                    AudioDeviceSwitcherSendState()
+                }
+            case "minimize":
+                if (AUDIO_DEVICE_GUI)
+                    AUDIO_DEVICE_GUI.Minimize()
+            case "close":
+                CloseAudioDeviceSwitcher()
+        }
+    } catch Error as e {
+        log("Audio device switcher message error", e.Message)
+    }
+}
+
+AudioDeviceSwitcherRefreshSoon() {
+    ; NirCmd/Windows can report the old default for a short moment after switching.
+    SetTimer(() => AudioDeviceSwitcherSendState(), -250)
+    SetTimer(() => AudioDeviceSwitcherSendState(), -900)
+    SetTimer(() => AudioDeviceSwitcherSendState(), -1800)
+}
+
+AudioDeviceSwitcherSendState() {
+    global AUDIO_DEVICE_GUI, AUDIO_DEVICE_READY
+    if (!AUDIO_DEVICE_GUI || !AUDIO_DEVICE_READY)
+        return
+
+    try {
+        hasNirCmd := GetCachedConfig("desktop", "nircmd_exe", "") ? true : false
+        state := Map(
+            "action", "state",
+            "devices", AudioDeviceSwitcherGetDevices(),
+            "hasNirCmd", hasNirCmd,
+            "hotkey", "Win+A, A"
+        )
+        AUDIO_DEVICE_GUI.Control.wv.PostWebMessageAsJson(JsonDump(state))
+    } catch Error as e {
+        log("Audio device switcher send state error", e.Message)
+    }
+}
+
+AudioDeviceSwitcherGetDevices() {
+    favorites := AudioDeviceSwitcherLoadFavorites()
+    playbackDefault := AudioDeviceSwitcherGetDefaultInfo("playback")
+    captureDefault := AudioDeviceSwitcherGetDefaultInfo("capture")
+
+    return Map(
+        "playback", AudioDeviceSwitcherEnumKind("playback", playbackDefault, favorites),
+        "capture", AudioDeviceSwitcherEnumKind("capture", captureDefault, favorites)
+    )
+}
+
+AudioDeviceSwitcherEnumKind(kind, defaultInfo, favorites) {
+    devices := []
+    seen := Map()
+
+    baseKey := "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\" . (kind = "capture" ? "Capture" : "Render")
+    nameValue := "{a45c254e-df1c-4efd-8020-67d146a850e0},2"
+    descriptionValue := "{b3f8fa53-0004-438e-9003-51a46e139bfc},6"
+    busValue := "{a45c254e-df1c-4efd-8020-67d146a850e0},24"
+
+    try {
+        Loop Reg, baseKey, "K" {
+            endpointKey := baseKey . "\" . A_LoopRegName
+            try deviceState := RegRead(endpointKey, "DeviceState")
+            catch
+                continue
+
+            if (deviceState != 1)
+                continue
+
+            try name := RegRead(endpointKey . "\Properties", nameValue)
+            catch
+                continue
+
+            description := AudioDeviceSwitcherReadReg(endpointKey . "\Properties", descriptionValue)
+            bus := AudioDeviceSwitcherReadReg(endpointKey . "\Properties", busValue)
+            AudioDeviceSwitcherPushDevice(devices, seen, kind, name, defaultInfo, favorites, description, bus, A_LoopRegName)
+        }
+    }
+
+    if (devices.Length)
+        return devices
+
+    ; Fallback for machines where MMDevices registry access is restricted.
+    prefix := kind = "capture" ? "Capture:" : "Playback:"
+
+    Loop 40 {
+        deviceSpec := prefix . A_Index
+        try name := SoundGetName(, deviceSpec)
+        catch
+            break
+
+        AudioDeviceSwitcherPushDevice(devices, seen, kind, name, defaultInfo, favorites)
+    }
+
+    return devices
+}
+
+AudioDeviceSwitcherReadReg(keyName, valueName, default := "") {
+    try return RegRead(keyName, valueName)
+    catch
+        return default
+}
+
+AudioDeviceSwitcherPushDevice(devices, seen, kind, name, defaultInfo, favorites, description := "", bus := "", id := "") {
+    if (!name)
+        return
+
+    seenKey := name . "|" . description . "|" . bus
+    if (seen.Has(seenKey))
+        return
+
+    seen[seenKey] := true
+    devices.Push(Map(
+        "kind", kind,
+        "id", id,
+        "name", name,
+        "description", description,
+        "bus", bus,
+        "active", AudioDeviceSwitcherMatchesDefault(defaultInfo, id, name, description, bus),
+        "favorite", AudioDeviceSwitcherIsFavorite(favorites, kind, name)
+    ))
+}
+
+AudioDeviceSwitcherGetDefaultInfo(kind) {
+    return Map(
+        "id", AudioDeviceSwitcherGetDefaultId(kind),
+        "names", AudioDeviceSwitcherGetDefaultNames(kind)
+    )
+}
+
+AudioDeviceSwitcherGetDefaultId(kind) {
+    try {
+        enumerator := ComObject("{BCDE0395-E52F-467C-8E3D-C4579291692E}", "{A95664D2-9614-4F35-A746-DE8DB63617E6}")
+        flow := kind = "capture" ? 1 : 0
+        role := 1 ; eMultimedia, the default shown by normal Windows sound settings.
+        pDevice := 0
+        hr := ComCall(4, enumerator, "int", flow, "int", role, "ptr*", &pDevice)
+        if (hr != 0 || !pDevice)
+            return ""
+
+        pId := 0
+        hr := ComCall(5, pDevice, "ptr*", &pId)
+        ObjRelease(pDevice)
+        if (hr != 0 || !pId)
+            return ""
+
+        id := StrGet(pId, "UTF-16")
+        DllCall("Ole32.dll\CoTaskMemFree", "ptr", pId)
+        return id
+    } catch Error as e {
+        log("Audio default endpoint lookup failed", kind, e.Message)
+        return ""
+    }
+}
+
+AudioDeviceSwitcherGetDefaultNames(kind) {
+    names := []
+
+    if (kind = "playback") {
+        AudioDeviceSwitcherPushDefaultName(names, AudioDeviceSwitcherTrySoundGetName())
+        AudioDeviceSwitcherPushDefaultName(names, AudioDeviceSwitcherTrySoundGetName(, "Playback"))
+        AudioDeviceSwitcherPushDefaultName(names, AudioDeviceSwitcherReadSoundMapper("Playback"))
+    } else {
+        AudioDeviceSwitcherPushDefaultName(names, AudioDeviceSwitcherTrySoundGetName(, "Capture"))
+        AudioDeviceSwitcherPushDefaultName(names, AudioDeviceSwitcherTrySoundGetName(, "Recording"))
+        AudioDeviceSwitcherPushDefaultName(names, AudioDeviceSwitcherReadSoundMapper("Record"))
+    }
+
+    return names
+}
+
+AudioDeviceSwitcherTrySoundGetName(component?, device?) {
+    try {
+        if (IsSet(component) && IsSet(device))
+            return SoundGetName(component, device)
+        if (IsSet(device))
+            return SoundGetName(, device)
+        return SoundGetName()
+    } catch {
+        return ""
+    }
+}
+
+AudioDeviceSwitcherReadSoundMapper(valueName) {
+    try return RegRead("HKCU\Software\Microsoft\Multimedia\Sound Mapper", valueName)
+    catch
+        return ""
+}
+
+AudioDeviceSwitcherPushDefaultName(names, name) {
+    if (!name)
+        return
+    for existing in names {
+        if (existing = name)
+            return
+    }
+    names.Push(name)
+}
+
+AudioDeviceSwitcherMatchesDefault(defaultInfo, endpointGuid, name, description := "", bus := "") {
+    if (IsObject(defaultInfo) && defaultInfo.Has("id") && endpointGuid) {
+        if (InStr(StrLower(defaultInfo["id"]), StrLower(endpointGuid)))
+            return true
+    }
+
+    defaultNames := IsObject(defaultInfo) && defaultInfo.Has("names") ? defaultInfo["names"] : defaultInfo
+    candidates := [name, description, bus]
+    for defaultName in defaultNames {
+        normalizedDefault := AudioDeviceSwitcherNormalizeName(defaultName)
+        if (!normalizedDefault)
+            continue
+        for candidate in candidates {
+            normalizedCandidate := AudioDeviceSwitcherNormalizeName(candidate)
+            if (!normalizedCandidate)
+                continue
+            if (normalizedCandidate = normalizedDefault)
+                return true
+            if (InStr(normalizedCandidate, normalizedDefault) || InStr(normalizedDefault, normalizedCandidate))
+                return true
+        }
+    }
+    return false
+}
+
+AudioDeviceSwitcherNormalizeName(value) {
+    value := StrLower(Trim(value))
+    value := RegExReplace(value, "\s+", " ")
+    value := RegExReplace(value, "\s*\([^)]*\)\s*", " ")
+    return Trim(value)
+}
+
+AudioDeviceSwitcherLoadFavorites() {
+    global AUDIO_DEVICE_FAVORITES
+    favorites := Map("playback", [], "capture", [])
+
+    try section := IniRead("config.ini", "audioDeviceFavorites")
+    catch {
+        AUDIO_DEVICE_FAVORITES := favorites
+        return favorites
+    }
+
+    for line in StrSplit(section, "`n", "`r") {
+        if (!line || !InStr(line, "="))
+            continue
+        parts := StrSplit(line, "=",, 2)
+        key := parts[1]
+        name := parts.Length >= 2 ? parts[2] : ""
+        if (!name)
+            continue
+        if (RegExMatch(key, "i)^playback\d+$"))
+            favorites["playback"].Push(name)
+        else if (RegExMatch(key, "i)^capture\d+$"))
+            favorites["capture"].Push(name)
+    }
+
+    AUDIO_DEVICE_FAVORITES := favorites
+    return favorites
+}
+
+AudioDeviceSwitcherSaveFavorites(favorites) {
+    try IniDelete("config.ini", "audioDeviceFavorites")
+    catch {
+    }
+
+    for kind in ["playback", "capture"] {
+        index := 1
+        for name in favorites[kind] {
+            IniWrite(name, "config.ini", "audioDeviceFavorites", kind . index)
+            index += 1
+        }
+    }
+}
+
+AudioDeviceSwitcherIsFavorite(favorites, kind, name) {
+    for favoriteName in favorites[kind] {
+        if (favoriteName = name)
+            return true
+    }
+    return false
+}
+
+AudioDeviceSwitcherToggleFavorite(kind, name) {
+    favorites := AudioDeviceSwitcherLoadFavorites()
+    if (!favorites.Has(kind))
+        return
+
+    next := []
+    removed := false
+    for favoriteName in favorites[kind] {
+        if (favoriteName = name) {
+            removed := true
+            continue
+        }
+        next.Push(favoriteName)
+    }
+
+    if (!removed)
+        next.Push(name)
+
+    favorites[kind] := next
+    AudioDeviceSwitcherSaveFavorites(favorites)
+}
+
+CloseAudioDeviceSwitcher(*) {
+    global AUDIO_DEVICE_GUI, AUDIO_DEVICE_READY
+    if (AUDIO_DEVICE_GUI) {
+        hwnd := AUDIO_DEVICE_GUI.Hwnd
+        WebViewWindowStateSave(hwnd)
+        try AUDIO_DEVICE_GUI.Destroy()
+        WebViewWindowStateForget(hwnd)
+        AUDIO_DEVICE_GUI := false
+        AUDIO_DEVICE_READY := false
+    }
 }
 
 openMixer() {

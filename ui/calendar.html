@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Natural Calendar</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .content { flex: 1; overflow: auto; padding: 18px; display: grid; gap: 14px; background: radial-gradient(circle at top left, rgba(56,189,248,.12), transparent 34%), var(--bg-primary); }
+    .titlebar-icon { width: 22px; height: 22px; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #38bdf8, #8b5cf6); color: white; font-size: 12px; font-weight: 800; }
+    .hero { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; }
+    .headline { font-size: 22px; font-weight: 750; letter-spacing: -0.03em; }
+    .subtle { color: var(--text-secondary); font-size: 12px; }
+    .message { min-height: 18px; color: var(--success); }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .stat, .card { background: rgba(37,37,38,.88); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 14px 28px rgba(0,0,0,.18); }
+    .stat { padding: 12px; display: grid; gap: 4px; }
+    .stat strong { font-size: 24px; line-height: 1; }
+    .stat span { color: var(--text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .btn { border: 1px solid var(--border); background: var(--bg-tertiary); color: var(--text-primary); padding: 8px 11px; border-radius: 8px; cursor: pointer; font-size: 12px; }
+    .btn:hover { background: var(--bg-hover); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+    .btn.danger { border-color: rgba(241,76,76,.45); color: #ffb1b1; }
+    .btn.good { border-color: rgba(78,201,176,.45); color: #a8fff0; }
+    .btn.warn { border-color: rgba(206,145,120,.55); color: #ffd0be; }
+    .btn.sm { padding: 4px 8px; font-size: 11px; }
+    .list { display: grid; gap: 10px; }
+    .event { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; padding: 13px; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; background: rgba(0,0,0,.16); }
+    .event.overdue { border-color: rgba(241,76,76,.45); background: rgba(90,18,18,.18); }
+    .event.completed { opacity: .7; }
+    .event.cancelled { opacity: .55; }
+    .event-title { font-weight: 700; font-size: 14px; }
+    .event-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; align-items: center; }
+    .pill { border: 1px solid var(--border); color: var(--text-secondary); padding: 3px 7px; border-radius: 999px; font-size: 11px; }
+    .pill.pending { color: #bae6fd; border-color: rgba(56,189,248,.35); }
+    .pill.overdue { color: #fecaca; border-color: rgba(241,76,76,.45); }
+    .pill.completed { color: #a8fff0; border-color: rgba(78,201,176,.45); }
+    .pill.cancelled { color: #ffd0be; border-color: rgba(206,145,120,.55); }
+    .pill.reminder { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; background: rgba(56,189,248,.12); border-color: rgba(56,189,248,.35); color: #bae6fd; cursor: default; }
+    .pill.reminder .del { cursor: pointer; opacity: .7; font-size: 13px; line-height: 1; }
+    .pill.reminder .del:hover { opacity: 1; color: #ffb1b1; }
+    .pill.add-reminder { cursor: pointer; background: rgba(255,255,255,.06); border-style: dashed; }
+    .pill.add-reminder:hover { background: rgba(255,255,255,.12); }
+    .reminder-picker { display: none; position: absolute; z-index: 10; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 6px; gap: 4px; flex-direction: column; min-width: 140px; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+    .reminder-picker.show { display: flex; }
+    .reminder-picker button { border: 1px solid var(--border); background: var(--bg-tertiary); color: var(--text-primary); padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; text-align: left; }
+    .reminder-picker button:hover { background: var(--bg-hover); }
+    .event-desc { margin-top: 8px; color: var(--text-secondary); line-height: 1.35; }
+    .event-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; align-content: start; }
+    .empty { padding: 24px; color: var(--text-secondary); text-align: center; }
+    .mono { font-family: var(--font-mono); font-size: 12px; }
+    @media (max-width: 760px) { .hero, .event { grid-template-columns: 1fr; } .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .event-actions { justify-content: flex-start; } }
+  </style>
+</head>
+<body>
+  <div class="titlebar">
+    <div class="grip"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="titlebar-title"><span class="titlebar-icon">Cal</span> Natural Calendar</div>
+    <div class="window-controls">
+      <button class="win-btn win-minimize" onclick="minimizeWindow()" title="Minimize">&#x2212;</button>
+      <button class="win-btn win-close" onclick="closeWindow()" title="Close">&#x2715;</button>
+    </div>
+  </div>
+
+  <main class="content">
+    <section class="hero">
+      <div>
+        <div class="headline">Eventos locales</div>
+        <div class="subtle mono" id="events-file">C:\dev\corta\chats\calendar\events.json</div>
+      </div>
+      <div class="subtle">Actualizado: <span class="mono" id="updated-at">-</span></div>
+    </section>
+
+    <section class="stats">
+      <div class="stat"><strong id="stat-pending">0</strong><span>Pendientes</span></div>
+      <div class="stat"><strong id="stat-overdue">0</strong><span>Vencidos</span></div>
+      <div class="stat"><strong id="stat-completed">0</strong><span>Hechos</span></div>
+      <div class="stat"><strong id="stat-cancelled">0</strong><span>Cancelados</span></div>
+    </section>
+
+    <div class="message" id="message"></div>
+
+    <section class="actions">
+      <button class="btn primary" onclick="sendToAHK('refresh')">Refresh</button>
+      <button class="btn" onclick="sendToAHK('openEventsFile')">Abrir JSON</button>
+      <button class="btn" onclick="sendToAHK('openFolder')">Abrir carpeta</button>
+    </section>
+
+    <section class="card">
+      <div class="list" id="event-list"></div>
+    </section>
+  </main>
+
+  <script src="ahk-bridge.js"></script>
+  <script>
+    function sendToAHK(action, data = {}) { postToAHK({ action, ...data }); }
+    function setText(id, value) { document.getElementById(id).textContent = value ?? '-'; }
+    function escapeHtml(value) { return String(value ?? '').replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch])); }
+    function jsString(value) { return String(value ?? '').replace(/[\\']/g, ch => ({ '\\': '\\\\', "'": "\\'" }[ch])); }
+    function fmtDate(value) { return value ? value.replace('T', ' ').slice(0, 16) : '-'; }
+    function statusLabel(status) { return { pending: 'pendiente', completed: 'hecho', cancelled: 'cancelado' }[status] || status || 'pending'; }
+    function relativeTime(value, nowIso) {
+      if (!value) return '-';
+      const target = new Date(value);
+      const now = nowIso ? new Date(nowIso) : new Date();
+      if (Number.isNaN(target.getTime()) || Number.isNaN(now.getTime())) return '-';
+      const diffMs = target.getTime() - now.getTime();
+      const past = diffMs < 0;
+      let minutes = Math.max(0, Math.floor(Math.abs(diffMs) / 60000));
+      const days = Math.floor(minutes / 1440);
+      minutes -= days * 1440;
+      const hours = Math.floor(minutes / 60);
+      minutes -= hours * 60;
+      const parts = [];
+      if (days) parts.push(`${days}d`);
+      if (hours) parts.push(`${hours}h`);
+      if (minutes || !parts.length) parts.push(`${minutes}min`);
+      return past ? `vencido hace ${parts.join(' ')}` : `faltan ${parts.join(' ')}`;
+    }
+    function fmtReminder(minutes) {
+      if (minutes < 60) return `${minutes} min antes`;
+      if (minutes < 1440) return `${Math.floor(minutes / 60)} h ${minutes % 60} min antes`;
+      const d = Math.floor(minutes / 1440);
+      return d === 1 ? '1 día antes' : `${d} días antes`;
+    }
+
+    let activePicker = null;
+    document.addEventListener('click', (e) => {
+      if (activePicker && !activePicker.contains(e.target) && !e.target.closest('.pill.add-reminder')) {
+        activePicker.classList.remove('show');
+        activePicker = null;
+      }
+    });
+
+    function showReminderPicker(eventId, btn) {
+      if (activePicker) { activePicker.classList.remove('show'); activePicker = null; }
+      const existing = btn.parentElement.querySelectorAll('.pill.reminder');
+      const existingValues = Array.from(existing).map(p => Number(p.dataset.minutes));
+      const presets = [
+        { label: '10 minutos antes', val: 10 },
+        { label: '20 minutos antes', val: 20 },
+        { label: '30 minutos antes', val: 30 },
+        { label: '1 hora antes', val: 60 },
+        { label: '2 horas antes', val: 120 },
+        { label: '1 día antes', val: 1440 },
+        { label: '2 días antes', val: 2880 },
+        { label: '1 semana antes', val: 10080 },
+      ];
+      const available = presets.filter(p => !existingValues.includes(p.val));
+      if (!available.length) { alert('Ya tenés todos los recordatorios posibles.'); return; }
+      const picker = document.createElement('div');
+      picker.className = 'reminder-picker show';
+      available.forEach(p => {
+        const b = document.createElement('button');
+        b.textContent = p.label;
+        b.onclick = () => { sendToAHK('addReminder', { id: eventId, minutes: p.val }); picker.classList.remove('show'); activePicker = null; };
+        picker.appendChild(b);
+      });
+      btn.parentElement.appendChild(picker);
+      activePicker = picker;
+    }
+
+    function render(state) {
+      if (!state || state.action !== 'state') return;
+      const summary = state.summary || {};
+      setText('events-file', state.eventsFile);
+      setText('updated-at', state.generatedAt);
+      setText('message', state.message || '');
+      setText('stat-pending', summary.pending || 0);
+      setText('stat-overdue', summary.overdue || 0);
+      setText('stat-completed', summary.completed || 0);
+      setText('stat-cancelled', summary.cancelled || 0);
+
+      const nowIso = state.nowIso || '';
+      const events = Array.isArray(state.events) ? [...state.events] : [];
+      events.sort((a, b) => String(a.date || '').localeCompare(String(b.date || '')));
+
+      const list = document.getElementById('event-list');
+      if (!events.length) {
+        list.innerHTML = '<div class="empty">No hay eventos.</div>';
+        return;
+      }
+
+      list.innerHTML = events.map(event => {
+        const status = event.status || 'pending';
+        const overdue = status === 'pending' && event.date && event.date < nowIso;
+        const cls = ['event', status, overdue ? 'overdue' : ''].join(' ');
+        const id = escapeHtml(jsString(event.id || ''));
+        const primaryActions = status === 'pending'
+          ? `<button class="btn good" onclick="sendToAHK('completeEvent', { id: '${id}' })">Hecho</button><button class="btn warn" onclick="sendToAHK('cancelEvent', { id: '${id}' })">Cancelar</button>`
+          : `<button class="btn" onclick="sendToAHK('reopenEvent', { id: '${id}' })">Reabrir</button>`;
+        
+        const reminders = [];
+        const rm = event.reminder_minutes;
+        const rmList = Array.isArray(rm) ? rm : (rm ? [rm] : []);
+        rmList.forEach(m => {
+          const safeM = escapeHtml(jsString(String(m)));
+          reminders.push(`<span class="pill reminder" data-minutes="${safeM}">${escapeHtml(fmtReminder(Number(m)))}<span class="del" onclick="sendToAHK('deleteReminder', { id: '${id}', minutes: ${safeM} })" title="Eliminar recordatorio">&#x2715;</span></span>`);
+        });
+        if (status === 'pending') {
+          reminders.push(`<span class="pill add-reminder" onclick="showReminderPicker('${id}', this)">+ Agregar</span>`);
+        }
+
+        return `<article class="${cls}">
+          <div>
+            <div class="event-title">${escapeHtml(event.title || '(sin titulo)')}</div>
+            <div class="event-meta">
+              <span class="pill ${overdue ? 'overdue' : status}">${overdue ? 'vencido' : statusLabel(status)}</span>
+              <span class="pill mono">${fmtDate(event.date)}</span>
+              <span class="pill">${relativeTime(event.date, nowIso)}</span>
+              <span class="pill">${escapeHtml(event.timezone || 'local')}</span>
+              ${reminders.length ? reminders.join('') : '<span class="pill">sin recordatorio</span>'}
+            </div>
+            ${event.description ? `<div class="event-desc">${escapeHtml(event.description)}</div>` : ''}
+          </div>
+          <div class="event-actions">
+            ${primaryActions}
+            <button class="btn danger" onclick="sendToAHK('deleteEvent', { id: '${id}' })">Borrar</button>
+          </div>
+        </article>`;
+      }).join('');
+    }
+
+    if (window.chrome?.webview) {
+      window.chrome.webview.addEventListener('message', event => render(event.data));
+    }
+    window.addEventListener('DOMContentLoaded', () => {
+      sendToAHK('ready');
+      setInterval(() => sendToAHK('refresh'), 60000);
+    });
+  </script>
+</body>
+</html>

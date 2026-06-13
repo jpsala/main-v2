@@ -486,8 +486,8 @@ VSCode_RunCommandSequence(commandSpecs) {
 GetVSCodeGoChordOptions() {
   return {
     chordPrefixLabel: 'Alt+G',
-    chordHintDelay: 0.2,
-    chordTimeout: 14,
+    showDelaySeconds: 0.2,
+    idleTimeoutSeconds: 14,
     items: [
       { key: 't', label: 'Focus Terminal', action: () => VSCode_RunCommand('terminal.focus') },
       { key: 'e', label: 'Focus Editor', action: () => VSCode_RunCommand('workbench.action.focusFirstEditorGroup') },
@@ -525,8 +525,8 @@ GetVSCodeGoChordOptions() {
 GetVSCodeBookmarksChordOptions() {
   return {
     chordPrefixLabel: 'Alt+B',
-    chordHintDelay: 0.2,
-    chordTimeout: 14,
+    showDelaySeconds: 0.2,
+    idleTimeoutSeconds: 14,
     items: [
       { key: 't', label: 'Toggle Bookmark', action: () => VSCode_RunCommand('bookmarks.toggle') },
       { key: 'l', label: 'List Bookmarks', action: () => VSCode_RunCommand('bookmarks.list') },
@@ -538,8 +538,8 @@ GetVSCodeBookmarksChordOptions() {
 
 GetVSCodeReferencesChordOptions() {
   return {
-    chordHintDelay: 0.2,
-    chordTimeout: 14,
+    showDelaySeconds: 0.2,
+    idleTimeoutSeconds: 14,
     items: [
       { key: 'r', label: 'Show References', action: () => VSCode_RunCommand('references-view.findReferences') },
       { key: 'i', label: 'Show Implementations', action: () => VSCode_RunCommand('references-view.findImplementations') },
@@ -553,8 +553,8 @@ GetVSCodeReferencesChordOptions() {
 GetVSCodeToggleChordOptions() {
   return {
     chordPrefixLabel: 'Alt+T',
-    chordHintDelay: 0.2,
-    chordTimeout: 14,
+    showDelaySeconds: 0.2,
+    idleTimeoutSeconds: 14,
     items: [
       { key: 'a', label: 'Toggle Primary Side Bar', action: () => VSCode_RunCommand('workbench.action.toggleSidebarVisibility') },
       { key: 'f', label: 'Toggle Secondary Side Bar', action: () => VSCode_RunCommand('workbench.action.toggleAuxiliaryBar') },
@@ -578,8 +578,8 @@ GetVSCodeToggleChordOptions() {
 GetVSCodeFileChordOptions() {
   return {
     chordPrefixLabel: 'Alt+F',
-    chordHintDelay: 0.2,
-    chordTimeout: 14,
+    showDelaySeconds: 0.2,
+    idleTimeoutSeconds: 14,
     items: [
       { key: 'n', label: 'New File', action: () => VSCode_RunCommand('filebunny.createFile') },
       { key: 't', label: 'New Untitled File', action: () => VSCode_RunCommand('workbench.action.files.newUntitledFile') },
@@ -594,8 +594,8 @@ GetVSCodeFileChordOptions() {
 GetVSCodeFoldingChordOptions() {
   return {
     chordPrefixLabel: 'Alt+Z',
-    chordHintDelay: 0.2,
-    chordTimeout: 14,
+    showDelaySeconds: 0.2,
+    idleTimeoutSeconds: 14,
     items: [
       { key: 'c', label: 'Fold Level At Cursor', action: () => VSCode_RunCommand('dakara-foldplus.levelAtCursor') },
       { key: 'f', label: 'Fold', action: () => VSCode_RunCommand('editor.fold') },
@@ -610,8 +610,8 @@ GetVSCodeFoldingChordOptions() {
 GetVSCodeSettingsChordOptions() {
   return {
     chordPrefixLabel: 'Alt+S',
-    chordHintDelay: 0.2,
-    chordTimeout: 14,
+    showDelaySeconds: 0.2,
+    idleTimeoutSeconds: 14,
     items: [
       { key: 's', label: 'User Settings JSON', action: () => VSCode_RunCommand('workbench.action.openSettingsJson') },
       { key: 'p', label: 'Project Settings', action: () => VSCode_RunCommand('workbench.action.openWorkspaceSettingsFile') },
@@ -642,13 +642,13 @@ InitVSCodeControllerChords() {
 
   ChordSetDebugLogger(VSCodeChordDebugLogger)
   HotIf(VSCodeChordHotIf)
-  MenuWhichKeyRegisterWithActions('^!g', GetVSCodeGoChordOptions(), 14)
-  MenuWhichKeyRegisterWithActions('^!b', GetVSCodeBookmarksChordOptions(), 14)
-  MenuWhichKeyRegisterWithActions('^!c', GetVSCodeReferencesChordOptions(), 14)
-  MenuWhichKeyRegisterWithActions('^!t', GetVSCodeToggleChordOptions(), 14)
-  MenuWhichKeyRegisterWithActions('!f', GetVSCodeFileChordOptions(), 14)
-  MenuWhichKeyRegisterWithActions('^!z', GetVSCodeFoldingChordOptions(), 14)
-  MenuWhichKeyRegisterWithActions('^!s', GetVSCodeSettingsChordOptions(), 14)
+  MenuWhichKeyRegisterWithActions('^!g', GetVSCodeGoChordOptions())
+  MenuWhichKeyRegisterWithActions('^!b', GetVSCodeBookmarksChordOptions())
+  MenuWhichKeyRegisterWithActions('^!c', GetVSCodeReferencesChordOptions())
+  MenuWhichKeyRegisterWithActions('^!t', GetVSCodeToggleChordOptions())
+  MenuWhichKeyRegisterWithActions('!f', GetVSCodeFileChordOptions())
+  MenuWhichKeyRegisterWithActions('^!z', GetVSCodeFoldingChordOptions())
+  MenuWhichKeyRegisterWithActions('^!s', GetVSCodeSettingsChordOptions())
   HotIf()
 
   VSCode_ControllerChordsInitialized := true

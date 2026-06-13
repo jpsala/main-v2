@@ -113,12 +113,66 @@
     flex-shrink: 0;
     margin-left: auto;
   }
+
+  .freeze-status {
+    display: none;
+    align-items: center;
+    gap: 7px;
+    margin: 8px 4px 0;
+    padding-top: 7px;
+    border-top: 1px solid rgba(140, 120, 210, 0.18);
+    color: rgba(200, 200, 216, 0.78);
+    font-size: 10.5px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .freeze-status.visible {
+    display: flex;
+  }
+
+  .freeze-status.active {
+    color: #d8ccff;
+  }
+
+  .freeze-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(150, 130, 220, 0.55);
+    box-shadow: 0 0 0 3px rgba(150, 130, 220, 0.08);
+    flex-shrink: 0;
+  }
+
+  .freeze-status.active .freeze-dot {
+    background: #8ef0c1;
+    box-shadow: 0 0 10px rgba(142, 240, 193, 0.45);
+  }
+
+  .freeze-key {
+    min-width: 26px;
+    height: 18px;
+    padding: 0 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    border: 1px solid rgba(140, 120, 210, 0.28);
+    background: rgba(100, 80, 170, 0.13);
+    color: #c4b6f0;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 10.5px;
+  }
 </style>
 </head>
 <body>
   <div class="hint">
     <div class="header" id="prefix">ALT+T →</div>
     <div id="rows"></div>
+    <div class="freeze-status" id="freeze-status">
+      <span class="freeze-dot"></span>
+      <span id="freeze-text"></span>
+    </div>
   </div>
 
 <script>
@@ -134,9 +188,21 @@
 
     const prefix = document.getElementById("prefix");
     const rows = document.getElementById("rows");
+    const freezeStatus = document.getElementById("freeze-status");
+    const freezeText = document.getElementById("freeze-text");
     prefix.innerHTML = `${esc(payload.prefix)} &rarr;`;
     rows.style.columnCount = Math.max(1, Number(payload.columns) || 1);
     rows.style.height = `${Math.max(0, Number(payload.rowsHeight) || 0)}px`;
+
+    const holdOpenKey = payload.holdOpenKey ? String(payload.holdOpenKey) : "";
+    const holdOpenActive = Boolean(payload.holdOpenActive);
+    freezeStatus.classList.toggle("visible", Boolean(holdOpenKey));
+    freezeStatus.classList.toggle("active", holdOpenActive);
+    freezeText.innerHTML = holdOpenKey
+      ? holdOpenActive
+        ? `Frozen: press next key`
+        : `Press <span class="freeze-key">${esc(holdOpenKey)}</span> to freeze`
+      : "";
 
     rows.innerHTML = (payload.entries || [])
       .map(({ key, rawKey, label, submenu }) =>

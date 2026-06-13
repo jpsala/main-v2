@@ -6,7 +6,7 @@ global SelectedKeys := ""
 ; ========================================
 ; 
 ; Features:
-; - Keyboard navigation with timeout (waitml option) for main menus
+; - Keyboard navigation with timeout (showDelaySeconds/waitSeconds option) for main menus
 ; - Sub-menus with ► indicator appear instantly (no delay)
 ; - Key combinations returned as strings (e.g., "SX1" for S→X→1)
 ; - Both GUI (mouse) and keyboard navigation supported
@@ -24,12 +24,12 @@ customMenu(options, parentKeys := []) {
         return false
     }
     
-    ; Check if waitml option is provided - use pure keyboard navigation
-    if (options.HasProp("waitml") && options.waitml > 0) {
+    ; Check if a wait option is provided - use pure keyboard navigation
+    if (LegacyMenuGetWaitSeconds(options) > 0) {
         return ShowKeyboardMenu(options, parentKeys)
     }
     
-    ; If no waitml, show GUI menu
+    ; If no wait is configured, show GUI menu
     return ShowGUIMenu(options, parentKeys)
 }
 
@@ -51,7 +51,7 @@ ShowKeyboardMenu(options, parentKeys := []) {
     }
     
     ; Wait for a key press with timeout (only one attempt for main menu)
-    timeout := options.waitml / 1000  ; Convert milliseconds to seconds
+    timeout := LegacyMenuGetWaitSeconds(options)
     Input := InputHook("L1 T" . timeout)  ; Single key, with timeout
     Input.Start()
     Input.Wait()
@@ -103,7 +103,7 @@ ShowKeyboardMenu(options, parentKeys := []) {
             ; If this item has a items, show it
             if (foundItem.HasProp("items") && IsObject(foundItem.items)) {
                 subOptions := {
-                    waitml: options.waitml,
+                    waitSeconds: timeout,
                     items: foundItem.items
                 }
                 newParentKeys := parentKeys.Clone()
@@ -129,6 +129,16 @@ ShowKeyboardMenu(options, parentKeys := []) {
         ; Timeout occurred - fall back to GUI menu
         return ShowGUIMenu(options, parentKeys)
     }
+}
+
+LegacyMenuGetWaitSeconds(options) {
+    if (options.HasProp("showDelaySeconds"))
+        return options.showDelaySeconds
+    if (options.HasProp("waitSeconds"))
+        return options.waitSeconds
+    if (options.HasProp("waitml"))
+        return options.waitml / 1000
+    return 0
 }
 
 ShowGUIMenu(options, parentKeys := []) {

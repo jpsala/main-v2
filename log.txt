@@ -85,3 +85,4 @@ Emptied
 [vscode-chord] Registering prefix: ^!s -> $^!s
 [vscode-chord]   -> SUCCESS registered prefix
 [vscode-chord] init complete | prefixes=^!g,^!b,^!c,^!t,!f,^!z,^!s
+[mouse-gesture] learn-load | shape=C | registered=L_D_R

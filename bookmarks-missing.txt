@@ -90,3 +90,107 @@
 20260328021708 -> #f -> Vivaldi - Vivaldi
 20260328152130 -> !#d -> Voice Dock
 20260328204420 -> #f -> Vivaldi - Vivaldi
+20260330030701 -> #b -> main - personal - Visual Studio Code
+20260330030701 -> #x -> main - personal - Visual Studio Code
+20260330121451 -> #f -> Vivaldi - Vivaldi
+20260330202604 -> !#w -> Settings
+20260331145252 -> !#g -> OpenCode
+20260331145252 -> #2 -> OpenCode
+20260331145302 -> #1 -> OpenCode
+20260331145312 -> #3 -> OpenCode
+20260331180957 -> #v -> Vivaldi - Vivaldi
+20260401142011 -> #2 -> 01-task-board-basico.md - interview - personal - Visual Studio Code
+20260401145701 -> #1 -> OpenCode
+20260402025234 -> #2 -> docs - personal - Visual Studio Code
+20260402222845 -> #f -> Vivaldi - Vivaldi
+20260403192243 -> !#w -> Settings
+20260404122724 -> #f -> PopupHost
+20260404203055 -> #z -> [WARN:COPY MODE] Paperclip - Google Chrome (Ubuntu)
+20260405000926 -> !#w -> Willow Voice
+20260405003546 ->  -> OpenCode
+20260406203727 -> !#d -> interview - Vivaldi
+20260406203737 -> #d -> interview - Vivaldi
+20260406221927 -> !#a -> Fixvox Control Lab
+20260407133247 -> #z -> OpenCode
+20260407221526 -> #z -> OpenCode
+20260408102458 -> !#a -> AGENTS.md - copyq-command - personal - Visual Studio Code
+20260408102459 -> #x -> AGENTS.md - copyq-command - personal - Visual Studio Code
+20260408102508 -> !#x -> launcher.log - clip - personal - Visual Studio Code
+20260408102518 -> #t -> launcher.log - clip - personal - Visual Studio Code
+20260409004702 -> #q -> OpenCode
+20260409135154 -> #1 -> OpenCode
+20260409203453 -> #3 -> ¿Qué es un snapshot en React - TypingMind.com - Vivaldi
+20260409203523 -> #f -> Vivaldi - Vivaldi
+20260409210603 -> #z -> OpenCode
+20260409221453 -> #2 -> interview-26-03-31 - personal - Visual Studio Code
+20260414164403 -> #f -> Vivaldi - Vivaldi
+20260416222423 -> #z -> OpenCode
+20260416222433 -> #f -> Vivaldi - Vivaldi
+20260417231729 -> !#g -> OpenCode
+20260421105603 -> #f -> Vivaldi - Vivaldi
+20260421105813 -> #f -> Vivaldi - Vivaldi
+20260422083058 -> #f -> Vivaldi - Vivaldi
+20260422083138 -> #f -> Vivaldi - Vivaldi
+20260423215602 -> #f -> Vivaldi - Vivaldi
+20260424081140 -> #f -> Vivaldi - Vivaldi
+20260424212144 -> !#a -> Fixvox Settings
+20260427172543 -> #f -> Vivaldi - Vivaldi
+20260427172713 -> #f -> Vivaldi - Vivaldi
+20260428201955 -> !#x -> OpenCode
+20260429120420 -> #e -> menus.ahk - main - personal - Visual Studio Code
+20260429203851 -> #1 -> App.jsx - YPF - personal - Visual Studio Code
+20260430223754 -> #f -> Vivaldi - Vivaldi
+20260502090320 -> #q -> CopyQ
+20260503175017 -> !#a -> OpenCode
+20260503175017 -> #1 -> OpenCode
+20260503175027 -> !#d -> OpenCode
+20260503221717 -> #2 -> Kimi Code
+20260504083300 -> #f -> Vivaldi - Vivaldi
+20260506030801 -> #f -> Vivaldi - Vivaldi
+20260506234333 -> #f -> Vivaldi - Vivaldi
+20260507084536 -> #f -> Vivaldi - Vivaldi
+20260507224748 -> #f -> Vivaldi - Vivaldi
+20260508230356 -> #f -> Vivaldi - Vivaldi
+20260509184803 -> #f -> Vivaldi - Vivaldi
+20260510171614 -> #f -> Vivaldi - Vivaldi
+20260511113134 -> #1 -> Settings
+20260511185247 -> #f -> Vivaldi - Vivaldi
+20260512232507 -> #f -> Vivaldi - Vivaldi
+20260513222140 -> #f -> Vivaldi - Vivaldi
+20260514164903 -> #f -> Vivaldi - Vivaldi
+20260514231803 -> #f -> Vivaldi - Vivaldi
+20260515104726 -> #f -> Vivaldi - Vivaldi
+20260518085911 -> !#d -> Fixvox Settings
+20260519215230 -> #1 -> OpenCode
+20260520175458 -> #1 -> Search
+20260520204910 -> !#d -> Dictation Metrics
+20260520223700 -> #f -> Vivaldi - Vivaldi
+20260521185136 -> #f -> Vivaldi - Vivaldi
+20260522083708 -> #e -> Fixvox Settings
+20260522224615 -> #f -> Vivaldi - Vivaldi
+20260525225100 -> !#d -> OpenCode
+20260526203833 -> #f -> Vivaldi - Vivaldi
+20260528020649 -> #f -> Vivaldi - Vivaldi
+20260528194824 -> #f -> Vivaldi - Vivaldi
+20260530123810 -> #f -> Terminal
+20260530232040 -> #x -> Codex
+20260531170956 -> #f -> Vivaldi - Vivaldi
+20260531221456 -> #x -> Codex
+20260601204746 -> #1 -> Settings
+20260601211416 -> #2 -> WhatsApp Admin - Vivaldi
+20260601211426 -> #f -> Vivaldi - Vivaldi
+20260602235148 -> #1 -> Constelaciones Admin - Vivaldi
+20260602235149 -> #f -> Vivaldi - Vivaldi
+20260603144232 -> #f -> Vivaldi - Vivaldi
+20260604000121 -> #f -> Vivaldi - Vivaldi
+20260604203354 -> #f -> Vivaldi - Vivaldi
+20260605000315 -> #f -> Vivaldi - Vivaldi
+20260605045750 -> #f -> Vivaldi - Vivaldi
+20260605145508 -> #v -> Stremio
+20260607005236 -> #f -> Vivaldi - Vivaldi
+20260609155245 -> !#x -> ? .env - constelaciones - personal - Visual Studio Code
+20260609220746 -> #f -> Vivaldi - Vivaldi
+20260610080217 -> #f -> Widgets
+20260611174706 -> #1 -> Codex
+20260611214936 -> #f -> Vivaldi - Vivaldi
+20260612072707 -> #d -> Copicu Settings

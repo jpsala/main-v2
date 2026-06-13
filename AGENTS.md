@@ -22,6 +22,7 @@ When changing behavior, preserve existing muscle memory unless the user explicit
 - `init.ahk` does startup, path validation, browser profile setup, timers, and hot-reload.
 - Most feature work lives in plain `.ahk` modules included by `main.ahk`.
 - Web UIs live under `ui/` and are rendered with `WebViewToo.ahk` / WebView2.
+- Do not manually restart `main.ahk` after edits unless the user explicitly asks; `init.ahk` already hot-reloads changed files during development.
 
 If you create a new module:
 
@@ -116,6 +117,10 @@ Read these first before making non-trivial changes:
   - text expansion
 - `msg.ahk`
   - transient on-screen message helpers
+- `MainPortable/`
+  - standalone portable AHK toolkit for copying to another PC
+  - starts with bookmarks and keyboard mouse movement
+  - must remain self-contained; read `MainPortable/AGENTS.md` before editing
 
 ## How To Answer Common User Requests
 
@@ -168,7 +173,7 @@ When adding a browser site entry, prefer reusing an existing profile launcher su
 There are two menu systems:
 
 1. `menus.ahk` + `customMenuWebView(...)`
-2. `lib/chord-hotkeys.ahk` + `ChordRegister(...)`
+2. `menus-whichkey.ahk` + `lib/chord-hotkeys.ahk`
 
 Use `customMenuWebView(...)` when:
 
@@ -176,7 +181,7 @@ Use `customMenuWebView(...)` when:
 - the action is launched from an existing Win hotkey like `#a`, `#w`, `#c`
 - you want submenu keys like `sc`, `tp1`, `xx`
 
-Use `ChordRegister(...)` when:
+Use the chord system when:
 
 - you want a which-key style transient overlay after a prefix hotkey
 - you want a prefix like `Alt+T`
@@ -185,22 +190,42 @@ Use `ChordRegister(...)` when:
 Examples:
 
 - `menus.ahk` shows the repo's main production menu style.
-- `chord-examples.ahk` shows current which-key usage and nested submenu syntax.
+- `menus-whichkey.ahk` shows the current production bridge from menu option trees into the chord engine.
+- `chord-examples.ahk` shows standalone chord syntax and nested submenu shape.
 
 ### "Create a which-key menu that does X"
 
 Primary files:
 
 - `lib/chord-hotkeys.ahk`
+- `menus-whichkey.ahk`
 - `chord-examples.ahk`
 - `ui/chord-hint.html`
 
 How it works:
 
-- register a top-level prefix with `ChordRegister(prefixMap, executeFn)`
-- use `ChordEntry(command, label)` for final actions
+- for production menu trees, prefer `MenuWhichKeyRegisterWithActions(prefixHotkey, options)`
+- register a raw top-level prefix with `ChordRegister(prefixMap, executeFn, registerOptions?)` when you are not adapting an existing `options.items` tree
+- use `ChordEntry(command, label, executeFn?)` for final actions
 - use `{ label: "...", items: Map(...) }` for submenus
-- optional submenu delay per node is `hintDelay: 0.35`
+- optional menu options are `showDelaySeconds`, `idleTimeoutSeconds`, and `chordPrefixLabel`
+- optional submenu timing uses `showDelaySeconds` and `idleTimeoutSeconds`
+
+When adapting menu-style option objects through `menus-whichkey.ahk`, these item fields matter:
+
+- `chordKey`: remap a visible menu key to a different chord key
+- `chordPath`: place an item under a multi-step chord path
+- `chordPathLabel`: label the generated intermediate submenu
+- `chordLabel`: override the hint label without changing the normal menu label
+- `chordHidden`: keep an item out of the chord overlay
+
+Key choice guidelines for this repo:
+
+- prefer left-hand reachable keys first because the user normally keeps the right hand on the mouse
+- default comfort zone is keys around the left side of the keyboard, especially up to `b`, `g`, `t`, and `6`
+- within that set, pick the key that best matches the item mnemonic before reaching for a less convenient key
+- use deeper `chordPath` groupings when that preserves left-hand comfort better than spending a rare or awkward top-level key
+- if a visible menu key is not left-hand friendly, prefer keeping the visible key and remapping the chord with `chordKey`
 
 Example shape:
 
@@ -228,6 +253,7 @@ Behavior currently supported:
 - breadcrumb in hint
 - `Esc` goes up one level, then cancels at root
 - invalid key is absorbed and cancels
+- hint rows can be clicked with the mouse
 
 If the user asks to restyle the hint, edit:
 
@@ -284,6 +310,28 @@ That file is already guarded by a context function checking:
 - `Cursor.exe`
 
 If the requested behavior depends on Code/Cursor shortcuts rather than raw text editing, prefer adding it there rather than globally.
+
+### "Work on gestures" / "Add or change a gesture"
+
+Read in this order:
+
+1. `docs/features/gestures.md`
+2. `mouse-gestures-conditions.ahk`
+3. `mouse-gestures-wizard.ahk`
+4. `mouse-gestures.ahk`
+
+Rule of thumb:
+
+- use `docs/features/gestures.md` as the working guide for the full gesture surface
+- edit `mouse-gestures-conditions.ahk` for normal behavior changes
+- edit `mouse-gestures-wizard.ahk` for stub generation, insertion, and sort-by-specificity behavior
+- edit `mouse-gestures.ahk` only when changing recognition, matching capabilities, dispatch, thresholds, or learning behavior
+- use `gesture`, `shape`, `size`, `region`, `screenCell`, `monitor`, `exe`, and `titleRegex` intentionally; do not guess which field matters without checking the captured event model
+- when the user wants to study recognition rather than behavior, prefer capture flows or `gesture-debate-state.ini` / `gesture-debate-log.txt`
+- do not manually restart `main.ahk` after gesture edits unless the user explicitly asks; `init.ahk` hot-reloads the repo during development
+- `MouseGestureQuickSortConditions(...)` should be treated as the canonical sorter
+- `MouseGestureQuickSortConditions(...)` also refreshes `; Used:` comments
+- `MouseGestureQuickRefreshUsedComments(...)` regenerates `; Used:` comments from the real `if` blocks
 
 ### "Change the settings UI"
 
@@ -376,6 +424,7 @@ If you add a file that is meant to be edited during development, update `init.ah
 - Avoid assuming semantics from JavaScript, Python, or C# for object literals, scope, or top-level execution. AutoHotkey v2 has its own parser and warning behavior.
 - After non-trivial `.ahk` edits, syntax-check with AutoHotkey before finishing. Prefer:
   - `"C:\Program Files\AutoHotkey\v2\AutoHotkey64.exe" /ErrorStdOut path\to\probe.ahk`
+- In this repo/environment, running `AutoHotkey64.exe /ErrorStdOut` against the full entrypoint such as `main.ahk` may hang because startup code can keep the process resident. Do not run that full-entrypoint syntax check automatically; prefer an isolated probe file or ask the user before trying a manual verification flow.
 - When a warning mentions "This local variable appears to never be assigned a value", suspect one of these first:
   - a bare identifier was interpreted as a local variable instead of a function reference
   - include order caused a top-level call to happen before the function definition was loaded
@@ -405,14 +454,15 @@ Avoid these patterns unless you have verified they are safe in AHK v2 for this i
 Examples:
 
 ```ahk
-; Good: explicit function object + explicit call
+; Good: resolve options explicitly, then register from a known-safe point
 InitMenusWhichKey() {
-    MenuWhichKeyRegister("#a", Func("GetMainSeqAOptions").Call(), Func("HandleMainSeqAKey"))
+    options := Func("GetMainSeqAOptions").Call()
+    MenuWhichKeyRegisterWithActions("#a", options)
 }
 
 ; Risky: relies on symbol resolution and top-level timing
 InitMenusWhichKey() {
-    MenuWhichKeyRegister("#a", GetMainSeqAOptions(), HandleMainSeqAKey)
+    MenuWhichKeyRegisterWithActions("#a", GetMainSeqAOptions())
 }
 ```
 
@@ -432,11 +482,16 @@ InitMenusWhichKey()
 - `#a` apps/tools menu: `menus.ahk`
 - `#c` code/tools menu: `menus.ahk`
 - which-key engine: `lib/chord-hotkeys.ahk`
-- which-key example registrations: `chord-examples.ahk`
+- which-key menu bridge: `menus-whichkey.ahk`
+- which-key standalone example registrations: `chord-examples.ahk`
 - which-key visual style: `ui/chord-hint.html`
 - VIM engine: `vim-mode.ahk`
 - VIM bindings: `vim-keymap.ahk`
 - VIM Code/Cursor bindings: `vim-keymap-code.ahk`
+- gestures working guide: `docs/features/gestures.md`
+- gesture engine: `mouse-gestures.ahk`
+- gesture conditions: `mouse-gestures-conditions.ahk`
+- gesture wizard/sorter: `mouse-gestures-wizard.ahk`
 - reusable window launch/reuse: `roa.ahk`
 - settings UI: `settings-window.ahk`, `ui/settings.html`
 - searchable WebView menu engine: `menu-webview.ahk`, `ui/menu.html`
@@ -457,3 +512,10 @@ When asked to implement a change:
    - `VimAction(...)`
 4. If creating a new module or UI file, wire it into `main.ahk` and `init.ahk`.
 5. Preserve the current interaction model unless the user asks for a redesign.
+## Skills And Rules Scope
+
+- Follow the canonical scope policy in `C:\dev\rules\policies\skills-and-rules-scope.md`.
+- Default reusable and cross-project skills/rules to `C:\dev\rules`.
+- Use local project folders only as an explicit exception for clearly local scope.
+- If scope is ambiguous, ask the user before creating, moving, linking, or updating anything.
+- Keep one canonical copy only; use junctions when another path must expose the same skill or rule.

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Clipboard Sender</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  :root {
+    --panel: rgba(255, 255, 255, 0.055);
+    --line: rgba(255, 255, 255, 0.12);
+    --cyan: #67e8f9;
+  }
+
+  body {
+    background:
+      radial-gradient(circle at 12% 0%, rgba(103, 232, 249, 0.18), transparent 32%),
+      radial-gradient(circle at 100% 18%, rgba(78, 201, 176, 0.16), transparent 30%),
+      linear-gradient(145deg, #080b12 0%, #101622 52%, #0b1020 100%);
+  }
+
+  .titlebar {
+    background: rgba(8, 11, 18, 0.72);
+    backdrop-filter: blur(18px);
+  }
+
+  .shell {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .meta {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: end;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+
+  input, textarea {
+    -webkit-app-region: no-drag;
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.28);
+    color: var(--text-primary);
+    font: inherit;
+    outline: none;
+  }
+
+  input {
+    height: 36px;
+    padding: 0 12px;
+  }
+
+  textarea {
+    flex: 1;
+    min-height: 0;
+    resize: none;
+    padding: 14px;
+    line-height: 1.45;
+    font-size: 14px;
+  }
+
+  input:focus, textarea:focus {
+    border-color: rgba(103, 232, 249, 0.72);
+    box-shadow: 0 0 0 1px rgba(103, 232, 249, 0.18);
+  }
+
+  .send {
+    -webkit-app-region: no-drag;
+    height: 36px;
+    padding: 0 16px;
+    border: 1px solid rgba(103, 232, 249, 0.8);
+    border-radius: 12px;
+    background: linear-gradient(135deg, #67e8f9, #4ec9b0);
+    color: #041016;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+
+  .status.ok { color: var(--success); }
+  .status.error { color: var(--error); }
+
+  @media (max-width: 520px) {
+    .meta { grid-template-columns: 1fr; }
+    .send { width: 100%; }
+    .footer { display: block; }
+    .hint { margin-top: 6px; }
+  }
+</style>
+</head>
+<body>
+  <div class="titlebar">
+    <div class="grip">
+      <span></span><span></span><span></span>
+      <span></span><span></span><span></span>
+    </div>
+    <div class="titlebar-title">
+      <span class="titlebar-icon">&#x21C4;</span>
+      Web Clipboard Sender
+    </div>
+    <div class="window-controls">
+      <button class="win-btn win-minimize" onclick="minimizeWindow()" title="Minimizar">&#x2212;</button>
+      <button class="win-btn win-close" onclick="closeWindow()" title="Cerrar">&#x2715;</button>
+    </div>
+  </div>
+
+  <main class="shell">
+    <div class="meta">
+      <div>
+        <label for="room">Sala</label>
+        <input id="room" autocomplete="off" spellcheck="false" placeholder="Sala alfanumerica">
+      </div>
+      <button id="send" class="send" type="button">Enviar</button>
+    </div>
+
+    <textarea id="text" autofocus placeholder="Escribi texto para mandar al receptor..."></textarea>
+
+    <div class="footer">
+      <div id="status" class="status">Listo</div>
+      <div id="hint" class="hint">Enter envia. Shift+Enter agrega linea. Esc cierra.</div>
+    </div>
+  </main>
+
+  <script src="ahk-bridge.js"></script>
+  <script>
+    const roomEl = document.querySelector('#room');
+    const textEl = document.querySelector('#text');
+    const sendEl = document.querySelector('#send');
+    const statusEl = document.querySelector('#status');
+    const hintEl = document.querySelector('#hint');
+
+    function sendToAHK(action, data = {}) { postToAHK({ action, ...data }); }
+
+    sendToAHK('ready');
+    setTimeout(() => textEl.focus(), 80);
+
+    sendEl.addEventListener('click', sendCurrentText);
+    roomEl.addEventListener('input', () => {
+      const normalized = normalizeRoom(roomEl.value);
+      if (roomEl.value !== normalized) roomEl.value = normalized;
+    });
+
+    textEl.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeWindow();
+        return;
+      }
+
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendCurrentText();
+      }
+    });
+
+    window.chrome?.webview?.addEventListener('message', event => {
+      const message = event.data || {};
+      if (message.action === 'state') {
+        if (message.room) roomEl.value = normalizeRoom(message.room);
+        if (message.hotkey) hintEl.textContent = message.hotkey + ' abre esta ventana. Enter envia. Shift+Enter agrega linea. Esc cierra.';
+        if (message.prefill) textEl.value = message.prefill;
+        setTimeout(() => textEl.focus(), 40);
+      }
+
+      if (message.action === 'sendResult') {
+        setStatus(message.message || (message.ok ? 'Enviado' : 'Error'), message.ok ? 'ok' : 'error');
+        if (message.ok) {
+          textEl.value = '';
+          setTimeout(() => closeWindow(), 120);
+        }
+        textEl.focus();
+      }
+    });
+
+    function sendCurrentText() {
+      const text = textEl.value;
+      const room = normalizeRoom(roomEl.value);
+      if (!room) {
+        setStatus('Sala invalida', 'error');
+        roomEl.focus();
+        return;
+      }
+      if (!text) {
+        setStatus('No hay texto para enviar', 'error');
+        textEl.focus();
+        return;
+      }
+      setStatus('Enviando...', '');
+      sendToAHK('send', { room, text });
+    }
+
+    function normalizeRoom(room) {
+      return String(room || '').trim().replace(/[^a-zA-Z0-9]/g, '').slice(0, 64).toLowerCase();
+    }
+
+    function setStatus(text, kind) {
+      statusEl.textContent = text;
+      statusEl.className = 'status ' + (kind || '');
+    }
+  </script>
+</body>
+</html>

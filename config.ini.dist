@@ -32,6 +32,13 @@ hidePathsSummary=0  ; 0 = mostrar diálogo de paths faltantes, 1 = ocultar
 cursorKeysEnabled=1
 logVisibility=0
 
+[audioDeviceFavorites]
+; Se llena automáticamente desde la interfaz.
+
+[web-clipboard]
+room=
+base_url=https://web-clipboard.jpsala.workers.dev
+
 [appInstances]
 
 [desktop]

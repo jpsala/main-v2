@@ -46,7 +46,7 @@ ShowMissingPathsSummary()
 SeedDefaultProfiles()
 
 ; Vivaldi profiles
-vivaldiWithMainProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "main")
+vivaldiWithMainProfile := EnsureRemoteDebuggingPort(BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "main"), 9333)
 vivaldiWithCarnivalProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "carnival")
 vivaldiWithYoutubeProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "youtube")
 vivaldiAltWithMainProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "mainalt")
@@ -57,7 +57,9 @@ vivaldiWithGordosProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "gor
 vivaldiWithBooksProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "books")
 vivaldiWithDebugProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "debug")
 vivaldiWithJpsalaAiProfile  := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "jpsala-ai")
+vivaldiWithJpsalaWorkProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "jpsala-work")
 vivaldiWithJpsalaAltProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "jpsala-alt")
+vivaldiWithJpsalaDevProfile := BuildProfileCmd(vivaldiExe, "vivaldi-profiles", "jpsala-dev")
 
 ; Chrome profiles
 chromeWithWorkProfile := BuildProfileCmd(chromeExe, "chrome-profiles", "work")
@@ -83,26 +85,34 @@ if (!A_IsCompiled) {
     {path: './init.ahk', lastModVar: FileGetTime('./init.ahk', "M")},
     {path: './bookmarks.ahk', lastModVar: FileGetTime('./bookmarks.ahk', "M")},
     {path: './menu-actions.ahk', lastModVar: FileGetTime('./menu-actions.ahk', "M")},
+    {path: './copy-q.ahk', lastModVar: FileGetTime('./copy-q.ahk', "M")},
     {path: './menus.ahk', lastModVar: FileGetTime('./menus.ahk', "M")},
     {path: './menus-whichkey.ahk', lastModVar: FileGetTime('./menus-whichkey.ahk', "M")},
     {path: './code.ahk', lastModVar: FileGetTime('./code.ahk', "M")},
+    {path: './web-clipboard-host.ahk', lastModVar: FileGetTime('./web-clipboard-host.ahk', "M")},
     {path: './hotstrings.ahk', lastModVar: FileGetTime('./hotstrings.ahk', "M")},
     {path: './system.ahk', lastModVar: FileGetTime('./system.ahk', "M")},
     {path: './chrome.ahk', lastModVar: FileGetTime('./chrome.ahk', "M")},
+    {path: './mouse-gestures.ahk', lastModVar: FileGetTime('./mouse-gestures.ahk', "M")},
+    {path: './mouse-gestures-wizard.ahk', lastModVar: FileGetTime('./mouse-gestures-wizard.ahk', "M")},
+    {path: './mouse-gestures-conditions.ahk', lastModVar: FileGetTime('./mouse-gestures-conditions.ahk', "M")},
     {path: './lib/chord-hotkeys.ahk', lastModVar: FileGetTime('./lib/chord-hotkeys.ahk', "M")},
+    {path: './lib/webview-window-state.ahk', lastModVar: FileGetTime('./lib/webview-window-state.ahk', "M")},
+    {path: './lib/audio.ahk', lastModVar: FileGetTime('./lib/audio.ahk', "M")},
     {path: './hotkeys-global.ahk', lastModVar: FileGetTime('./hotkeys-global.ahk', "M")},
     {path: './vim-mode.ahk', lastModVar: FileGetTime('./vim-mode.ahk', "M")},
     {path: './vim-keymap.ahk', lastModVar: FileGetTime('./vim-keymap.ahk', "M")},
     {path: './vim-keymap-code.ahk', lastModVar: FileGetTime('./vim-keymap-code.ahk', "M")},
     {path: './chord-examples.ahk', lastModVar: FileGetTime('./chord-examples.ahk', "M")},
     {path: './ui/chord-hint.html', lastModVar: FileGetTime('./ui/chord-hint.html', "M")},
+    {path: './ui/audio-devices.html', lastModVar: FileGetTime('./ui/audio-devices.html', "M")},
+    {path: './ui/web-clipboard-compose.html', lastModVar: FileGetTime('./ui/web-clipboard-compose.html', "M")},
     {path: './roa.ahk', lastModVar: FileGetTime('./roa.ahk', "M")},
     {path: './menu.ahk', lastModVar: FileGetTime('./menu.ahk', "M")},
     {path: './tray-menu.ahk', lastModVar: FileGetTime('./tray-menu.ahk', "M")},
   ]
 }
 emptylog()
-onceADay()
 
 
 
@@ -116,7 +126,8 @@ if (ProcessExist('StrokesPlus.net.exe') == 0 and !isWork and !isCarnival) {
 ; init some global variables from ini file
 ; ***********************************************
 global cursorKeysEnabled := false
-variablesToPersist := ['cursorKeysEnabled', 'logVisibility']
+global terminalShiftVPasteEnabled := false
+variablesToPersist := ['cursorKeysEnabled', 'logVisibility', 'terminalShiftVPasteEnabled']
 for variable in variablesToPersist {
    try {
       if (InStr(variable, ".")) {
@@ -241,8 +252,7 @@ BuildProfileCmd(exePath, section, key) {
 
   ; These launchers must never expose a remote debugging port, even if config.ini
   ; still contains an older flag.
-  if ((section = "chrome-profiles" && key = "debug")
-    || (section = "vivaldi-profiles" && key = "main")) {
+  if (section = "chrome-profiles" && key = "debug") {
     extraFlags := StripRemoteDebuggingPort(extraFlags)
   }
 
@@ -263,6 +273,14 @@ StripRemoteDebuggingPort(flags) {
     return ""
   cleaned := RegExReplace(flags, "\s*--remote-debugging-port=\d+")
   return Trim(cleaned)
+}
+
+EnsureRemoteDebuggingPort(cmd, port) {
+  if (!cmd)
+    return ""
+  if RegExMatch(cmd, "--remote-debugging-port=\d+")
+    return cmd
+  return RTrim(cmd) . " --remote-debugging-port=" . port . " "
 }
 
 SeedDefaultProfiles() {

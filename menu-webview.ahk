@@ -3,7 +3,7 @@
 ; ========================================
 ; 
 ; Features:
-; - Keyboard navigation with timeout (waitml option) for instant execution
+; - Keyboard navigation with timeout (showDelaySeconds/waitSeconds option) for instant execution
 ; - WebView-based GUI with fuzzy filtering when no key pressed
 ; - Sub-menus with breadcrumb navigation
 ; - Key combinations returned as strings (e.g., "sx1" for s→x→1)
@@ -12,7 +12,7 @@
 ; Usage:
 ; - Use customMenuWebView(options) instead of customMenu(options)
 ; - Same options structure as customMenu
-; - If key pressed within waitml: executes immediately
+; - If key pressed within the configured wait: executes immediately
 ; - If timeout: shows WebView picker with filtering
 ;
 #Include ".\lib\WebViewToo.ahk"
@@ -29,7 +29,7 @@ global MENU_WEBVIEW_CURRENT_OPTIONS := {}
 
 /**
  * Shows a menu with keyboard-first navigation and WebView fallback
- * @param options Object with { waitml, items, title? }
+ * @param options Object with { showDelaySeconds|waitSeconds|waitml, items, title? }
  * @param parentKeys Array of parent keys for submenu tracking
  * @returns String key combination or false if cancelled
  */
@@ -38,12 +38,12 @@ customMenuWebView(options, parentKeys := []) {
         return false
     }
     
-    ; Check if waitml option is provided - use keyboard navigation first
-    if (options.HasProp("waitml") && options.waitml > 0) {
+    ; Check if a wait option is provided - use keyboard navigation first
+    if (MenuWebViewGetWaitSeconds(options) > 0) {
         return ShowKeyboardMenuWebView(options, parentKeys)
     }
     
-    ; If no waitml, show WebView menu directly
+    ; If no wait is configured, show WebView menu directly
     return ShowWebViewMenu(options, parentKeys)
 }
 
@@ -68,7 +68,7 @@ ShowKeyboardMenuWebView(options, parentKeys := []) {
     }
     
     ; Wait for a key press with timeout
-    timeout := options.waitml / 1000  ; Convert milliseconds to seconds
+    timeout := MenuWebViewGetWaitSeconds(options)
     Input := InputHook("L1 T" . timeout)  ; Single key, with timeout
     Input.Start()
     Input.Wait()
@@ -103,7 +103,7 @@ ShowKeyboardMenuWebView(options, parentKeys := []) {
             ; If this item has subitems, show submenu
             if (foundItem.HasProp("items") && IsObject(foundItem.items)) {
                 subOptions := {
-                    waitml: options.waitml,
+                    waitSeconds: timeout,
                     items: foundItem.items
                 }
                 if (options.HasProp("title")) {
@@ -130,6 +130,16 @@ ShowKeyboardMenuWebView(options, parentKeys := []) {
         ; Timeout occurred - fall back to WebView menu
         return ShowWebViewMenu(options, parentKeys)
     }
+}
+
+MenuWebViewGetWaitSeconds(options) {
+    if (options.HasProp("showDelaySeconds"))
+        return options.showDelaySeconds
+    if (options.HasProp("waitSeconds"))
+        return options.waitSeconds
+    if (options.HasProp("waitml"))
+        return options.waitml / 1000
+    return 0
 }
 
 ; ========================================

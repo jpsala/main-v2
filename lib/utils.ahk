@@ -159,6 +159,7 @@ onceADay() {
         SoundSetVolume(5)
         msg('Changing to Headset Earphone', { seconds: 3 })
         SoundBeepWithVol(300, 600, 5)
+        RunElectroBunDev()
     }
 }
 

@@ -2,15 +2,26 @@
     ; GLOBAL HOTKEYS - MOVED FROM system.ahk
     ; ===================================================================
 
-; ===================================================================
-; SETTINGS WINDOW
-; ===================================================================
-#,:: {  ; Win+, opens settings (like many apps)
-    ShowSettingsWindow()
-}
+    ; ===================================================================
+    ; SETTINGS WINDOW
+    ; ===================================================================
+    #,:: {  ; Win+, opens settings (like many apps)
+      ShowSettingsWindow()
+    }
 
-#HotIf WinActive('ahk_exe code.exe')
-#HotIf
+    #^!g:: {
+      MouseGestureQuickCreateStubWizard()
+    }
+
+    ^!#+g:: {
+      if (MouseGestureQuickSortConditions())
+        msg("Sorted gesture conditions", {seconds: 2})
+      else
+        msg("Could not sort gesture conditions", {seconds: 2})
+    }
+
+    #HotIf WinActive('ahk_exe code.exe')
+    #HotIf
 
     !F1:: {
       MinimizeToTrayWithNirCmd(WinGetTitle('A'))
@@ -42,22 +53,29 @@
     #hotif WinActive("– Figma -")
     ^c:: send('^+\')
     #hotif
+
+    ; Temporary OpenCode gesture debugging hotkey.
+; z:: {
+;     KeyWait("z")
+;     SendEvent("{Ctrl down}{Alt down}{Shift down}{F12 down}")
+;     Sleep(60)
+;     SendEvent("{F12 up}{Shift up}{Alt up}{Ctrl up}")
+; }
+    ; Temporary OpenCode gesture debugging hotkey.
+    ; z:: {
+    ;   KeyWait('z')
+    ;   msg('ok')
+    ;   vimMode := SetVimMode(false)
+
+    ; send("{Alt down}{Space}{Alt up}")
+    ;   SetVimMode(vimMode)
+    ; }
+
     ; ===================================================================
     ; remote desktop & rustdesk
     ; ===================================================================
 
     ^F12:: MsgBox(mousePosY())
-
-    ; ===================================================================
-    ; Show open windows when right clicking on the top
-    ; ===================================================================
-    #hotif mousePosY() < 2
-    RButton:: {
-      KeyWait('LButton', 'T0.8')
-      send('#!{space}')
-      WinWaitActive('ahk_exe Microsoft.CmdPal.UI.exe')
-    }
-    #hotif
 
     ; Function to handle rename operations with optional parameter
     handleRename(useSpecialBackspace := false) {
@@ -159,6 +177,32 @@
     ; Remap Ctrl+Alt+R to prevent ® character
     ^!r:: Send('^!r')
 
+    #HotIf IsTerminalShiftVPasteActive()
+    +Insert:: PasteIntoTerminalWithShiftInsert()
+    #HotIf
+
+    IsTerminalShiftVPasteActive() {
+      global terminalShiftVPasteEnabled
+      return (terminalShiftVPasteEnabled = true || terminalShiftVPasteEnabled = "1") && IsTerminalPasteTarget()
+    }
+
+    IsTerminalPasteTarget() {
+      try exe := WinGetProcessName("A")
+      catch
+        return false
+
+      return exe = "WindowsTerminal.exe"
+        || exe = "OpenCode.exe"
+        || exe = "pwsh.exe"
+        || exe = "powershell.exe"
+        || exe = "cmd.exe"
+        || exe = "conhost.exe"
+      }
+
+    PasteIntoTerminalWithShiftInsert() {
+      Send("^v")
+    }
+
     ; Reload script
     #!^r:: {
       msg('Reloading...')
@@ -245,36 +289,6 @@
       }
 
       return
-    }
-
-    ; CopyQ - Label clipboard item (Requires CopyQ, Assumes InputBox() is defined elsewhere)
-    #HotIf WinActive('ahk_exe copyq.exe')
-    !enter:: {
-      send('^{home}')
-      sleep(20)
-      send('{enter}')
-    }
-    #HotIf
-    #!l:: {
-      data := InputBox('Label for selected item', 'copyq', , '').value
-      if (data) {
-        BlockInput(true)
-        Send('#!c') ; Assuming this toggles CopyQ window
-        waitResult := WinWaitActive('ahk_exe copyq.exe', , 2) ; Wait max 2 seconds
-        if (!waitResult) {
-          msg("CopyQ window not found.")
-          BlockInput(false)
-          return
-        }
-        Send('+{F2}')
-        Sleep(40)
-        Send(data)
-        Sleep(400)
-        Send('{F2}')
-        Sleep(100)
-        Send('#!c') ; Toggle CopyQ window again
-        BlockInput(false)
-      }
     }
 
     ; ===================================================================
@@ -427,7 +441,3 @@
       ; Display layout info
       msg(layoutMsg, { seconds: 5 })
     }
-
-    ; ===================================================================
-    ; UTILITY HOTKEYS
-    ; ===================================================================

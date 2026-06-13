@@ -10,6 +10,10 @@
 global appInstanceMap := Map()  ; For tracking application instances
 global aliasMap := Map()        ; For alias-based window management
 global configCache := Map()     ; Cache for frequently accessed config values
+global NOTIFICATION_GUI := false
+global NOTIFICATION_READY := false
+global NOTIFICATION_PAYLOAD := false
+global NOTIFICATION_CALLBACK := false
 
 ;===============================================================================
 ; CONFIG CACHE HELPERS
@@ -246,4 +250,127 @@ Seq(time := 500, chars := 2, key := False, feedback := 0, beepOnNoKeyPressed := 
         command := ''
     }
     return command
+}
+
+;===============================================================================
+; NOTIFICATIONS
+;===============================================================================
+
+ShowNotification(payload, callback := false, persistent := false) {
+    if (!persistent) {
+        NotificationFallback(payload)
+        return true
+    }
+
+    return ShowPersistentNotification(payload, callback)
+}
+
+ShowPersistentNotification(payload, callback := false) {
+    global NOTIFICATION_GUI, NOTIFICATION_READY, NOTIFICATION_PAYLOAD, NOTIFICATION_CALLBACK
+    NOTIFICATION_PAYLOAD := payload
+    NOTIFICATION_CALLBACK := callback
+
+    if (NOTIFICATION_GUI) {
+        try {
+            NOTIFICATION_GUI.Show()
+            WinActivate(NOTIFICATION_GUI.Hwnd)
+            NotificationSendState()
+            return true
+        } catch {
+            NOTIFICATION_GUI := false
+        }
+    }
+
+    NOTIFICATION_READY := false
+    try {
+        dllPath := A_ScriptDir . "\lib\" . (A_PtrSize * 8) . "bit\WebView2Loader.dll"
+        NOTIFICATION_GUI := WebViewGui("+Resize -Caption +AlwaysOnTop", NotificationMapGet(payload, "windowTitle", "Notification"),, {DllPath: dllPath, DefaultWidth: 560, DefaultHeight: 360})
+        NOTIFICATION_GUI.BackColor := NotificationMapGet(payload, "backColor", "111827")
+        NOTIFICATION_GUI.OnEvent("Close", (*) => CloseNotification())
+        NOTIFICATION_GUI.OnEvent("Escape", (*) => CloseNotification())
+        NOTIFICATION_GUI.Control.wv.add_WebMessageReceived(NotificationHandleMessage)
+        NOTIFICATION_GUI.Control.wv.add_NavigationCompleted(NotificationNavigationCompleted)
+        NOTIFICATION_GUI.Navigate("ui/notification.html")
+        NOTIFICATION_GUI.Show("w560 h360 Hide")
+        WebViewWindowStateRestoreOrCenter(NOTIFICATION_GUI, "notification", 560, 360, true, true)
+        NOTIFICATION_GUI.Show()
+        WinActivate(NOTIFICATION_GUI.Hwnd)
+        try SoundBeep(900, 250)
+        try SoundBeep(700, 250)
+        return true
+    } catch Error as e {
+        NotificationFallback(payload)
+        return false
+    }
+}
+
+NotificationNavigationCompleted(wv, args) {
+    global NOTIFICATION_READY
+    NOTIFICATION_READY := true
+    NotificationSendState()
+}
+
+NotificationHandleMessage(wv, args) {
+    global NOTIFICATION_CALLBACK
+    try {
+        json := args.WebMessageAsJson
+        data := JsonLoad(&json)
+        action := data.Has("action") ? data["action"] : ""
+
+        switch action {
+            case "ready":
+                NotificationSendState()
+            case "minimize":
+                global NOTIFICATION_GUI
+                if (NOTIFICATION_GUI)
+                    NOTIFICATION_GUI.Minimize()
+            case "close", "dismiss":
+                CloseNotification()
+            case "button":
+                buttonAction := data.Has("buttonAction") ? data["buttonAction"] : ""
+                closeAfter := data.Has("close") ? data["close"] : true
+                if (NOTIFICATION_CALLBACK)
+                    NOTIFICATION_CALLBACK.Call(buttonAction, data)
+                if (closeAfter)
+                    CloseNotification()
+        }
+    } catch Error as e {
+        log("Notification error", e.Message)
+    }
+}
+
+NotificationSendState() {
+    global NOTIFICATION_GUI, NOTIFICATION_READY, NOTIFICATION_PAYLOAD
+    if (!NOTIFICATION_GUI || !NOTIFICATION_READY || !NOTIFICATION_PAYLOAD)
+        return false
+
+    payload := Map("action", "notification", "notification", NOTIFICATION_PAYLOAD)
+    try NOTIFICATION_GUI.Control.wv.PostWebMessageAsJson(JsonDump(payload))
+    return true
+}
+
+CloseNotification() {
+    global NOTIFICATION_GUI, NOTIFICATION_READY, NOTIFICATION_PAYLOAD, NOTIFICATION_CALLBACK
+    if (NOTIFICATION_GUI) {
+        try WebViewWindowStateSave(NOTIFICATION_GUI.Hwnd)
+        try WebViewWindowStateForget(NOTIFICATION_GUI.Hwnd)
+        try NOTIFICATION_GUI.Destroy()
+    }
+    NOTIFICATION_GUI := false
+    NOTIFICATION_READY := false
+    NOTIFICATION_PAYLOAD := false
+    NOTIFICATION_CALLBACK := false
+}
+
+NotificationFallback(payload) {
+    title := NotificationMapGet(payload, "title", "Notification")
+    message := NotificationMapGet(payload, "message", "")
+    detail := NotificationMapGet(payload, "detail", "")
+    body := message . (detail != "" ? "`n" . detail : "")
+    try TrayTip(body, title)
+    try msg(body, { seconds: 20, topLeft: true })
+}
+
+NotificationMapGet(valueMap, key, defaultValue := "") {
+    return (valueMap is Map && valueMap.Has(key)) ? valueMap[key] : defaultValue
 }

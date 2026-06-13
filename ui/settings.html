@@ -451,6 +451,14 @@
 
         <div class="setting-item">
           <div class="setting-label">
+            <div class="setting-name">Pegar con Shift+Insert en terminales</div>
+            <div class="setting-desc">Hace que Shift+Insert pegue el portapapeles solo en terminales y OpenCode</div>
+          </div>
+          <div class="toggle" id="toggle-terminal-shift-v-paste" onclick="toggleSetting('terminalShiftVPasteEnabled')"></div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-label">
             <div class="setting-name">Iniciar con Windows</div>
             <div class="setting-desc">La aplicación se abrirá automáticamente cuando enciendas tu computadora</div>
           </div>
@@ -769,10 +777,12 @@ function renderGeneralSettings(settings) {
   console.log('  showPathsSummary:', settings.showPathsSummary, typeof settings.showPathsSummary);
   console.log('  loggingEnabled:', settings.loggingEnabled, typeof settings.loggingEnabled);
   console.log('  cursorKeysEnabled:', settings.cursorKeysEnabled, typeof settings.cursorKeysEnabled);
+  console.log('  terminalShiftVPasteEnabled:', settings.terminalShiftVPasteEnabled, typeof settings.terminalShiftVPasteEnabled);
   
   updateToggle('toggle-show-summary', settings.showPathsSummary === true || settings.showPathsSummary === 'true');
   updateToggle('toggle-logging', settings.loggingEnabled === true || settings.loggingEnabled === 'true');
   updateToggle('toggle-cursor-keys', settings.cursorKeysEnabled === true || settings.cursorKeysEnabled === 'true');
+  updateToggle('toggle-terminal-shift-v-paste', settings.terminalShiftVPasteEnabled === true || settings.terminalShiftVPasteEnabled === 'true');
   updateToggle('toggle-autostart', settings.autostart === true || settings.autostart === 'true');
 }
 
@@ -813,6 +823,7 @@ function toggleSetting(key) {
     'showPathsSummary': 'toggle-show-summary',
     'loggingEnabled': 'toggle-logging',
     'cursorKeysEnabled': 'toggle-cursor-keys',
+    'terminalShiftVPasteEnabled': 'toggle-terminal-shift-v-paste',
     'autostart': 'toggle-autostart'
   };
   
@@ -841,6 +852,7 @@ function updateSettingUI(key, value) {
     'showPathsSummary': 'toggle-show-summary',
     'loggingEnabled': 'toggle-logging',
     'cursorKeysEnabled': 'toggle-cursor-keys',
+    'terminalShiftVPasteEnabled': 'toggle-terminal-shift-v-paste',
     'autostart': 'toggle-autostart'
   };
   

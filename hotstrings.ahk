@@ -103,15 +103,66 @@
 ; for LLMs end
 
 
-; API keys
-AIGetApiKey(provider) {
-  envKey := "AI_" . StrUpper(provider) . "_API_KEY"
-  fromEnv := EnvGet(envKey)
-  if (fromEnv != "") {
-    return fromEnv
+; API keys / local secrets
+SecretGet(envKey, default := "") {
+  value := EnvGet(envKey)
+  if (value != "")
+    return value
+
+  envPath := A_ScriptDir . "\.env"
+  if !FileExist(envPath)
+    return default
+
+  try fileText := FileRead(envPath, "UTF-8")
+  catch Error
+    return default
+
+  for line in StrSplit(fileText, "`n", "`r") {
+    line := Trim(line)
+    if (line = "" || SubStr(line, 1, 1) = "#")
+      continue
+
+    separatorPos := InStr(line, "=")
+    if (!separatorPos)
+      continue
+
+    key := Trim(SubStr(line, 1, separatorPos - 1))
+    if (key != envKey)
+      continue
+
+    value := Trim(SubStr(line, separatorPos + 1))
+    if (StrLen(value) >= 2) {
+      firstChar := SubStr(value, 1, 1)
+      lastChar := SubStr(value, -1)
+      if ((firstChar = Chr(34) && lastChar = Chr(34)) || (firstChar = "'" && lastChar = "'"))
+        value := SubStr(value, 2, StrLen(value) - 2)
+    }
+    return value
   }
 
-  ; config.ini fallback candidates
+  return default
+}
+
+SecretSend(envKey, label := "") {
+  value := SecretGet(envKey)
+  if (value != "") {
+    SendText(value)
+    return true
+  }
+
+  displayName := label ? label : envKey
+  ToolTip(displayName . " not found in .env or environment")
+  SetTimer(() => ToolTip(), -3000)
+  return false
+}
+
+AIGetApiKey(provider) {
+  envKey := "AI_" . StrUpper(provider) . "_API_KEY"
+  fromSecrets := SecretGet(envKey)
+  if (fromSecrets != "")
+    return fromSecrets
+
+  ; config.ini fallback candidates for older local setups
   keys := [
     provider . "_api_key",
     provider . "ApiKey",
@@ -119,9 +170,8 @@ AIGetApiKey(provider) {
   ]
   for keyName in keys {
     value := IniRead("config.ini", "api", keyName, "")
-    if (value != "") {
+    if (value != "")
       return value
-    }
   }
   return ""
 }
@@ -131,7 +181,7 @@ AIGetApiKey(provider) {
   if (key != "")
     SendText(key)
   else
-    ToolTip("OpenRouter API key not found in config.ini")
+    SecretSend("AI_OPENROUTER_API_KEY", "OpenRouter API key")
 }
 
 :?C:.apig:: {
@@ -142,31 +192,25 @@ AIGetApiKey(provider) {
   }
 
   key := customMenu(options)
+  googleKeys := Map(
+    "1", "AI_GOOGLE_JPSALA_API_KEY",
+    "2", "AI_GOOGLE_ALT_API_KEY",
+    "3", "AI_GOOGLE_API4_API_KEY",
+    "4", "AI_GOOGLE_API3_API_KEY",
+    "5", "AI_GOOGLE_API2_API_KEY",
+    "6", "AI_GOOGLE_API1_API_KEY",
+    "7", "AI_GOOGLE_TV_API_KEY",
+    "8", "AI_GOOGLE_AI_API_KEY"
+  )
 
-  ; Execute the selected action based on the key
-  if (key == "1") {
-    send('REDACTED_SECRET')
-  } else if (key == "2") {
-    send('REDACTED_SECRET')
-  } else if (key == "3") {
-    send('REDACTED_SECRET')
-  } else if (key == "4") {
-    send('REDACTED_SECRET')
-  } else if (key == "5") {
-    send('REDACTED_SECRET')
-  } else if (key == "6") {
-    send('REDACTED_SECRET')
-  } else if (key == "7") {
-    send('REDACTED_SECRET')
-  } else if (key == "8") {
-    send('REDACTED_SECRET')
-  }
+  if (googleKeys.Has(key))
+    SecretSend(googleKeys[key], "Google API key " . key)
 }
 :?C:.apioa:: {
-  send('REDACTED_SECRET' 'REDACTED_SECRET' 'REDACTED_SECRET' 'REDACTED_SECRET')
+  SecretSend("AI_OPENAI_API_KEY", "OpenAI API key")
 }
 :?C:.apia:: {
-  send('REDACTED_SECRET' 'REDACTED_SECRET' 'REDACTED_SECRET' 'REDACTED_SECRET' 'REDACTED_SECRET')
+  SecretSend("AI_ANTHROPIC_API_KEY", "Anthropic API key")
 }
 
 ; Script helpers
@@ -176,7 +220,9 @@ AIGetApiKey(provider) {
 ::.ah::autohotkey
 
 ; Password
-:*:.pp::REDACTED_SECRET
+:*:.pp:: {
+  SecretSend("HOTSTRING_PP", "Password hotstring .pp")
+}
 
 ; ===================================================================
 ; vs code snippets

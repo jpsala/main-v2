@@ -1,5 +1,8 @@
 # .vscode
 /config.ini
+/.env
+/.env.*
+!/.env.example
 /favorites
 /.vscode/bookmarks.json
 /.specstory
@@ -15,6 +18,21 @@
 /dist/
 /main-automation-dist.zip
 /main-automation-setup.exe
+*.exe
+*.zip
+*.rar
+*.log
+*.stackdump
+
+# Local agent/runtime state
+/.workspace/
+/.playwright-cli/
+/gesture-debate-state.ini
+/gesture-debate-log.txt
+/gesture-rules-debug.txt
+/raw-project.log
+/calendar-window.log
+/tmp-*.stderr
 
 nul
 _backup_*/

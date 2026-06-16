@@ -49,6 +49,157 @@ RunScrcpyWifi() {
     Roa("scrcpy-wifi", launcher . " -b 1M -m 1024")
 }
 
+; --- Display resolution ---
+
+DisplayResolutionGetCurrent() {
+    static ENUM_CURRENT_SETTINGS := -1
+    static DM_SIZE := 156
+
+    deviceMode := Buffer(DM_SIZE, 0)
+    NumPut("UShort", DM_SIZE, deviceMode, 36)
+
+    if !DllCall("EnumDisplaySettingsA", "Ptr", 0, "Int", ENUM_CURRENT_SETTINGS, "Ptr", deviceMode.Ptr, "Int") {
+        msg("No pude leer la resolucion actual", { seconds: 4 })
+        return false
+    }
+
+    return {
+        width: NumGet(deviceMode, 108, "UInt"),
+        height: NumGet(deviceMode, 112, "UInt"),
+        bitsPerPel: NumGet(deviceMode, 104, "UInt"),
+        frequency: NumGet(deviceMode, 120, "UInt")
+    }
+}
+
+DisplayResolutionFormat(mode) {
+    if !IsObject(mode)
+        return ""
+    frequencyText := mode.frequency ? " @ " . mode.frequency . "Hz" : ""
+    return mode.width . "x" . mode.height . frequencyText
+}
+
+DisplayResolutionSet(width, height) {
+    static ENUM_CURRENT_SETTINGS := -1
+    static DM_SIZE := 156
+    static DM_PELSWIDTH := 0x00080000
+    static DM_PELSHEIGHT := 0x00100000
+    static DISP_CHANGE_SUCCESSFUL := 0
+
+    currentMode := DisplayResolutionGetCurrent()
+    if !currentMode
+        return false
+
+    if (currentMode.width = width && currentMode.height = height) {
+        msg("Resolucion actual: " . DisplayResolutionFormat(currentMode), { seconds: 2 })
+        return true
+    }
+
+    deviceMode := Buffer(DM_SIZE, 0)
+    NumPut("UShort", DM_SIZE, deviceMode, 36)
+
+    if !DllCall("EnumDisplaySettingsA", "Ptr", 0, "Int", ENUM_CURRENT_SETTINGS, "Ptr", deviceMode.Ptr, "Int") {
+        msg("No pude preparar el cambio de resolucion", { seconds: 4 })
+        return false
+    }
+
+    NumPut("UInt", DM_PELSWIDTH | DM_PELSHEIGHT, deviceMode, 40)
+    NumPut("UInt", width, deviceMode, 108)
+    NumPut("UInt", height, deviceMode, 112)
+
+    result := DllCall("ChangeDisplaySettingsA", "Ptr", deviceMode.Ptr, "UInt", 0, "Int")
+    if (result = DISP_CHANGE_SUCCESSFUL) {
+        msg("Resolucion: " . width . "x" . height, { seconds: 2 })
+        return true
+    }
+
+    msg("No pude cambiar a " . width . "x" . height . " (" . result . ": " . DisplayResolutionResultLabel(result) . ")", { seconds: 5 })
+    return false
+}
+
+DisplayResolutionResultLabel(result) {
+    switch result {
+        case 1:
+            return "requiere reinicio"
+        case -1:
+            return "fallo general"
+        case -2:
+            return "modo no soportado"
+        case -3:
+            return "no se pudo escribir configuracion"
+        case -4:
+            return "flags invalidos"
+        case -5:
+            return "parametro invalido"
+        case -6:
+            return "DualView no soportado"
+        default:
+            return "codigo desconocido"
+    }
+}
+
+DisplayResolutionSaveCurrentIfNeeded(targetWidth, targetHeight) {
+    currentMode := DisplayResolutionGetCurrent()
+    if !currentMode
+        return false
+
+    if (currentMode.width = targetWidth && currentMode.height = targetHeight)
+        return true
+
+    IniWrite(currentMode.width, "config.ini", "display-resolution-menu", "restore_width")
+    IniWrite(currentMode.height, "config.ini", "display-resolution-menu", "restore_height")
+    IniWrite(currentMode.frequency, "config.ini", "display-resolution-menu", "restore_frequency")
+    return true
+}
+
+DisplayResolutionGetSaved() {
+    width := Number(IniRead("config.ini", "display-resolution-menu", "restore_width", "0"))
+    height := Number(IniRead("config.ini", "display-resolution-menu", "restore_height", "0"))
+    frequency := Number(IniRead("config.ini", "display-resolution-menu", "restore_frequency", "0"))
+
+    if (width <= 0 || height <= 0)
+        return false
+
+    return { width: width, height: height, frequency: frequency }
+}
+
+DisplayResolutionSet720() {
+    if !DisplayResolutionSaveCurrentIfNeeded(1280, 720)
+        return false
+    return DisplayResolutionSet(1280, 720)
+}
+
+DisplayResolutionRestoreSaved() {
+    savedMode := DisplayResolutionGetSaved()
+    if !savedMode {
+        msg("No hay resolucion guardada todavia", { seconds: 4 })
+        return false
+    }
+
+    return DisplayResolutionSet(savedMode.width, savedMode.height)
+}
+
+DisplayResolutionToggle720() {
+    currentMode := DisplayResolutionGetCurrent()
+    if !currentMode
+        return false
+
+    if (currentMode.width = 1280 && currentMode.height = 720)
+        return DisplayResolutionRestoreSaved()
+
+    return DisplayResolutionSet720()
+}
+
+DisplayResolutionShowCurrent() {
+    currentMode := DisplayResolutionGetCurrent()
+    if !currentMode
+        return false
+
+    savedMode := DisplayResolutionGetSaved()
+    savedText := savedMode ? " | guardada: " . DisplayResolutionFormat(savedMode) : ""
+    msg("Actual: " . DisplayResolutionFormat(currentMode) . savedText, { seconds: 4 })
+    return true
+}
+
 ; --- Wispr Flow ---
 
 RestartWisprFlow() {

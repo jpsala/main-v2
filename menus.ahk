@@ -199,6 +199,12 @@ GetMainSeqAOptions() {
             ] },
             { key: "f", label: "File Explorer", action: () => Roa("file-explorer", QuoteCommandPath(A_WinDir . "\explorer.exe")) },
             { key: "M", label: "Mixer", action: () => openMixer() },
+            { key: "r", label: "Resolution", idleTimeoutSeconds: 3, items: [
+                { key: "t", label: "Toggle 1280x720 / saved current", action: () => DisplayResolutionToggle720() },
+                { key: "7", label: "Set 1280x720", action: () => DisplayResolutionSet720() },
+                { key: "r", label: "Restore saved current", action: () => DisplayResolutionRestoreSaved() },
+                { key: "c", label: "Show current", action: () => DisplayResolutionShowCurrent() },
+            ] },
             { key: "s", label: "Spotify", action: () => Roa("spotify", "spotify.exe") },
             { key: "S", label: "ShareX screenshots", action: () => OpenFolderInExplorer("sharex-folder", [EnvGet("USERPROFILE") . "\Pictures\ShareX", EnvGet("USERPROFILE") . "\Pictures\sharex", EnvGet("USERPROFILE") . "\Pictures"]) },
             { key: "v", label: "Web Clipboard Sender", action: () => OpenWebClipboardSender() },

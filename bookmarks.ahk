@@ -31,6 +31,7 @@
 global bookmarkMap := map(), dontSave := false
 OnExit SaveBookmarks
 ^+!b:: showBookmarks()
+^+!u:: showBookmarks()
 
 SetTimer(VerifyHotkeys, 10000)
 
@@ -56,7 +57,7 @@ ResetAllBookmarks() {
 ; Default hotkey combinations (used to seed config.ini on first run)
 DEFAULT_BOOKMARK_HOTKEYS := [
   "#1", "#2", "#3", "#4", "#5", "#6", "#7", "#8", "#9", "#0",
-  "#b", "#d", "#e", "#f", "#g", "#i", "#t", "#q", "#z", "#v", "#x",
+  "#b", "#d", "#e", "#f", "#g", "#i", "#t", "#q", "#r", "#z", "#v", "#x",
   "!#a", "!#d", "!#e", "!#f", "!#g", "!#q", "!#r", "!#v", "!#x", "!#w", "!#z",
 ]
 
@@ -79,22 +80,23 @@ for index, key in bookmarks {
 
 
 ; Management interface for bookmarks
-#!^b:: {
-  global
-  key := SeqGui([{ key: 's', label: 'Show Bookmarks', fn: () => showBookmarks() }, { key: 'x', label: 'Clear Bookmarks and Reload', fn: () => ClearAndReload() }, { key: 'r', label: 'Reload Bookmarks', fn: () => LoadBookmarksInBookmarkMap() }, { key: 'l', label: 'List Hotkeys', fn: ListHotkeys }, { key: 'a', label: 'Reset All Bookmarks', fn: () => ResetAllBookmarks() }
-  ], 10000, true, 100)
-  if (key == 'x')
-    ClearAndReload()
-  if (key == 'a')
-    ResetAllBookmarks()
-}
+; Win-key admin menu disabled; use Ctrl+Alt+Shift+B/U for bookmark manager.
+; #!^b:: {
+;   global
+;   key := SeqGui([{ key: 's', label: 'Show Bookmarks', fn: () => showBookmarks() }, { key: 'x', label: 'Clear Bookmarks and Reload', fn: () => ClearAndReload() }, { key: 'r', label: 'Reload Bookmarks', fn: () => LoadBookmarksInBookmarkMap() }, { key: 'l', label: 'List Hotkeys', fn: ListHotkeys }, { key: 'a', label: 'Reset All Bookmarks', fn: () => ResetAllBookmarks() }
+;   ], 10000, true, 100)
+;   if (key == 'x')
+;     ClearAndReload()
+;   if (key == 'a')
+;     ResetAllBookmarks()
+; }
 
 ; Test hotkey for monitor detection
-#^!m:: {
-  monitor := getMonitor()
-  MouseGetPos(&x, &y)
-  msg("Monitor: " monitor "`nMouse X: " x "`nMouse Y: " y, { seconds: 3 })
-}
+; #^!m:: {
+;   monitor := getMonitor()
+;   MouseGetPos(&x, &y)
+;   msg("Monitor: " monitor "`nMouse X: " x "`nMouse Y: " y, { seconds: 3 })
+; }
 
 ; Prevents auto-save when explicitly clearing bookmarks
 ClearAndReload() {
@@ -135,10 +137,28 @@ saveCharBookmark(char := false, deleteFirst := false) {
 }
 
 ; Core window management functions
+BookmarkHotkeyIsReservedMenu(key) {
+  normalized := StrLower(key)
+  return normalized = "#a" || normalized = "#w" || normalized = "#c"
+}
+
+BookmarkHotkeyEnableActivation(key) {
+  if (BookmarkHotkeyIsReservedMenu(key))
+    return
+
+  Hotkey(key, (*) => ActivateOrMinimizeBookmark(key))
+}
+
 SetHotkeysForBookmark(key) {
   global bookmarkMap
-  Hotkey(key, (*) => ActivateOrMinimizeBookmark(key))
+  if (BookmarkHotkeyIsReservedMenu(key))
+    return
+
+  ; Reserve only the Shift variant for assignment. The base hotkey stays
+  ; untouched by AHK until this slot has an actual bookmark.
   Hotkey('+' . key, (*) => SetBookmark(key))
+  if (bookmarkMap.Has(key))
+    BookmarkHotkeyEnableActivation(key)
 }
 
 ; Toggles window state or creates new bookmark if none exists
@@ -155,7 +175,7 @@ ActivateOrMinimizeBookmark(_id) {
       winId := bookmarkData
       title := ""
     }
-    
+
     if (WinExist(winId) and !WinActive(winId))
       WinActivateFast(winId)
     else if WinActive(winId)
@@ -179,10 +199,11 @@ SetBookmark(key, title := false, winHandle := false) {
       id := title
     }
     title := WinGetTitle(id)
-    
+
     ; Store both ID and title in the bookmarkMap
     bookmarkMap[key] := { id: id, title: title }
-    
+    BookmarkHotkeyEnableActivation(key)
+
     msg('bk: ' key ' -> ' title, { seconds: 3 })
   } catch Error as e {
     msgV1('Error in SetBookmark', 2, 6)
@@ -199,14 +220,14 @@ LoadBookmarksInBookmarkMap() {
     if (lineAr.Length == 2) {
       id := lineAr[1]
       value := lineAr[2]
-      
+
       ; Check if this is the new format with title (contains | separator)
       if (InStr(value, "|")) {
         parts := StrSplit(value, "|")
         if (parts.Length == 2) {
           winId := parts[1]
           title := parts[2]
-          
+
           if (WinExist(winId) == 0) {
             IniDelete("config.ini", "bookmarks", id)
           } else {
@@ -226,6 +247,40 @@ LoadBookmarksInBookmarkMap() {
       }
     }
   }
+}
+
+ClearBookmark(key, showMessage := true) {
+  global bookmarkMap
+
+  if (key = "")
+    return false
+
+  if (bookmarkMap.Has(key))
+    bookmarkMap.Delete(key)
+
+  try IniDelete("config.ini", "bookmarks", String(key))
+  try Hotkey(key, "Off")
+
+  if (showMessage)
+    msg("Bookmark libre: " . key, { seconds: 3 })
+  return true
+}
+
+ClearAllBookmarksAssigned() {
+  global bookmarkMap
+  clearedCount := 0
+  keysToClear := []
+
+  for key, _ in bookmarkMap
+    keysToClear.Push(key)
+
+  for _, key in keysToClear {
+    if (ClearBookmark(key, false))
+      clearedCount++
+  }
+
+  msg("Bookmarks liberados: " . clearedCount, { seconds: 3 })
+  return clearedCount
 }
 
 ; Manual bookmark creation with explicit window handle
@@ -325,8 +380,8 @@ showBookmarks(ExitReason := '', ExitCode := '') {
   searchBox := bookmarksGui.Add("Edit", "x60 y8 w530 vSearchInput")
   searchBox.OnEvent("Change", UpdateFilter)
 
-  ; Add ListView with proper styling and Type column
-  lv := bookmarksGui.Add("ListView", "x10 y+10 w600 h400 Grid -Multi", ["#", "Process", "Window Title", "Hotkey", "Type"])
+  ; Add ListView with proper styling and Type column. Multi-select allows clearing several bookmarks at once.
+  lv := bookmarksGui.Add("ListView", "x10 y+10 w600 h400 Grid Multi", ["#", "Process", "Window Title", "Hotkey", "Type"])
   lv.OnEvent("DoubleClick", ActivateSelected)
 
   ; Store original data and populate ListView
@@ -342,7 +397,7 @@ showBookmarks(ExitReason := '', ExitCode := '') {
       winId := bookmarkData
       title := WinGetTitle(winId)
     }
-    
+
     if (WinExist(winId)) {
       process := WinGetProcessName(winId)
       ; Direct bookmarks have # prefix, sequential ones don't
@@ -367,12 +422,14 @@ showBookmarks(ExitReason := '', ExitCode := '') {
 
   ; Add buttons at the bottom
   buttonPanel := bookmarksGui.Add("Text", "x0 y+10 w600 h40 Section +Center", "")
-  bookmarksGui.Add("Button", "xs+160 ys w100 h30", "Refresh").OnEvent("Click", GuiRefresh)
-  bookmarksGui.Add("Button", "x+20 ys w100 h30", "Activate").OnEvent("Click", ActivateSelected)
-  bookmarksGui.Add("Button", "x+20 ys w100 h30", "Close").OnEvent("Click", GuiClose)
+  bookmarksGui.Add("Button", "xs+40 ys w90 h30", "Refresh").OnEvent("Click", GuiRefresh)
+  bookmarksGui.Add("Button", "x+10 ys w90 h30", "Activate").OnEvent("Click", ActivateSelected)
+  bookmarksGui.Add("Button", "x+10 ys w110 h30", "Clear selected").OnEvent("Click", ClearSelected)
+  bookmarksGui.Add("Button", "x+10 ys w90 h30", "Clear all").OnEvent("Click", ClearAll)
+  bookmarksGui.Add("Button", "x+10 ys w90 h30", "Close").OnEvent("Click", GuiClose)
 
   ; Add keyboard shortcuts help
-  helpText := bookmarksGui.Add("Text", "x10 y+5", "Shortcuts: Up/Down - Navigate | Enter - Activate | Numbers 1-9 - Quick Select | Esc - Close")
+  helpText := bookmarksGui.Add("Text", "x10 y+5", "Shortcuts: Ctrl/Shift click - Multi-select | Enter - Activate | Delete - Clear selected | Esc - Close")
   helpText.SetFont("s8")
 
   ; Position GUI on the correct monitor
@@ -534,6 +591,8 @@ showBookmarks(ExitReason := '', ExitCode := '') {
       switch wParam {
         case 13: ; Enter
           ActivateSelected()
+        case 46: ; Delete
+          ClearSelected()
         case 38: ; Up Arrow
           if (lv.GetNext(0) > 1)
             lv.Modify(lv.GetNext(0) - 1, "+Select +Focus")
@@ -588,6 +647,36 @@ showBookmarks(ExitReason := '', ExitCode := '') {
     }
   }
 
+  ClearSelected(*) {
+    try {
+      selectedHotkeys := []
+      selectedRow := 0
+      while (selectedRow := lv.GetNext(selectedRow))
+        selectedHotkeys.Push(lv.GetText(selectedRow, 4))
+
+      clearedCount := 0
+      for _, hotkey in selectedHotkeys {
+        if (ClearBookmark(hotkey, false))
+          clearedCount++
+      }
+
+      if (clearedCount > 0) {
+        msg("Bookmarks liberados: " . clearedCount, { seconds: 3 })
+        showBookmarks()
+      }
+    } catch Error as e {
+      log("Error in ClearSelected: " e.Message)
+    }
+  }
+
+  ClearAll(*) {
+    if (MsgBox("Borrar todos los bookmarks asignados?", "Bookmarks", "YesNo Icon!") != "Yes")
+      return
+
+    if (ClearAllBookmarksAssigned() > 0)
+      showBookmarks()
+  }
+
   GuiRefresh(*) {
     showBookmarks()
   }
@@ -634,6 +723,13 @@ LoadBookmarkHotkeys() {
     section := IniRead("config.ini", "bookmarkHotkeys",, "")
   }
 
+  ; #r was added after many local configs were already seeded.
+  ; Ensure it exists so Win+Shift+R can assign Win+R.
+  if (!BookmarkHotkeyConfigHas(section, "#r")) {
+    AddBookmarkHotkey("#r")
+    section := IniRead("config.ini", "bookmarkHotkeys",, "")
+  }
+
   result := []
   lines := StrSplit(section, "`n")
   for line in lines {
@@ -645,13 +741,26 @@ LoadBookmarkHotkeys() {
     if (pipeParts.Length >= 2) {
       hotkeyStr := pipeParts[1]
       enabled := pipeParts[2]
-      if (enabled = "1")
+      if (enabled = "1" && !BookmarkHotkeyIsReservedMenu(hotkeyStr))
         result.Push(hotkeyStr)
     } else {
       result.Push(value)
     }
   }
   return result
+}
+
+BookmarkHotkeyConfigHas(section, hotkeyStr) {
+  lines := StrSplit(section, "`n")
+  for line in lines {
+    parts := StrSplit(line, "=")
+    if (parts.Length < 2)
+      continue
+    pipeParts := StrSplit(parts[2], "|")
+    if (pipeParts.Length >= 1 && pipeParts[1] = hotkeyStr)
+      return true
+  }
+  return false
 }
 
 ; Writes default hotkeys to [bookmarkHotkeys] on first run
@@ -688,6 +797,11 @@ GetAllBookmarkHotkeys() {
 
 ; Adds a new bookmark hotkey to config.ini. Returns the new index.
 AddBookmarkHotkey(hotkeyStr) {
+  if (BookmarkHotkeyIsReservedMenu(hotkeyStr)) {
+    msg("Reservado para menu: " . hotkeyStr, { seconds: 4 })
+    return false
+  }
+
   section := IniRead("config.ini", "bookmarkHotkeys",, "")
   maxIndex := 0
   if (section != "") {
@@ -736,8 +850,12 @@ ToggleBookmarkHotkey(index, enabled) {
       IniWrite(hotkeyStr . "|" . (enabled ? "1" : "0"), "config.ini", "bookmarkHotkeys", String(index))
 
       if (enabled) {
-        try Hotkey(hotkeyStr, "On")
-        try Hotkey("+" . hotkeyStr, "On")
+        if (BookmarkHotkeyIsReservedMenu(hotkeyStr)) {
+          IniWrite(hotkeyStr . "|0", "config.ini", "bookmarkHotkeys", String(index))
+          msg("Reservado para menu: " . hotkeyStr, { seconds: 4 })
+          return
+        }
+        SetHotkeysForBookmark(hotkeyStr)
       } else {
         try Hotkey(hotkeyStr, "Off")
         try Hotkey("+" . hotkeyStr, "Off")
@@ -749,6 +867,9 @@ ToggleBookmarkHotkey(index, enabled) {
 
 ; Validates an AHK hotkey string by attempting to register/unregister it
 ValidateHotkeyString(hotkeyStr) {
+  if (BookmarkHotkeyIsReservedMenu(hotkeyStr))
+    return false
+
   stripped := hotkeyStr
   stripped := StrReplace(stripped, "#", "")
   stripped := StrReplace(stripped, "!", "")
@@ -782,7 +903,7 @@ VerifyHotkeys() {
       winId := bookmarkData
       title := WinGetTitle(winId)
     }
-    
+
     if(! WinExist(winId)) {
 
       msg('Window not found: ' key ' -> ' title, { seconds: 5, x: 0, y: 0 })

@@ -194,3 +194,16 @@
 20260611174706 -> #1 -> Codex
 20260611214936 -> #f -> Vivaldi - Vivaldi
 20260612072707 -> #d -> Copicu Settings
+20260623213404 -> #f -> Vivaldi - Vivaldi
+20260624134211 -> !#z -> ShareX - Region capture
+20260625230920 -> #f -> Vivaldi - Vivaldi
+20260626082555 -> #f -> "Violentmonkey" was turned off
+20260629080841 -> #f -> Vivaldi - Vivaldi
+20260629081331 -> #t -> C:\Program Files\PowerShell\7\pwsh.exe
+20260629160801 -> !#x -> pi
+20260629184441 -> !#e -> Copicu
+20260629184451 -> !#r -> Copicu
+20260630084150 -> #f -> Vivaldi - Vivaldi
+20260630120830 -> #d -> Constelaciones | Reservas - Vivaldi
+20260630190225 -> #d -> Fixvox Admin · Pi Chat - Vivaldi
+20260630190235 -> #f -> Fixvox Admin · Pi Chat - Vivaldi

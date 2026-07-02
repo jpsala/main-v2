@@ -530,7 +530,6 @@ MouseGestureHandleSpecialCases(button) {
 }
 
 MouseGestureNotifyInteractionStart(button) {
-    try VimNotifyMouseInteraction(button)
 }
 
 MouseGestureGetMousePos(&x, &y) {
@@ -1058,5 +1057,5 @@ MouseGestureFinalizeSession(session) {
 *MButton::MouseGestureHandleButtonDown("MButton")
 *MButton Up::MouseGestureHandleButtonUp("MButton")
 
-#F1::MouseGestureStartShapeLearning()
-#Esc::MouseGestureCancelShapeLearning()
+; #F1::MouseGestureStartShapeLearning()
+; #Esc::MouseGestureCancelShapeLearning()

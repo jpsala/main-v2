@@ -100,9 +100,6 @@ if (!A_IsCompiled) {
     {path: './lib/webview-window-state.ahk', lastModVar: FileGetTime('./lib/webview-window-state.ahk', "M")},
     {path: './lib/audio.ahk', lastModVar: FileGetTime('./lib/audio.ahk', "M")},
     {path: './hotkeys-global.ahk', lastModVar: FileGetTime('./hotkeys-global.ahk', "M")},
-    {path: './vim-mode.ahk', lastModVar: FileGetTime('./vim-mode.ahk', "M")},
-    {path: './vim-keymap.ahk', lastModVar: FileGetTime('./vim-keymap.ahk', "M")},
-    {path: './vim-keymap-code.ahk', lastModVar: FileGetTime('./vim-keymap-code.ahk', "M")},
     {path: './chord-examples.ahk', lastModVar: FileGetTime('./chord-examples.ahk', "M")},
     {path: './ui/chord-hint.html', lastModVar: FileGetTime('./ui/chord-hint.html', "M")},
     {path: './ui/audio-devices.html', lastModVar: FileGetTime('./ui/audio-devices.html', "M")},
@@ -135,7 +132,7 @@ for variable in variablesToPersist {
          parts := StrSplit(variable, ".")
          parentVar := parts[1]
          childProp := parts[2]
-         
+
          if (IsSet(%parentVar%) && %parentVar%.HasProp(childProp)) {
             value := IniRead("config.ini", "variables", variable, "")
             if (value == "true") {
@@ -169,7 +166,7 @@ exitScript(exireason, exitcode){
         parts := StrSplit(variable, ".")
         parentVar := parts[1]
         childProp := parts[2]
-        
+
         if (IsSet(%parentVar%) && %parentVar%.HasProp(childProp)) {
           IniWrite(%parentVar%[childProp], "config.ini", "variables", variable)
         }
@@ -202,17 +199,17 @@ CheckTimeForFileModification() {
   for index, file in filesToCheckForReload
   {
       currentModTime := FileGetTime(file.path, "M")
-      if (currentModTime != file.lastModVar) 
+      if (currentModTime != file.lastModVar)
       {
-        soundHigh('50%', 1, 100) 
+        soundHigh('50%', 1, 100)
         Reload()
         msgV1("Script error and in pause, fix it and press alt+shift+r", 1, 10, 1, 1)
-        Pause() 
+        Pause()
       }
       filesToCheckForReload[index].lastModVar := currentModTime ; update the lastModVar directly
   }
 }
- 
+
 chequearLaHoraParaElBrillo() {
   CurrentHour := Number(FormatTime(A_Now, "HH"))
   if (CurrentHour >= 20 || CurrentHour < 5) {

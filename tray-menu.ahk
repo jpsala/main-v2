@@ -33,12 +33,6 @@ SetupTrayMenu() {
     if (cursorKeysEnabled)
         tray.Check("Cursor Keys")
 
-    tray.Add("Vim Mode ON", TrayEnableVimMode)
-    tray.SetIcon("Vim Mode ON", RawProjectIcon("vim-on"),, 0)
-
-    tray.Add("Vim Mode OFF", TrayDisableVimMode)
-    tray.SetIcon("Vim Mode OFF", RawProjectIcon("vim-off"),, 0)
-
     tray.Add()  ; ─────────────
 
     ; --- Info & tools ---
@@ -146,16 +140,6 @@ TrayToggleCursorKeys(itemName, itemPos, menu) {
         menu.Uncheck("Cursor Keys")
     }
     msg("Cursor keys " . (cursorKeysEnabled ? "Enabled" : "Disabled"))
-}
-
-TrayEnableVimMode(itemName, itemPos, menu) {
-    SetVimMode(true)
-    msg("Vim Mode ON")
-}
-
-TrayDisableVimMode(itemName, itemPos, menu) {
-    SetVimMode(false)
-    msg("Vim Mode OFF")
 }
 
 TrayOpenRepoInVSCode() {

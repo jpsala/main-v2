@@ -354,17 +354,17 @@ CopyQ_ExportSelectedImages() {
 ; Hotkeys
 ; ===================================================================
 
-#Space:: {
-    RunClipboardAgent()
-}
+; #Space:: {
+;     RunClipboardAgent()
+; }
 
-#+c:: {
-    OpenCopyQSaveWindow()
-}
+; #+c:: {
+;     OpenCopyQSaveWindow()
+; }
 
-#!l:: {
-    CopyQ_LabelSelectedItem()
-}
+; #!l:: {
+;     CopyQ_LabelSelectedItem()
+; }
 
 #HotIf WinActive("ahk_exe copyq.exe")
 !Enter:: {

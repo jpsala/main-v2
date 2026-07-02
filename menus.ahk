@@ -47,6 +47,76 @@ OpenFolderInExplorer(alias, targetCandidates) {
     return Roa(alias, launcher . ' "' . targetPath . '"')
 }
 
+GetWezTermExe() {
+    return FindFirstExistingPath([
+        "C:\Program Files\WezTerm\wezterm-gui.exe",
+        EnvGet("LOCALAPPDATA") . "\Programs\WezTerm\wezterm-gui.exe",
+        "C:\Program Files\WezTerm\wezterm.exe"
+    ])
+}
+
+GetPowerShellExe() {
+    return FindFirstExistingPath([
+        "C:\Program Files\PowerShell\7\pwsh.exe",
+        A_WinDir . "\System32\WindowsPowerShell\v1.0\powershell.exe"
+    ])
+}
+
+OpenWezTermTheme(label, themeFile, colorScheme) {
+    weztermExe := GetWezTermExe()
+    if (!weztermExe) {
+        MsgBox("WezTerm no encontrado")
+        return false
+    }
+
+    powershellExe := GetPowerShellExe()
+    if (!powershellExe) {
+        MsgBox("PowerShell no encontrado")
+        return false
+    }
+
+    devDir := "C:\dev"
+    if (!DirExist(devDir)) {
+        MsgBox("No encontre C:\dev")
+        return false
+    }
+
+    themeDir := EnvGet("USERPROFILE") . "\.config\wezterm\themes"
+    themeConfig := themeDir . "\" . themeFile
+    if (!FileExist(themeConfig)) {
+        baseConfig := EnvGet("USERPROFILE") . "\.config\wezterm\wezterm.lua"
+        if (!FileExist(baseConfig)) {
+            MsgBox("No encontre la config base de WezTerm: " . baseConfig)
+            return false
+        }
+
+        try {
+            if (!DirExist(themeDir))
+                DirCreate(themeDir)
+            content := "local home = os.getenv 'USERPROFILE' or os.getenv 'HOME'`n"
+            content .= "local config = dofile(home .. '/.config/wezterm/wezterm.lua')`n"
+            content .= "config.color_scheme = '" . colorScheme . "'`n"
+            content .= "return config`n"
+            FileAppend(content, themeConfig, "UTF-8")
+        } catch Error as e {
+            MsgBox("No pude crear config de tema WezTerm: " . e.Message)
+            return false
+        }
+    }
+
+    cmd := QuoteCommandPath(weztermExe) . ' --config-file "' . themeConfig . '"'
+    cmd .= ' start --always-new-process --cwd "' . devDir . '"'
+    cmd .= ' -- "' . powershellExe . '" -NoLogo'
+
+    try {
+        Run(cmd, devDir)
+        return true
+    } catch Error as e {
+        MsgBox("No pude abrir WezTerm " . label . ": " . e.Message)
+        return false
+    }
+}
+
 OpenWindowSpy() {
     SplitPath(A_AhkPath, , &ahkDir)
     return OpenResolvedApp("window-spy", "Window Spy", [ahkDir . "\UX\WindowSpy.ahk"])
@@ -175,17 +245,17 @@ GetMainSeqAOptions() {
                     { key: "r", label: "Context refresh", doc: "Runs the context refresh script.", command: "bun run context:refresh", action: () => RunConstelacionesPackageScript("context:refresh") },
                 ] },
             ] },
-            { key: "e", label: "Electro Bun Deploy / Release", idleTimeoutSeconds: 3, items: [
-                { key: "r", label: "Restart server/dev runtime", doc: "Restarts the Fixvox/Electro Bun dev runtime in background. Use after code changes or when the local app/server is stale.", command: "bun scripts/restart-dev.ts", action: () => RunElectroBunDev() },
-                { key: "u", label: "Other PC: create + upload installer", doc: "Full handoff release for another computer: runs focused control-plane tests, deploys proxy/admin secrets, creates Fixvox-Installer.exe, uploads the installer/update artifacts to GitHub, then prints the release and installer URLs.", command: "tests; deploy proxy; bun run package:win creates and uploads Fixvox-Installer.exe; verify GitHub release", action: () => RunElectroBunOtherPcReadyRelease() },
-                { key: "p", label: "Publish installer + update artifacts", doc: "Builds the Windows installer, uploads GitHub release artifacts, and deploys production backend so other PCs can update. Uses the production release flow with SkipProductionSecret.", command: "scripts/publish-windows-release.ps1 -DeployProduction -SkipProductionSecret", action: () => RunElectroBunPublishProdArtifacts() },
-                { key: "b", label: "Build installer locally", doc: "Builds the stable Windows installer locally with -SkipPublish and opens the output folder. Does not upload artifacts or deploy production.", command: "scripts/build-windows-installer.ps1 -SkipPublish; open installer folder", action: () => RunElectroBunInstallerOnly() },
-                { key: "o", label: "Open latest installer", doc: "Opens Explorer selecting the newest generated installer if present, otherwise opens the output folder.", command: "scripts/open-windows-installer-location.ps1", action: () => RunElectroBunOpenInstallerFolder() },
-                { key: "d", label: "Dry-run production release", doc: "Prints the production deploy/build/upload commands without executing them.", command: "scripts/publish-windows-release.ps1 -DeployProduction -DryRun", action: () => RunElectroBunProdDryRun() },
-                { key: "g", label: "Check GitHub auth", doc: "Runs gh auth status to confirm GitHub CLI can create/upload releases. Does not change release state.", command: "gh auth status", action: () => RunElectroBunDeployCommand("gh auth status", "gh auth status") },
-                { key: "t", label: "Run tests", doc: "Runs bun test from C:\dev\electro-bun-1. Does not build, deploy, or upload anything.", command: "bun test", action: () => RunElectroBunDeployCommand("bun test", "bun test") },
-                { key: "v", label: "Build views", doc: "Runs bun run build:views. Useful before packaging when only frontend/screens changed.", command: "bun run build:views", action: () => RunElectroBunPackageScript("build:views") },
-                { key: "h", label: "Help: explain this menu", doc: "Opens a generated local documentation window for current menu entries. Does not run build, deploy, install, or release commands.", command: "ShowElectroBunMenuDocs()", action: () => ShowElectroBunMenuDocs() },
+            { key: "e", label: "Fixvox Deploy / Release", idleTimeoutSeconds: 3, items: [
+                { key: "r", label: "Restart server/dev runtime", doc: "Restarts the Fixvox dev runtime in background. Use after code changes or when the local app/server is stale.", command: "bun scripts/restart-dev.ts", action: () => RunFixvoxDev() },
+                { key: "u", label: "Other PC: create + upload installer", doc: "Full handoff release for another computer: runs focused control-plane tests, deploys proxy/admin secrets, creates Fixvox-Installer.exe, uploads the installer/update artifacts to GitHub, then prints the release and installer URLs.", command: "tests; deploy proxy; bun run package:win creates and uploads Fixvox-Installer.exe; verify GitHub release", action: () => RunFixvoxOtherPcReadyRelease() },
+                { key: "p", label: "Publish installer + update artifacts", doc: "Builds the Windows installer, uploads GitHub release artifacts, and deploys production backend so other PCs can update. Uses the production release flow with SkipProductionSecret.", command: "scripts/publish-windows-release.ps1 -DeployProduction -SkipProductionSecret", action: () => RunFixvoxPublishProdArtifacts() },
+                { key: "b", label: "Build installer locally", doc: "Builds the stable Windows installer locally with -SkipPublish and opens the output folder. Does not upload artifacts or deploy production.", command: "scripts/build-windows-installer.ps1 -SkipPublish; open installer folder", action: () => RunFixvoxInstallerOnly() },
+                { key: "o", label: "Open latest installer", doc: "Opens Explorer selecting the newest generated installer if present, otherwise opens the output folder.", command: "scripts/open-windows-installer-location.ps1", action: () => RunFixvoxOpenInstallerFolder() },
+                { key: "d", label: "Dry-run production release", doc: "Prints the production deploy/build/upload commands without executing them.", command: "scripts/publish-windows-release.ps1 -DeployProduction -DryRun", action: () => RunFixvoxProdDryRun() },
+                { key: "g", label: "Check GitHub auth", doc: "Runs gh auth status to confirm GitHub CLI can create/upload releases. Does not change release state.", command: "gh auth status", action: () => RunFixvoxDeployCommand("gh auth status", "gh auth status") },
+                { key: "t", label: "Run tests", doc: "Runs bun test from C:\dev\fixvox. Does not build, deploy, or upload anything.", command: "bun test", action: () => RunFixvoxDeployCommand("bun test", "bun test") },
+                { key: "v", label: "Build views", doc: "Runs bun run build:views. Useful before packaging when only frontend/screens changed.", command: "bun run build:views", action: () => RunFixvoxPackageScript("build:views") },
+                { key: "h", label: "Help: explain this menu", doc: "Opens a generated local documentation window for current menu entries. Does not run build, deploy, install, or release commands.", command: "ShowFixvoxMenuDocs()", action: () => ShowFixvoxMenuDocs() },
             ] },
             { key: "p", label: "Copicu clipboard app", idleTimeoutSeconds: 3, items: [
                 { key: "r", label: "Restart dev app", doc: "Runs Copicu's dev restart script. Stops repo-owned Copicu/Vite/Tauri processes, starts dev mode, waits for readiness, and writes logs under .codex-run/dev-restart.", command: "npm run dev:restart", action: () => RunCopicuRestartDev() },
@@ -201,6 +271,7 @@ GetMainSeqAOptions() {
             { key: "M", label: "Mixer", action: () => openMixer() },
             { key: "r", label: "Resolution", idleTimeoutSeconds: 3, items: [
                 { key: "t", label: "Toggle 1280x720 / saved current", action: () => DisplayResolutionToggle720() },
+                { key: "m", label: "Toggle monitor 2 only / both", action: () => DisplayTopologyToggleExternalOnlyOrExtend() },
                 { key: "7", label: "Set 1280x720", action: () => DisplayResolutionSet720() },
                 { key: "r", label: "Restore saved current", action: () => DisplayResolutionRestoreSaved() },
                 { key: "c", label: "Show current", action: () => DisplayResolutionShowCurrent() },
@@ -209,7 +280,66 @@ GetMainSeqAOptions() {
             { key: "S", label: "ShareX screenshots", action: () => OpenFolderInExplorer("sharex-folder", [EnvGet("USERPROFILE") . "\Pictures\ShareX", EnvGet("USERPROFILE") . "\Pictures\sharex", EnvGet("USERPROFILE") . "\Pictures"]) },
             { key: "v", label: "Web Clipboard Sender", action: () => OpenWebClipboardSender() },
             { key: "w", label: "Restart Wispr Flow", action: () => RestartWisprFlow() },
-            { key: "t", label: "tablet/telegram/terminal", items: [
+            { key: "z", label: "WezTerm themes", idleTimeoutSeconds: 5, items: [
+                { key: "p", label: "Popular dark", items: [
+                    { key: "t", label: "Tokyo Night", action: () => OpenWezTermTheme("Tokyo Night", "tokyo-night.lua", "Tokyo Night") },
+                    { key: "c", label: "Catppuccin Mocha", action: () => OpenWezTermTheme("Catppuccin Mocha", "catppuccin-mocha.lua", "Catppuccin Mocha") },
+                    { key: "d", label: "Dracula", action: () => OpenWezTermTheme("Dracula", "dracula.lua", "Dracula") },
+                    { key: "n", label: "Nord", action: () => OpenWezTermTheme("Nord", "nord.lua", "Nord") },
+                    { key: "g", label: "GitHub Dark", action: () => OpenWezTermTheme("GitHub Dark", "github-dark.lua", "GitHub Dark") },
+                    { key: "r", label: "Gruvbox Dark", action: () => OpenWezTermTheme("Gruvbox Dark", "gruvbox-dark.lua", "Gruvbox Dark (Gogh)") },
+                    { key: "o", label: "OneDark", action: () => OpenWezTermTheme("OneDark", "onedark.lua", "OneDark (base16)") },
+                    { key: "m", label: "Monokai Pro", action: () => OpenWezTermTheme("Monokai Pro", "monokai-pro.lua", "Monokai Pro (Gogh)") },
+                ] },
+                { key: "c", label: "Catppuccin", items: [
+                    { key: "m", label: "Mocha", action: () => OpenWezTermTheme("Catppuccin Mocha", "catppuccin-mocha.lua", "Catppuccin Mocha") },
+                    { key: "a", label: "Macchiato", action: () => OpenWezTermTheme("Catppuccin Macchiato", "catppuccin-macchiato.lua", "Catppuccin Macchiato") },
+                    { key: "f", label: "Frappe", action: () => OpenWezTermTheme("Catppuccin Frappe", "catppuccin-frappe.lua", "Catppuccin Frappe") },
+                ] },
+                { key: "t", label: "Tokyo Night", items: [
+                    { key: "n", label: "Night", action: () => OpenWezTermTheme("Tokyo Night", "tokyo-night.lua", "Tokyo Night") },
+                    { key: "s", label: "Storm", action: () => OpenWezTermTheme("Tokyo Night Storm", "tokyo-night-storm.lua", "Tokyo Night Storm") },
+                    { key: "m", label: "Moon", action: () => OpenWezTermTheme("Tokyo Night Moon", "tokyo-night-moon.lua", "Tokyo Night Moon") },
+                ] },
+                { key: "g", label: "Gruvbox / Ayu", items: [
+                    { key: "g", label: "Gruvbox Dark", action: () => OpenWezTermTheme("Gruvbox Dark", "gruvbox-dark.lua", "Gruvbox Dark (Gogh)") },
+                    { key: "m", label: "Gruvbox Dark Medium", action: () => OpenWezTermTheme("Gruvbox Dark Medium", "gruvbox-dark-medium.lua", "Gruvbox dark, medium (base16)") },
+                    { key: "a", label: "Ayu Dark", action: () => OpenWezTermTheme("Ayu Dark", "ayu-dark.lua", "Ayu Dark (Gogh)") },
+                    { key: "A", label: "Ayu Mirage", action: () => OpenWezTermTheme("Ayu Mirage", "ayu-mirage.lua", "Ayu Mirage (Gogh)") },
+                    { key: "e", label: "Everforest Dark", action: () => OpenWezTermTheme("Everforest Dark", "everforest-dark.lua", "Everforest Dark (Gogh)") },
+                ] },
+                { key: "k", label: "Kanagawa / Fox", items: [
+                    { key: "d", label: "Kanagawa Dragon", action: () => OpenWezTermTheme("Kanagawa Dragon", "kanagawa-dragon.lua", "Kanagawa Dragon (Gogh)") },
+                    { key: "w", label: "Kanagawa Wave", action: () => OpenWezTermTheme("Kanagawa Wave", "kanagawa-wave.lua", "Kanagawa Wave (Gogh)") },
+                    { key: "o", label: "Night Owl", action: () => OpenWezTermTheme("Night Owl", "night-owl.lua", "Night Owl (Gogh)") },
+                    { key: "f", label: "Nightfox", action: () => OpenWezTermTheme("Nightfox", "nightfox.lua", "Nightfox") },
+                    { key: "c", label: "Carbonfox", action: () => OpenWezTermTheme("Carbonfox", "carbonfox.lua", "carbonfox") },
+                    { key: "n", label: "Nordfox", action: () => OpenWezTermTheme("Nordfox", "nordfox.lua", "nordfox") },
+                ] },
+                { key: "o", label: "Other dark", items: [
+                    { key: "s", label: "Solarized Dark", action: () => OpenWezTermTheme("Solarized Dark", "solarized-dark.lua", "Builtin Solarized Dark") },
+                    { key: "t", label: "Tango Dark", action: () => OpenWezTermTheme("Tango Dark", "tango-dark.lua", "Builtin Tango Dark") },
+                    { key: "u", label: "Ubuntu", action: () => OpenWezTermTheme("Ubuntu", "ubuntu.lua", "Ubuntu") },
+                    { key: "y", label: "Moonfly", action: () => OpenWezTermTheme("Moonfly", "moonfly.lua", "Moonfly (Gogh)") },
+                    { key: "n", label: "Nightfly", action: () => OpenWezTermTheme("Nightfly", "nightfly.lua", "Nightfly (Gogh)") },
+                    { key: "h", label: "OneHalfDark", action: () => OpenWezTermTheme("OneHalfDark", "onehalfdark.lua", "OneHalfDark") },
+                    { key: "d", label: "Doom One", action: () => OpenWezTermTheme("Doom One", "doom-one.lua", "DoomOne") },
+                    { key: "m", label: "Material Dark", action: () => OpenWezTermTheme("Material Dark", "material-dark.lua", "MaterialDark") },
+                    { key: "r", label: "Rose Pine Moon", action: () => OpenWezTermTheme("Rose Pine Moon", "rose-pine-moon.lua", "Rose Pine Moon (Gogh)") },
+                ] },
+            ] },
+            { key: "t", label: "Tabby", idleTimeoutSeconds: 5, items: [
+                { key: "o", label: "Open Tabby in C:/dev", doc: "Opens Tabby with a new default PowerShell terminal in C:\dev.", command: "Tabby.exe open C:\dev", action: () => OpenTabbyApp() },
+                { key: "r", label: "Terminal in workspace", doc: "Opens Windows Terminal in C:\dev\tabby for workspace maintenance.", command: "wt -d C:\dev\tabby", action: () => RunTabbyTerminalInWorkspace() },
+                { key: "w", label: "Open workspace folder", doc: "Opens the local Tabby knowledge/config workspace folder.", command: "explorer C:\dev\tabby", action: () => OpenTabbyWorkspaceFolder() },
+                { key: "v", label: "Open workspace in VS Code", doc: "Opens C:\dev\tabby in VS Code.", command: "code C:\dev\tabby", action: () => OpenTabbyWorkspaceInEditor() },
+                { key: "c", label: "Edit source config", doc: "Opens configs\tabby.config.yaml from the workspace.", command: "code configs\tabby.config.yaml", action: () => OpenTabbySourceConfig() },
+                { key: "l", label: "Edit live config", doc: "Opens %APPDATA%\tabby\config.yaml.", command: "code %APPDATA%\tabby\config.yaml", action: () => OpenTabbyLiveConfig() },
+                { key: "f", label: "Open live config folder", doc: "Opens %APPDATA%\tabby in Explorer.", command: "explorer %APPDATA%\tabby", action: () => OpenTabbyLiveConfigFolder() },
+                { key: "s", label: "Sync config", doc: "Copies configs\tabby.config.yaml to %APPDATA%\tabby\config.yaml using bun run sync:config.", command: "bun run sync:config", action: () => RunTabbySyncConfig() },
+                { key: "k", label: "Verify config", doc: "Runs the workspace Tabby verification script.", command: "bun run verify:tabby", action: () => RunTabbyVerifyConfig() },
+            ] },
+            { key: "T", label: "tablet/telegram/terminal", items: [
                 { key: "t", label: "Windows Terminal", action: () => OpenResolvedApp("windows-terminal", "Windows Terminal", [EnvGet("LOCALAPPDATA") . "\Microsoft\WindowsApps\wt.exe", A_ProgramFiles . "\WindowsApps\Microsoft.WindowsTerminal_1.23.20211.0_x64__8wekyb3d8bbwe\wt.exe"]) },
                 { key: "T", label: "Telegram", action: () => OpenResolvedApp("telegram", "Telegram", ["C:\tools\Telegram\Telegram.exe", A_AppData . "\Telegram Desktop\Telegram.exe", EnvGet("LOCALAPPDATA") . "\Programs\Telegram Desktop\Telegram.exe"]) },
                 { key: "a", label: "Tablet", action: () => RunScrcpyTablet() },

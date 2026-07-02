@@ -26,7 +26,6 @@ If your day looks like this:
 | **Window bookmarks** | Pin any live window to a hotkey and jump back instantly, even across sessions. |
 | **Browser profile launcher** | Manage Vivaldi/Chrome profiles from config instead of hardcoding commands everywhere. |
 | **VS Code / Cursor control** | Editor-only chords for navigation, settings, folding, file actions, AI sidebars, and command execution. |
-| **Global Vim mode** | Optional modal editing layer with Vim-like motions, operators, paste, visual mode, and editor-specific bindings. |
 | **Mouse gestures** | Context-aware gesture engine with a wizard, learned shapes, sorting, debug state, and per-app actions. |
 | **WebView2 UIs** | Settings, searchable menus, chord hints, audio device picker, calendar/reminders, and clipboard surfaces. |
 | **Per-machine config** | `config.ini` selects machine-specific paths and profiles by computer name. |
@@ -147,11 +146,7 @@ Key files:
 - `lib/chord-hotkeys.ahk`
 - `ui/chord-hint.html`
 
-### 5. Vim mode
-
-`vim-mode.ahk` plus `vim-keymap.ahk` / `vim-keymap-code.ahk` implement a modal layer with motions, operators, visual mode, paste, history navigation, and Code/Cursor-specific behavior.
-
-### 6. Mouse gestures
+### 5. Mouse gestures
 
 The gesture system is split into:
 
@@ -193,9 +188,6 @@ roa.ahk                      Run-or-Activate window reuse engine
 hotkeys-global.ahk           Global hotkeys and system controls
 hotstrings.ahk               Text expansions and local secret helpers
 code.ahk                     VS Code/Cursor automation and chords
-vim-mode.ahk                 Vim-mode state machine
-vim-keymap.ahk               Global Vim bindings
-vim-keymap-code.ahk          Code/Cursor-only Vim bindings
 mouse-gestures*.ahk          Gesture engine, wizard, and conditions
 settings-window.ahk          Settings backend
 ui/settings.html             Settings frontend

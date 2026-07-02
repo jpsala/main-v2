@@ -38,8 +38,6 @@ Además hay algunos accesos directos relacionados:
   Bridge reutilizable que convierte estructuras de opciones en registros para el engine de chords.
 - [ui/chord-hint.html](../../ui/chord-hint.html)
   UI del hint overlay.
-- [vim-keymap-code.ahk](../../vim-keymap-code.ahk)
-  No forma parte de estos whichkeys, pero sí del mismo contexto editor-only y puede solaparse conceptualmente si un atajo conviene que sea modal en vez de chord.
 
 ## Cómo está armado
 

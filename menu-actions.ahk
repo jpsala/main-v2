@@ -2,6 +2,125 @@
 ; Menu action helpers — functions called by menu items in menus.ahk
 ; ===================================================================
 
+; --- Tabby / terminal workspace ---
+
+GetTabbyExe() {
+    return FindFirstExistingPath([
+        EnvGet("LOCALAPPDATA") . "\Programs\Tabby\Tabby.exe",
+        A_ProgramFiles . "\Tabby\Tabby.exe",
+        A_ProgramFiles . " (x86)\Tabby\Tabby.exe"
+    ])
+}
+
+GetTabbyWorkspaceDir() {
+    candidates := [
+        JoinPath(GetDevRoot(), "tabby"),
+        "C:\dev\Tabby",
+        "C:\dev\tabby"
+    ]
+
+    for _, path in candidates {
+        if (DirExist(path))
+            return path
+    }
+
+    return JoinPath(GetDevRoot(), "tabby")
+}
+
+OpenTabbyApp() {
+    tabbyExe := GetTabbyExe()
+    if (!tabbyExe) {
+        MsgBox("Tabby no encontrado en esta notebook/PC", "Tabby", "IconError")
+        return false
+    }
+
+    devDir := GetDevRoot()
+    if (!DirExist(devDir))
+        devDir := "C:\dev"
+
+    try {
+        Run(QuoteCommandPath(tabbyExe) . ' open "' . devDir . '"', devDir)
+        return true
+    } catch Error as e {
+        MsgBox("No pude abrir Tabby en " . devDir . "`n`n" . e.Message, "Tabby", "IconError")
+        return false
+    }
+}
+
+OpenTabbyWorkspaceFolder() {
+    workspaceDir := GetTabbyWorkspaceDir()
+    if (!DirExist(workspaceDir)) {
+        MsgBox("No encontre workspace Tabby: " . workspaceDir, "Tabby", "IconError")
+        return false
+    }
+    return OpenFolderInExplorer("tabby-workspace", [workspaceDir])
+}
+
+OpenTabbyWorkspaceInEditor() {
+    return OpenRepoInEditor("tabby-workspace", "Tabby workspace", vscodeExe, "tabby")
+}
+
+OpenTabbySourceConfig() {
+    workspaceDir := GetTabbyWorkspaceDir()
+    return OpenFileWithCodeCli("Tabby config fuente", workspaceDir, JoinPath(workspaceDir, "configs\tabby.config.yaml"))
+}
+
+OpenTabbyLiveConfig() {
+    liveDir := EnvGet("APPDATA") . "\tabby"
+    return OpenFileWithCodeCli("Tabby config viva", liveDir, JoinPath(liveDir, "config.yaml"))
+}
+
+OpenTabbyLiveConfigFolder() {
+    return OpenFolderInExplorer("tabby-live-config", [EnvGet("APPDATA") . "\tabby"])
+}
+
+RunTabbyWorkspaceCommand(command, label) {
+    workspaceDir := GetTabbyWorkspaceDir()
+    if (!DirExist(workspaceDir)) {
+        MsgBox(label . ": no encontre " . workspaceDir, "Tabby", "IconError")
+        return false
+    }
+
+    scriptPath := A_Temp . "\tabby-menu-" . A_Now . "-" . Random(1000, 9999) . ".ps1"
+    scriptBody := '$ErrorActionPreference = "Stop"' . "`r`n"
+        . 'Set-Location -LiteralPath "' . workspaceDir . '"' . "`r`n"
+        . command . "`r`n"
+    FileAppend(scriptBody, scriptPath, "UTF-8")
+
+    terminalCmd := 'wt -d "' . workspaceDir . '" pwsh -NoLogo -NoProfile -NoExit -ExecutionPolicy Bypass -File "' . scriptPath . '"'
+    try {
+        Run(terminalCmd, workspaceDir)
+        return true
+    } catch Error as e {
+        MsgBox("No pude ejecutar " . label . "`n`n" . e.Message, "Tabby", "IconError")
+        return false
+    }
+}
+
+RunTabbySyncConfig() {
+    return RunTabbyWorkspaceCommand("bun run sync:config", "Tabby sync config")
+}
+
+RunTabbyVerifyConfig() {
+    return RunTabbyWorkspaceCommand("bun run verify:tabby", "Tabby verify")
+}
+
+RunTabbyTerminalInWorkspace() {
+    workspaceDir := GetTabbyWorkspaceDir()
+    if (!DirExist(workspaceDir)) {
+        MsgBox("No encontre workspace Tabby: " . workspaceDir, "Tabby", "IconError")
+        return false
+    }
+
+    try {
+        Run('wt -d "' . workspaceDir . '"', workspaceDir)
+        return true
+    } catch Error as e {
+        MsgBox("No pude abrir terminal Tabby`n`n" . e.Message, "Tabby", "IconError")
+        return false
+    }
+}
+
 ; --- Scrcpy ---
 
 GetScrcpyLauncher() {
@@ -198,6 +317,43 @@ DisplayResolutionShowCurrent() {
     savedText := savedMode ? " | guardada: " . DisplayResolutionFormat(savedMode) : ""
     msg("Actual: " . DisplayResolutionFormat(currentMode) . savedText, { seconds: 4 })
     return true
+}
+
+; --- Display topology ---
+
+DisplayTopologyRun(displaySwitchArg, label) {
+    displaySwitchExe := A_WinDir . "\System32\DisplaySwitch.exe"
+
+    try {
+        Run(QuoteCommandPath(displaySwitchExe) . " " . displaySwitchArg)
+        msg("Pantallas: " . label, { seconds: 3 })
+        return true
+    } catch as err {
+        msg("No pude cambiar pantallas: " . err.Message, { seconds: 5 })
+        return false
+    }
+}
+
+DisplayTopologyUseExternalOnly() {
+    return DisplayTopologyRun("/external", "solo monitor 2")
+}
+
+DisplayTopologyExtend() {
+    return DisplayTopologyRun("/extend", "dos monitores")
+}
+
+DisplayTopologyToggleExternalOnlyOrExtend() {
+    try {
+        activeMonitorCount := MonitorGetCount()
+    } catch as err {
+        msg("No pude leer monitores activos: " . err.Message, { seconds: 5 })
+        return false
+    }
+
+    if (activeMonitorCount > 1)
+        return DisplayTopologyUseExternalOnly()
+
+    return DisplayTopologyExtend()
 }
 
 ; --- Wispr Flow ---
@@ -555,34 +711,34 @@ DownloadYouTubeAudioFromClipboard() {
     }
 }
 
-RunElectroBunDev() {
-    repoDir := "C:\dev\electro-bun-1"
+RunFixvoxDev() {
+    repoDir := "C:\dev\fixvox"
     pwshScript := "$env:FIXVOX_SUPPRESS_STARTUP_DOCK='1'; $env:FIXVOX_SUPPRESS_STARTUP_ONBOARDING='1'; $env:FIXVOX_DISABLE_STARTUP_PICKER_PRELOAD='1'; $env:FIXVOX_DISABLE_STARTUP_SETTINGS_PRELOAD='1'; & bun scripts/dev-runtime-check.ts restart"
     launchCmd := "pwsh -NoProfile -WindowStyle Hidden -Command " . Chr(34) . pwshScript . Chr(34)
-    if (Roa("electro-bun-1", launchCmd, false, false, {
+    if (Roa("fixvox", launchCmd, false, false, {
         launchMode: "background",
         workingDir: repoDir,
         runOptions: "Hide"
     })) {
-        msg("Electro Bun restart enviado", { seconds: 2 })
+        msg("Fixvox restart enviado", { seconds: 2 })
         return true
     }
     return false
 }
 
-RunElectroBunPackageScript(scriptName, runInstaller := false) {
+RunFixvoxPackageScript(scriptName, runInstaller := false) {
     command := "bun run " . scriptName
     if (runInstaller)
-        command .= "; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; " . ElectroBunRunLatestInstallerCommand()
-    return RunElectroBunDeployCommand(command, "bun run " . scriptName)
+        command .= "; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; " . FixvoxRunLatestInstallerCommand()
+    return RunFixvoxDeployCommand(command, "bun run " . scriptName)
 }
 
-RunElectroBunPublishProdArtifacts() {
-    command := "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/publish-windows-release.ps1 -DeployProduction -SkipProductionSecret; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; " . ElectroBunRestartDevCommand()
-    return RunElectroBunDeployCommand(command, "Publish installer and update artifacts")
+RunFixvoxPublishProdArtifacts() {
+    command := "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/publish-windows-release.ps1 -DeployProduction -SkipProductionSecret; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; " . FixvoxRestartDevCommand()
+    return RunFixvoxDeployCommand(command, "Publish installer and update artifacts")
 }
 
-RunElectroBunOtherPcReadyRelease() {
+RunFixvoxOtherPcReadyRelease() {
     command := "bun test src/app/backend/control-plane.test.ts proxy/src/control-plane-store.test.ts"
         . "; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }"
         . "; powershell -NoProfile -ExecutionPolicy Bypass -File scripts/deploy-proxy-admin.ps1"
@@ -593,68 +749,68 @@ RunElectroBunOtherPcReadyRelease() {
         . "; $tag = 'v' + $update.version"
         . "; gh release view $tag --repo jpsala/fixvox-releases --json url,assets"
         . "; Write-Host ('Installer URL: https://github.com/jpsala/fixvox-releases/releases/download/' + $tag + '/Fixvox-Installer.exe')"
-    return RunElectroBunDeployCommand(command, "Other PC ready release")
+    return RunFixvoxDeployCommand(command, "Other PC ready release")
 }
 
-RunElectroBunInstallerOnly() {
-    command := "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-windows-installer.ps1 -SkipPublish; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; powershell -NoProfile -ExecutionPolicy Bypass -File scripts/open-windows-installer-location.ps1; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; " . ElectroBunRestartDevCommand()
-    return RunElectroBunDeployCommand(command, "Build installer locally only")
+RunFixvoxInstallerOnly() {
+    command := "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-windows-installer.ps1 -SkipPublish; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; powershell -NoProfile -ExecutionPolicy Bypass -File scripts/open-windows-installer-location.ps1; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; " . FixvoxRestartDevCommand()
+    return RunFixvoxDeployCommand(command, "Build installer locally only")
 }
 
-ElectroBunRestartDevCommand() {
+FixvoxRestartDevCommand() {
     return "Write-Host 'Restarting dev runtime after installer/release...'; bun scripts/restart-dev.ts"
 }
 
-RunElectroBunInstallerAndOpen() {
-    command := "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-windows-installer-and-open.ps1; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; " . ElectroBunRunLatestInstallerCommand()
-    return RunElectroBunDeployCommand(command, "Build installer locally and open artifact folder")
+RunFixvoxInstallerAndOpen() {
+    command := "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-windows-installer-and-open.ps1; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; " . FixvoxRunLatestInstallerCommand()
+    return RunFixvoxDeployCommand(command, "Build installer locally and open artifact folder")
 }
 
-RunElectroBunOpenInstallerFolder() {
+RunFixvoxOpenInstallerFolder() {
     command := "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/open-windows-installer-location.ps1"
-    return RunElectroBunDeployCommand(command, "Open latest Windows installer artifact")
+    return RunFixvoxDeployCommand(command, "Open latest Windows installer artifact")
 }
 
-RunElectroBunLatestInstaller() {
-    return RunElectroBunDeployCommand(ElectroBunRunLatestInstallerCommand(), "Run latest Windows installer")
+RunFixvoxLatestInstaller() {
+    return RunFixvoxDeployCommand(FixvoxRunLatestInstallerCommand(), "Run latest Windows installer")
 }
 
-ElectroBunRunLatestInstallerCommand() {
+FixvoxRunLatestInstallerCommand() {
     return "$installer = Get-ChildItem -Path 'artifacts\windows-installer','build\stable-win-x64' -Filter '*.exe' -File -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1; if (!$installer) { throw 'No Windows installer .exe found' }; Write-Host ('Running installer: ' + $installer.FullName); Start-Process -FilePath $installer.FullName -Wait"
 }
 
-RunElectroBunProxyDeploy() {
+RunFixvoxProxyDeploy() {
     command := "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/deploy-proxy-admin.ps1"
-    return RunElectroBunDeployCommand(command, "Deploy proxy admin")
+    return RunFixvoxDeployCommand(command, "Deploy proxy admin")
 }
 
-RunElectroBunProxyDryRun() {
+RunFixvoxProxyDryRun() {
     command := "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/deploy-proxy-admin.ps1 -DryRun"
-    return RunElectroBunDeployCommand(command, "Dry run proxy admin deploy")
+    return RunFixvoxDeployCommand(command, "Dry run proxy admin deploy")
 }
 
-RunElectroBunProxySecretOnly() {
+RunFixvoxProxySecretOnly() {
     command := "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/deploy-proxy-admin.ps1 -SkipDeploy"
-    return RunElectroBunDeployCommand(command, "Update proxy admin secret only")
+    return RunFixvoxDeployCommand(command, "Update proxy admin secret only")
 }
 
-RunElectroBunProdDryRun() {
+RunFixvoxProdDryRun() {
     command := "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/publish-windows-release.ps1 -DeployProduction -DryRun"
-    return RunElectroBunDeployCommand(command, "Dry run production release")
+    return RunFixvoxDeployCommand(command, "Dry run production release")
 }
 
-RunElectroBunFullLocalVerify() {
-    command := "bun install; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; bun test; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-windows-installer.ps1 -SkipPublish; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; " . ElectroBunRunLatestInstallerCommand()
-    return RunElectroBunDeployCommand(command, "Install + test + local installer")
+RunFixvoxFullLocalVerify() {
+    command := "bun install; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; bun test; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-windows-installer.ps1 -SkipPublish; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; " . FixvoxRunLatestInstallerCommand()
+    return RunFixvoxDeployCommand(command, "Install + test + local installer")
 }
 
-ShowElectroBunMenuDocs() {
+ShowFixvoxMenuDocs() {
     static docsGui := false
-    htmlPath := BuildElectroBunMenuDocsHtml()
+    htmlPath := BuildFixvoxMenuDocsHtml()
     dllPath := A_ScriptDir . "\lib\" . (A_PtrSize * 8) . "bit\WebView2Loader.dll"
 
     if !IsObject(docsGui) {
-        docsGui := WebViewGui("+Resize", "Electro Bun menu docs",, {DllPath: dllPath, DefaultWidth: 980, DefaultHeight: 720})
+        docsGui := WebViewGui("+Resize", "Fixvox menu docs",, {DllPath: dllPath, DefaultWidth: 980, DefaultHeight: 720})
         docsGui.OnEvent("Close", (*) => docsGui.Hide())
     }
 
@@ -664,10 +820,10 @@ ShowElectroBunMenuDocs() {
     return true
 }
 
-BuildElectroBunMenuDocsHtml() {
-    htmlPath := A_Temp . "\electro-bun-menu-docs.html"
+BuildFixvoxMenuDocsHtml() {
+    htmlPath := A_Temp . "\fixvox-menu-docs.html"
     docsHtml := ""
-    docsHtml .= "<!doctype html><html><head><meta charset='utf-8'><title>Electro Bun menu docs</title>"
+    docsHtml .= "<!doctype html><html><head><meta charset='utf-8'><title>Fixvox menu docs</title>"
     docsHtml .= "<style>"
     docsHtml .= "body{margin:0;background:#0d1117;color:#c9d1d9;font:14px/1.5 Segoe UI,system-ui,sans-serif;}"
     docsHtml .= "header{position:sticky;top:0;background:#010409;border-bottom:1px solid #30363d;padding:16px 22px;z-index:1;}"
@@ -678,13 +834,13 @@ BuildElectroBunMenuDocsHtml() {
     docsHtml .= "th,td{border-bottom:1px solid #30363d;padding:9px 10px;text-align:left;vertical-align:top;} th{background:#21262d;color:#8b949e;font-size:11px;text-transform:uppercase;letter-spacing:.06em;} tr:last-child td{border-bottom:0;}"
     docsHtml .= "code{font-family:Cascadia Code,Consolas,monospace;font-size:12px;background:#0d1117;border:1px solid #30363d;border-radius:5px;padding:2px 5px;color:#79c0ff;}"
     docsHtml .= ".key{white-space:nowrap;color:#f0f6fc;} .label{font-weight:600;color:#f0f6fc;} .doc{color:#c9d1d9;} .command{color:#8b949e;}"
-    electroMenu := GetElectroBunMenuItem()
-    timeoutText := GetMenuTimeoutText(electroMenu)
+    fixvoxMenu := GetFixvoxMenuItem()
+    timeoutText := GetMenuTimeoutText(fixvoxMenu)
 
-    docsHtml .= "</style></head><body><header><h1>Electro Bun Deploy / Release menu docs</h1><div class='hint'>Route: <code>Win+A</code> then <code>E</code>. This window is generated from the live menu data and does not run commands.</div></header><main>"
+    docsHtml .= "</style></head><body><header><h1>Fixvox Deploy / Release menu docs</h1><div class='hint'>Route: <code>Win+A</code> then <code>E</code>. This window is generated from the live menu data and does not run commands.</div></header><main>"
     docsHtml .= "<div class='summary'><div class='card'><b>Submenu timeout</b>" . HtmlEscape(timeoutText) . "</div><div class='card'><b>Installer auto-run</b>Installer-producing actions now run the newest generated <code>.exe</code> after a successful build/release.</div><div class='card'><b>Installer search paths</b><code>artifacts\\windows-installer</code><br><code>build\\stable-win-x64</code></div></div>"
-    docsHtml .= "<h2>Electro Bun actions</h2>"
-    docsHtml .= BuildMenuDocsTable(GetElectroBunDocsItems(), "Win+A > e")
+    docsHtml .= "<h2>Fixvox actions</h2>"
+    docsHtml .= BuildMenuDocsTable(GetFixvoxDocsItems(), "Win+A > e")
     docsHtml .= "<h2>Current full menu tree</h2>"
     docsHtml .= BuildMenuDocsTable(BuildAllMenuDocsItems(), "")
     docsHtml .= "</main></body></html>"
@@ -705,7 +861,7 @@ GetMenuTimeoutText(menuItem) {
     return "default menu timeout"
 }
 
-GetElectroBunMenuItem() {
+GetFixvoxMenuItem() {
     for _, item in GetMainSeqAOptions().items {
         if (item.HasOwnProp("key") && item.key = "e" && item.HasOwnProp("items"))
             return item
@@ -713,10 +869,10 @@ GetElectroBunMenuItem() {
     return false
 }
 
-GetElectroBunDocsItems() {
-    electroMenu := GetElectroBunMenuItem()
-    if IsObject(electroMenu)
-        return BuildMenuDocsItems(electroMenu.items, "Win+A > e")
+GetFixvoxDocsItems() {
+    fixvoxMenu := GetFixvoxMenuItem()
+    if IsObject(fixvoxMenu)
+        return BuildMenuDocsItems(fixvoxMenu.items, "Win+A > e")
     return []
 }
 
@@ -779,15 +935,15 @@ HtmlEscape(value) {
     return text
 }
 
-RunElectroBunDeployCommand(command, label) {
-    repoDir := "C:\dev\electro-bun-1"
+RunFixvoxDeployCommand(command, label) {
+    repoDir := "C:\dev\fixvox"
     packageJson := repoDir . "\package.json"
     if (!FileExist(packageJson)) {
         msg("No encontre " . packageJson, { seconds: 4 })
         return false
     }
 
-    scriptPath := A_Temp . "\electro-bun-menu-" . A_Now . "-" . Random(1000, 9999) . ".ps1"
+    scriptPath := A_Temp . "\fixvox-menu-" . A_Now . "-" . Random(1000, 9999) . ".ps1"
     scriptBody := '$ErrorActionPreference = "Stop"' . "`r`n"
         . 'Set-Location -LiteralPath "' . repoDir . '"' . "`r`n"
         . command . "`r`n"
@@ -798,7 +954,7 @@ RunElectroBunDeployCommand(command, label) {
         Run(terminalCmd)
         return true
     } catch Error as e {
-        MsgBox('No pude ejecutar ' . label . '`n`n' . e.Message, 'Deploy Electro Bun', 'IconError')
+        MsgBox('No pude ejecutar ' . label . '`n`n' . e.Message, 'Deploy Fixvox', 'IconError')
         return false
     }
 }

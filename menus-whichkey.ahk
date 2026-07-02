@@ -31,7 +31,6 @@ InitMenusWhichKey() {
     MenuWhichKeyRegisterWithActions("#a", GetMainSeqAOptions())
     MenuWhichKeyRegisterWithActions("#w", GetMainSeqWOptions())
     MenuWhichKeyRegisterWithActions("#c", GetMainSeqCOptions())
-    MenuWhichKeyRegisterWithActions("#``", GetCopyQOptions())
     ; Pre-initialize the hint WebView so it's ready on first use
     SetTimer(() => ChordHintInit(), -500)
 }

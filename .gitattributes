@@ -1,0 +1,12 @@
+# Keep repo text files stable across Windows/macOS/Linux checkouts.
+* text=auto eol=lf
+
+# Binary assets
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.exe binary
+*.zip binary
+*.rar binary

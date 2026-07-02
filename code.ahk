@@ -70,11 +70,11 @@ includeInContext(fileName, label) {
   Sleep(400)
 }
 
-#!p:: {
-  KeyWait("Alt")
-  KeyWait("LWin")
-  send('^p%')
-}
+; #!p:: {
+;   KeyWait("Alt")
+;   KeyWait("LWin")
+;   send('^p%')
+; }
 
 :*:.c :: {
   Send('console.log(')
@@ -83,29 +83,29 @@ includeInContext(fileName, label) {
   Send("console.log(" . "' " . A_Clipboard . "',){left} " . A_Clipboard)
 }
 
-#!r:: {
-  cm := CoordMode('Mouse', 'Screen')
-  mouseSaved := saveMouse()
-  KeyWait("Alt", 'T1')
-  KeyWait("LWin", 'T1')
-  KeyWait("r", 'T1')
-  try {
-    WinActivate("[Debug] or chrome-debug")
-  } catch Error as e {
-    MsgBox('Open debug browser')
-    return
-  }
-  WinGetPos(&x, &y, &width, &height, "A")
-  MouseClick('Middle', x + 300, y + 300, 1, 0)
-  Sleep(100)
-  Send("^l")
-  Sleep(200)
-  Send("{enter}")
-  Sleep(100)
-  WinActivate("ahk_exe " cursorExe)
-  CoordMode('Mouse', cm)
-  restoreMouse(mouseSaved)
-}
+; #!r:: {
+;   cm := CoordMode('Mouse', 'Screen')
+;   mouseSaved := saveMouse()
+;   KeyWait("Alt", 'T1')
+;   KeyWait("LWin", 'T1')
+;   KeyWait("r", 'T1')
+;   try {
+;     WinActivate("[Debug] or chrome-debug")
+;   } catch Error as e {
+;     MsgBox('Open debug browser')
+;     return
+;   }
+;   WinGetPos(&x, &y, &width, &height, "A")
+;   MouseClick('Middle', x + 300, y + 300, 1, 0)
+;   Sleep(100)
+;   Send("^l")
+;   Sleep(200)
+;   Send("{enter}")
+;   Sleep(100)
+;   WinActivate("ahk_exe " cursorExe)
+;   CoordMode('Mouse', cm)
+;   restoreMouse(mouseSaved)
+; }
 
 F1::
 toggleLog(hk)

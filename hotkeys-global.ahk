@@ -5,20 +5,20 @@
     ; ===================================================================
     ; SETTINGS WINDOW
     ; ===================================================================
-    #,:: {  ; Win+, opens settings (like many apps)
-      ShowSettingsWindow()
-    }
+;     #,:: {  ; Win+, opens settings (like many apps)
+;       ShowSettingsWindow()
+;     }
 
-    #^!g:: {
-      MouseGestureQuickCreateStubWizard()
-    }
+;     #^!g:: {
+;       MouseGestureQuickCreateStubWizard()
+;     }
 
-    ^!#+g:: {
-      if (MouseGestureQuickSortConditions())
-        msg("Sorted gesture conditions", {seconds: 2})
-      else
-        msg("Could not sort gesture conditions", {seconds: 2})
-    }
+;     ^!#+g:: {
+;       if (MouseGestureQuickSortConditions())
+;         msg("Sorted gesture conditions", {seconds: 2})
+;       else
+;         msg("Could not sort gesture conditions", {seconds: 2})
+;     }
 
     #HotIf WinActive('ahk_exe code.exe')
     #HotIf
@@ -35,16 +35,17 @@
     }
 
     ; Register hotkeys #!1 to #!9 (fix closure issue)
-    makeHotkeyAction(hotkeyStr) {
-      return (*) => myHotkeyAction(hotkeyStr)
-    }
+    ; Disabled: reserve Win-key combos for menu prefixes.
+    ; makeHotkeyAction(hotkeyStr) {
+    ;   return (*) => myHotkeyAction(hotkeyStr)
+    ; }
 
-    Loop 9
-    {
-      hotkeyStr := "#!" A_Index
-      hotkeyForLayout := "#!^" A_Index
-      Hotkey(hotkeyStr, makeHotkeyAction(hotkeyForLayout))
-    }
+    ; Loop 9
+    ; {
+    ;   hotkeyStr := "#!" A_Index
+    ;   hotkeyForLayout := "#!^" A_Index
+    ;   Hotkey(hotkeyStr, makeHotkeyAction(hotkeyForLayout))
+    ; }
 
 
     ; ===================================================================
@@ -128,7 +129,7 @@
     #hotif WinActive('ahk_class RustdeskMultiWindow') or WinActive('ahk_exe mstsc.exe') or WinActive('ahk_exe StrategyQuantX_nocheck.exe') or WinActive('ahk_exe StrategyQuantX_ui.exe')
     !r:: handleRename()
     !c:: handleClear()
-    #!r:: handleRename(true)
+;     #!r:: handleRename(true)
     #HotIf
 
     SetTimer(() => checkSQArrowOverlay(), 2000)
@@ -163,15 +164,15 @@
 
     ; Toggle all hotkeys on/off
     #SuspendExempt
-    #^!s:: {
-      Suspend  ; Ctrl+Alt+S
-      if (A_IsSuspended) {
-        SoundBeep(400, 200)  ; Lower pitch when disabled
-      } else {
-        SoundBeep(1000, 200)  ; Higher pitch when enabled
-      }
-      msg(A_IsSuspended ? 'Suspended' : 'Resumed')
-    }
+;     #^!s:: {
+;       Suspend  ; Ctrl+Alt+S
+;       if (A_IsSuspended) {
+;         SoundBeep(400, 200)  ; Lower pitch when disabled
+;       } else {
+;         SoundBeep(1000, 200)  ; Higher pitch when enabled
+;       }
+;       msg(A_IsSuspended ? 'Suspended' : 'Resumed')
+;     }
     #SuspendExempt False
 
     ; Remap Ctrl+Alt+R to prevent ® character
@@ -204,92 +205,92 @@
     }
 
     ; Reload script
-    #!^r:: {
-      msg('Reloading...')
-      Sleep(200)
-      Pause(false)
-      Reload()
-    }
+;     #!^r:: {
+;       msg('Reloading...')
+;       Sleep(200)
+;       Pause(false)
+;       Reload()
+;     }
 
     ; System shutdown/reboot
-    #^!del:: {
-      val := InputBox('Options:`n`ns:`tShutdown`nr:`tReboot', 'shutdown', 'T10', 'n').value
-      if (val == 's') {
-        Shutdown(1)
-      } else if (val == 'r') { ; Corrected typo: should be 'r' for reboot
-        Shutdown(2)
-      }
-    }
+;     #^!del:: {
+;       val := InputBox('Options:`n`ns:`tShutdown`nr:`tReboot', 'shutdown', 'T10', 'n').value
+;       if (val == 's') {
+;         Shutdown(1)
+;       } else if (val == 'r') { ; Corrected typo: should be 'r' for reboot
+;         Shutdown(2)
+;       }
+;     }
 
     ; Process Explorer (alternative to Task Manager)
     ; ^+Esc:: Run('C:\tools\procexp.exe')
 
     ; Kill application (xkill)
-    #!^Backspace:: Run('C:\tools\Win-xKill.exe')
+;     #!^Backspace:: Run('C:\tools\Win-xKill.exe')
 
     ; Debug executable (Assumes runLogExe() is defined elsewhere, e.g., system.ahk or functions.ahk)
-    +^#!d:: runLogExe()
+;     +^#!d:: runLogExe()
 
     ; ===================================================================
     ; WINDOW MANAGEMENT
     ; ===================================================================
 
     ; Toggle always on top for active window (Assumes msg() is defined elsewhere)
-    #!t:: {
-      Title_When_On_Top := "! "       ; change title "! " as required
-
-      HWND := WinGetID("A")
-      t := WinGetTitle(HWND)
-
-      ExStyle := WinGetExStyle(HWND)
-      If (ExStyle & 0x8) {                ; 0x8 is WS_EX_TOPMOST
-        WinSetAlwaysOnTop 0, HWND       ; Turn OFF always on top
-        If t != ""
-          WinSetTitle StrReplace(t, Title_When_On_Top), HWND
-        SoundBeep(400, 200)  ; Lower pitch when disabled
-        msg("Always on top: OFF")
-      }
-      Else {
-        WinSetAlwaysOnTop 1, HWND      ; Turn ON always on top
-        If t != ""
+;     #!t:: {
+;       Title_When_On_Top := "! "       ; change title "! " as required
+;
+;       HWND := WinGetID("A")
+;       t := WinGetTitle(HWND)
+;
+;       ExStyle := WinGetExStyle(HWND)
+;       If (ExStyle & 0x8) {                ; 0x8 is WS_EX_TOPMOST
+;         WinSetAlwaysOnTop 0, HWND       ; Turn OFF always on top
+;         If t != ""
+;           WinSetTitle StrReplace(t, Title_When_On_Top), HWND
+;         SoundBeep(400, 200)  ; Lower pitch when disabled
+;         msg("Always on top: OFF")
+;       }
+;       Else {
+;         WinSetAlwaysOnTop 1, HWND      ; Turn ON always on top
+;         If t != ""
           ; add Title_When_On_Top to window title
-          WinSetTitle Title_When_On_Top t, HWND
-        SoundBeep(1000, 200)  ; Higher pitch when enabled
-        msg("Always on top: ON")
-      }
-    }
+;           WinSetTitle Title_When_On_Top t, HWND
+;         SoundBeep(1000, 200)  ; Higher pitch when enabled
+;         msg("Always on top: ON")
+;       }
+;     }
 
-    #m::
-    #!down:: {
-      WinMinimize('A')
-    }
+;     #m::
+;     #!down:: {
+;       WinMinimize('A')
+;     }
 
     ; Show desktop (Assumes SendWithLevel() is defined elsewhere)
-    ^#!d:: SendWithLevel('#d', 100)
+;     ^#!d:: SendWithLevel('#d', 100)
 
     ; ===================================================================
     ; CLIPBOARD AND TEXT MANAGEMENT
     ; ===================================================================
 
     ; Paste with simulated typing (Assumes msg() is defined elsewhere)
-    #!^v:: {
+;     #!^v:: {
       ; Get clipboard content
-      msg({ text: 'Pasting...', seconds: 1000 })
-      text := A_Clipboard
-
+;       msg({ text: 'Pasting...', seconds: 1000 })
+;       text := A_Clipboard
+;
       ; Small delay before starting
-      Sleep 500
-
+;       Sleep 500
+;
       ; Type each character with a small random delay
-      Loop Parse, text
-      {
-        Send A_LoopField
+;       Loop Parse, text
+;       {
+;         Send A_LoopField
         ; Random delay between 10-50ms to simulate natural typing
-        Sleep 1
-      }
-
-      return
-    }
+;         Sleep 1
+;       }
+;
+;       return
+;     }
 
     ; ===================================================================
     ; SPECIAL CHARACTERS - ACCENTS AND SPANISH CHARACTERS (HOTSTRINGS)
@@ -308,40 +309,40 @@
 
     ; PowerToys Run (Requires PowerToys Run)
     ; Moved from #, to #!space since #, is used for Settings
-    #!space:: {
-      send('#!{space}') ; PowerToys Run shortcut
-    }
+;     #!space:: {
+;       send('#!{space}') ; PowerToys Run shortcut
+;     }
 
     ; File Explorer (Assumes toggleOrLaunchApp() is defined elsewhere)
-    ^#e:: {
-      toggleOrLaunchApp({
-        winPattern: 'ahk_class CabinetWClass',
-        launchCmd: 'C:\Users\jpsal\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\File Explorer.lnk',
-        windowTitle: '- File Explorer'
-      })
-    }
+;     ^#e:: {
+;       toggleOrLaunchApp({
+;         winPattern: 'ahk_class CabinetWClass',
+;         launchCmd: 'C:\Users\jpsal\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\File Explorer.lnk',
+;         windowTitle: '- File Explorer'
+;       })
+;     }
 
     ; ===================================================================
     ; MEDIA CONTROLS
     ; ===================================================================
 
-    #!^Left:: send('{Media_Prev}')
-    #!^Right:: send('{Media_Next}')
+;     #!^Left:: send('{Media_Prev}')
+;     #!^Right:: send('{Media_Next}')
 
     ; Volume control with Alt+Wheel (Assumes volChange() is defined elsewhere)
     ; !WheelDown:: volChange(2)
     ; !WheelUp:: volChange(-2)
 
     ; Open volume mixer (Windows default)
-    #!+m:: {
-      Run("sndvol")
-      WinWaitActive("ahk_exe sndvol.exe", , 2) ; Wait max 2 seconds
-    }
+;     #!+m:: {
+;       Run("sndvol")
+;       WinWaitActive("ahk_exe sndvol.exe", , 2) ; Wait max 2 seconds
+;     }
 
     ; Open Mixer (Assumes openMixer() is defined elsewhere, likely a custom mixer)
-    #!m:: {
-      openMixer()
-    }
+;     #!m:: {
+;       openMixer()
+;     }
 
 
     ^!WheelUp:: brightness('up')
@@ -350,7 +351,7 @@
     brightness(direction) {
       /*
           Change brightness using ctrl+alt+wheel, direction is up or down
-      
+
           Adapter Name: "AMD Radeon(TM) Graphics"
           Short Monitor ID: "SAM707F"
           ---------------------------
@@ -372,10 +373,10 @@
     ; ===================================================================
 
     ; Toggle cursor keys (Assumes msg() is defined elsewhere)
-    #!k:: {
-      global cursorKeysEnabled := !cursorKeysEnabled
-      msg('cursor keys ' . (cursorKeysEnabled ? 'Enabled' : 'Disabled'))
-    }
+;     #!k:: {
+;       global cursorKeysEnabled := !cursorKeysEnabled
+;       msg('cursor keys ' . (cursorKeysEnabled ? 'Enabled' : 'Disabled'))
+;     }
 
     ; CapsLock cursor navigation
     CapsLock & k:: Send("{up}")
@@ -401,43 +402,43 @@
     #HotIf
 
     ; Show mouse coordinates and save to clipboard (Assumes msg() and copyToClipboard() are defined elsewhere)
-    #^!LButton:: {
-      MouseGetPos(&X, &Y)
-      msg(X ':' Y, { seconds: 2, X: X + 4, Y: Y + 4 })
-      copyToClipboard(X ', ' Y)
-    }
+;     #^!LButton:: {
+;       MouseGetPos(&X, &Y)
+;       msg(X ':' Y, { seconds: 2, X: X + 4, Y: Y + 4 })
+;       copyToClipboard(X ', ' Y)
+;     }
 
     ; ===================================================================
     ; KEYBOARD LAYOUT INFO
     ; ===================================================================
 
     ; Show Keyboard Layout (Assumes getKeyboardLayoutUsOrIntl() and msg() are defined elsewhere)
-    #!^k:: {
+;     #!^k:: {
       ; Get keyboard layout info from the function
-      layoutType := getKeyboardLayoutUsOrIntl()
-
+;       layoutType := getKeyboardLayoutUsOrIntl()
+;
       ; Create a more detailed message
       ; Get active window handle
-      hwnd := WinActive("A")
-      if (!hwnd)
-        hwnd := WinExist("A")
-
+;       hwnd := WinActive("A")
+;       if (!hwnd)
+;         hwnd := WinExist("A")
+;
       ; Get the thread ID of the active window
-      threadID := DllCall("GetWindowThreadProcessId", "Ptr", hwnd, "UInt", 0)
-
+;       threadID := DllCall("GetWindowThreadProcessId", "Ptr", hwnd, "UInt", 0)
+;
       ; Get the keyboard layout ID for this thread
-      layoutID := DllCall("GetKeyboardLayout", "UInt", threadID, "UInt")
-
+;       layoutID := DllCall("GetKeyboardLayout", "UInt", threadID, "UInt")
+;
       ; Get the system keyboard layout name
-      buf := Buffer(KL_NAMELENGTH := 16)
-      DllCall("GetKeyboardLayoutName", "Ptr", buf.Ptr)
-      klID := StrGet(buf)
-
-      layoutMsg := "Keyboard Layout:`n"
-      layoutMsg .= "- Type: " . layoutType . "`n"
-      layoutMsg .= "- ID: " . Format("0x{:x}", layoutID) . "`n"
-      layoutMsg .= "- Code: " . klID
-
+;       buf := Buffer(KL_NAMELENGTH := 16)
+;       DllCall("GetKeyboardLayoutName", "Ptr", buf.Ptr)
+;       klID := StrGet(buf)
+;
+;       layoutMsg := "Keyboard Layout:`n"
+;       layoutMsg .= "- Type: " . layoutType . "`n"
+;       layoutMsg .= "- ID: " . Format("0x{:x}", layoutID) . "`n"
+;       layoutMsg .= "- Code: " . klID
+;
       ; Display layout info
-      msg(layoutMsg, { seconds: 5 })
-    }
+;       msg(layoutMsg, { seconds: 5 })
+;     }

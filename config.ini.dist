@@ -31,6 +31,7 @@ hidePathsSummary=0  ; 0 = mostrar diálogo de paths faltantes, 1 = ocultar
 [variables]
 cursorKeysEnabled=1
 logVisibility=0
+persistentMenusEnabled=0  ; 1 = hints immediately and stay open until Esc or click outside
 
 [audioDeviceFavorites]
 ; Se llena automáticamente desde la interfaz.

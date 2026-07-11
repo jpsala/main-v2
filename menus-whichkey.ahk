@@ -27,12 +27,27 @@ RunMenuAction(actionMap, key) {
         actionMap[key].Call()
 }
 
+MenuWebViewRunWithActions(options, *) {
+    actionMap := BuildActionMap(options.items)
+    result := ShowWebViewMenu(options)
+    if (result && result != "CANCELLED")
+        RunMenuAction(actionMap, result)
+}
+
+MenuWebViewRegisterWithActions(prefixHotkey, options) {
+    Hotkey(ChordEnsureHookHotkey(prefixHotkey), MenuWebViewRunWithActions.Bind(options))
+}
+
 InitMenusWhichKey() {
-    MenuWhichKeyRegisterWithActions("#a", GetMainSeqAOptions())
-    MenuWhichKeyRegisterWithActions("#w", GetMainSeqWOptions())
-    MenuWhichKeyRegisterWithActions("#c", GetMainSeqCOptions())
+    MenuWhichKeyRefreshMainMenus()
     ; Pre-initialize the hint WebView so it's ready on first use
     SetTimer(() => ChordHintInit(), -500)
+}
+
+MenuWhichKeyRefreshMainMenus() {
+    MenuWebViewRegisterWithActions("#a", GetMainSeqAOptions())
+    MenuWhichKeyRegisterWithActions("#w", GetMainSeqWOptions())
+    MenuWhichKeyRegisterWithActions("#c", GetMainSeqCOptions())
 }
 
 MenuWhichKeyRegisterWithActions(prefixHotkey, options) {
@@ -46,10 +61,10 @@ MenuWhichKeyRegister(prefixHotkey, options, executeFn) {
 
     prefixMap := Map()
     prefixMap[prefixHotkey] := MenuWhichKeyBuildItems(options.items)
-    ChordRegister(prefixMap, executeFn, MenuWhichKeyGetRegisterOptions(options))
+    ChordRegister(prefixMap, executeFn, MenuWhichKeyGetRegisterOptions(prefixHotkey, options))
 }
 
-MenuWhichKeyGetRegisterOptions(options) {
+MenuWhichKeyGetRegisterOptions(prefixHotkey, options) {
     global MENU_WHICHKEY_DEFAULT_IDLE_TIMEOUT_SECONDS, MENU_WHICHKEY_DEFAULT_HOLD_OPEN_KEYS
     registerOptions := {}
 
@@ -59,6 +74,9 @@ MenuWhichKeyGetRegisterOptions(options) {
 
     idleTimeoutSeconds := MenuWhichKeyGetIdleTimeoutSeconds(options)
     registerOptions.timeout := idleTimeoutSeconds != "" ? idleTimeoutSeconds : MENU_WHICHKEY_DEFAULT_IDLE_TIMEOUT_SECONDS
+
+    if (MenuWhichKeyPersistentMenusEnabled() && (prefixHotkey = "#a" || prefixHotkey = "#w" || prefixHotkey = "#c"))
+        registerOptions.persistent := true
 
     if (options.HasOwnProp("chordPrefixLabel"))
         registerOptions.prefixLabel := options.chordPrefixLabel
@@ -71,6 +89,10 @@ MenuWhichKeyGetRegisterOptions(options) {
         registerOptions.holdOpenKeys := MENU_WHICHKEY_DEFAULT_HOLD_OPEN_KEYS
 
     return registerOptions
+}
+
+MenuWhichKeyPersistentMenusEnabled() {
+    return IniRead("config.ini", "variables", "persistentMenusEnabled", "0") = "1"
 }
 
 MenuWhichKeyGetShowDelaySeconds(options) {

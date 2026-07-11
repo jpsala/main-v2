@@ -72,6 +72,14 @@
     background: var(--bg-active);
   }
 
+  .item-rank {
+    flex-shrink: 0;
+    width: 18px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-align: right;
+  }
   .item-key {
     flex-shrink: 0;
     min-width: 30px;
@@ -196,6 +204,7 @@
   <div class="status-bar">
     <div class="status-hint">
       <span><span class="hint-key">↑↓</span> Navigate</span>
+      <span><span class="hint-key">1–9/0</span> Select</span>
       <span><span class="hint-key">Enter</span> Select</span>
       <span><span class="hint-key">Esc</span> Close</span>
     </div>
@@ -219,6 +228,8 @@ function init(menuData) {
 
   allItems = menuData.items || [];
   currentParentKeys = menuData.parentKeys || [];
+  menuStack = [];
+  document.getElementById('filter-input').value = '';
 
   updateBreadcrumb();
   filterItems('');
@@ -290,6 +301,13 @@ function renderItems() {
     div.className = 'item' + (index === selectedIndex ? ' active' : '');
     div.onclick = () => selectItem(index);
     
+    if (index < 10) {
+      const rankSpan = document.createElement('span');
+      rankSpan.className = 'item-rank';
+      rankSpan.textContent = index === 9 ? '0' : String(index + 1);
+      div.appendChild(rankSpan);
+    }
+
     const keySpan = document.createElement('span');
     keySpan.className = 'item-key';
     keySpan.textContent = item.key;
@@ -388,7 +406,13 @@ document.getElementById('filter-input').addEventListener('input', (e) => {
 });
 
 document.getElementById('filter-input').addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowDown') {
+  if (e.target.value === '' && /^[0-9]$/.test(e.key)) {
+    const index = e.key === '0' ? 9 : Number(e.key) - 1;
+    if (filteredItems[index]) {
+      e.preventDefault();
+      selectItem(index);
+    }
+  } else if (e.key === 'ArrowDown') {
     e.preventDefault();
     moveSelection(1);
   } else if (e.key === 'ArrowUp') {

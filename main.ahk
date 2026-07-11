@@ -53,8 +53,10 @@ onceADay()
 #Include ".\chord-examples.ahk"
 #Include ".\menu.ahk"
 #Include ".\menu-webview.ahk"
+#Include ".\command-palette.ahk"
 
 InitMenusWhichKey()
+CommandPaletteInit(1)
 InitVSCodeControllerChords()
 InitMouseGestures()
 CalendarStartReminderTimer()

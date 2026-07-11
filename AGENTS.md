@@ -54,9 +54,17 @@ Referencia profunda preservada del AGENTS anterior: `docs/reference/agent-guide-
 
 - El orden de `#Include` es orden de ejecucion; top-level code corre al cargar.
 - Evitar llamadas top-level nuevas salvo que el orden este verificado.
+- Los identificadores no distinguen mayusculas: no nombrar una variable como una funcion nativa (`coordMode := CoordMode(...)` rompe la llamada).
+- `JsonDump` serializa `Map` y `Array`, no object literals; mantener closures fuera del payload JSON.
 - Pasar funciones como objetos (`Func("Name")`, closures o `.Bind(...)`), no como identificadores ambiguos.
 - No dejar hotkeys/timers/hooks temporales activos despues de un flujo modal.
 - No ejecutar `AutoHotkey64.exe /ErrorStdOut main.ahk` automaticamente: puede quedar residente. Preferir probe aislado o pedir permiso.
+
+## Protocolo de validacion AutoHotkey
+
+- Para cualquier cambio AHK, leer y seguir `docs/topics/autohotkey-validation.md`.
+- Ejecutar probes solo con `scripts/run-ahk-probe.ps1`; nunca usar `main.ahk` como test ni confiar en el exit code directo del exe GUI.
+- Validar por capas: carga -> logica/JSON -> WebView/JS -> hot reload -> proceso/log -> smoke fisico. No reiniciar `main.ahk`.
 
 ## Agentic OS local
 
@@ -80,4 +88,4 @@ powershell -ExecutionPolicy Bypass -File scripts/toggle-skills-link.ps1 status
 git diff --check
 ```
 
-Para cambios de runtime AHK, agregar una verificacion especifica del modulo afectado y evitar arrancar la automatizacion completa sin permiso.
+Para cambios de runtime AHK, seguir el protocolo anterior y agregar una verificacion especifica del modulo afectado; evitar arrancar la automatizacion completa sin permiso.

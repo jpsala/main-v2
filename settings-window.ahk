@@ -313,6 +313,7 @@ SendInitialData() {
     logVisibility := IniRead("config.ini", "variables", "logVisibility", "0")
     cursorKeys := IniRead("config.ini", "variables", "cursorKeysEnabled", "1")
     terminalShiftVPaste := IniRead("config.ini", "variables", "terminalShiftVPasteEnabled", "0")
+    persistentMenus := IniRead("config.ini", "variables", "persistentMenusEnabled", "0")
     
     ; Convert to explicit true/false strings for JSON
     general := Map(
@@ -320,6 +321,7 @@ SendInitialData() {
         "loggingEnabled", (logVisibility = "1" ? "true" : "false"),
         "cursorKeysEnabled", (cursorKeys = "1" ? "true" : "false"),
         "terminalShiftVPasteEnabled", (terminalShiftVPaste = "1" ? "true" : "false"),
+        "persistentMenusEnabled", (persistentMenus = "1" ? "true" : "false"),
         "autostart", (IsAutostartEnabled() ? "true" : "false")
     )
     
@@ -543,6 +545,12 @@ HandleSettingUpdate(data) {
             IniWrite(iniValue, "config.ini", "variables", "terminalShiftVPasteEnabled")
             terminalShiftVPasteEnabled := iniValue
             SettingsDebugLog("Wrote terminalShiftVPasteEnabled=" . iniValue . ", updated global variable")
+
+        case "persistentMenusEnabled":
+            iniValue := value ? "1" : "0"
+            IniWrite(iniValue, "config.ini", "variables", "persistentMenusEnabled")
+            MenuWhichKeyRefreshMainMenus()
+            SettingsDebugLog("Wrote persistentMenusEnabled=" . iniValue . ", refreshed main menus")
 
         case "autostart":
             if (value) {

@@ -2,7 +2,7 @@
 
 Estado vivo corto del repo. Mantener liviano.
 
-Ultima actualizacion: 2026-07-09.
+Ultima actualizacion: 2026-07-11.
 
 ## Lectura rapida
 
@@ -21,6 +21,9 @@ Ultima actualizacion: 2026-07-09.
 - 2026-06-30: `AGENTS.md` se compacto; la version larga previa quedo en `docs/reference/agent-guide-before-aos-2026-06-30.md`.
 - 2026-06-30: se agregaron scripts de contexto, topics, tracks, skills AOS y adapter Pi local.
 - 2026-07-09: AOS local alineado con routing actual: `advisor` solo para decisiones fuertes/loops largos, fleet updates desde `C:/dev/os` con `pi_long_task`, y `.agents/skills` como junction estable.
+- 2026-07-11: `Win+A/W/C` soportan modo persistente; `Esc` y click exterior cierran, sin timeout. El Settings aplica el toggle en vivo; `settings-window.ahk` y `ui/settings.html` ya participan del hot reload.
+- 2026-07-11: Experimento activo: `Win+A` abre la palette WebView con filtro reiniciado, navegación y selección ordinal `1–9/0`; `Win+W/C` siguen en which-key.
+- 2026-07-11: `Win+Alt+E` (`#!e`) abre una command palette estilo PowerToys con acciones de `Win+A/W/C`, fuzzy search, metadata y dispatch por closures. `CommandPaletteInit(levelsPerPage := 0, groupsFirst := false)` conserva la lista plana; valores `1+` aplanan esa cantidad de niveles por página y habilitan drill-down y back. `groupsFirst=false` ordena acciones antes que submenús y `true` los invierte. La búsqueda respeta la página visible: para buscar más profundo hay que abrir el submenú. CopyQ, historial y favoritos quedan fuera de V1. Los probes AHK pasan por `scripts/run-ahk-probe.ps1`, que captura runtime errors sin diálogos, espera el proceso, aplica timeout y valida el exit code real.
 
 ## Riesgos
 
@@ -33,7 +36,7 @@ Ultima actualizacion: 2026-07-09.
 
 1. Revisar si `docs/constelaciones-smoke-2026-06-18.md` debe quedarse en este repo, moverse a referencia externa o archivarse.
 2. Decidir si los analisis raiz (`ANALISIS-PROYECTO.md`, `ARCHIVOS-PARA-LIMPIAR.md`, `PORTABILIDAD-PATHS.md`, etc.) deben migrar progresivamente a `docs/reference/`.
-3. Agregar tests/probes AHK por modulo cuando aparezca una tarea de runtime concreta.
+3. Evaluar la experiencia de `Win+A` WebView frente a which-key antes de extenderla.
 
 ## Comandos utiles
 
@@ -42,6 +45,7 @@ bun run context:index
 bun run context:audit
 bun run context:refresh
 powershell -ExecutionPolicy Bypass -File scripts/toggle-skills-link.ps1 status
+powershell -ExecutionPolicy Bypass -File scripts/run-ahk-probe.ps1 -Script tests/command-palette-probe.ahk
 ```
 
 - Continuidad Pi 2026-07-04: JP guarda primero con `/aos-guardar-sesion`; luego `/aos-continuar [objetivo]` es el unico comando para abrir sesion nueva con prompt de continuidad desde docs vivos. `--preview` permite revisar antes de enviar.

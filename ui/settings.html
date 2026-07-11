@@ -459,6 +459,13 @@
 
         <div class="setting-item">
           <div class="setting-label">
+            <div class="setting-name">Menús persistentes</div>
+            <div class="setting-desc">Win+A, Win+W y Win+C se muestran al instante y solo se cierran con Esc o un click fuera.</div>
+          </div>
+          <div class="toggle" id="toggle-persistent-menus" onclick="toggleSetting('persistentMenusEnabled')"></div>
+        </div>
+        <div class="setting-item">
+          <div class="setting-label">
             <div class="setting-name">Iniciar con Windows</div>
             <div class="setting-desc">La aplicación se abrirá automáticamente cuando enciendas tu computadora</div>
           </div>
@@ -783,6 +790,7 @@ function renderGeneralSettings(settings) {
   updateToggle('toggle-logging', settings.loggingEnabled === true || settings.loggingEnabled === 'true');
   updateToggle('toggle-cursor-keys', settings.cursorKeysEnabled === true || settings.cursorKeysEnabled === 'true');
   updateToggle('toggle-terminal-shift-v-paste', settings.terminalShiftVPasteEnabled === true || settings.terminalShiftVPasteEnabled === 'true');
+  updateToggle('toggle-persistent-menus', settings.persistentMenusEnabled === true || settings.persistentMenusEnabled === 'true');
   updateToggle('toggle-autostart', settings.autostart === true || settings.autostart === 'true');
 }
 
@@ -824,6 +832,7 @@ function toggleSetting(key) {
     'loggingEnabled': 'toggle-logging',
     'cursorKeysEnabled': 'toggle-cursor-keys',
     'terminalShiftVPasteEnabled': 'toggle-terminal-shift-v-paste',
+    'persistentMenusEnabled': 'toggle-persistent-menus',
     'autostart': 'toggle-autostart'
   };
   
@@ -853,6 +862,7 @@ function updateSettingUI(key, value) {
     'loggingEnabled': 'toggle-logging',
     'cursorKeysEnabled': 'toggle-cursor-keys',
     'terminalShiftVPasteEnabled': 'toggle-terminal-shift-v-paste',
+    'persistentMenusEnabled': 'toggle-persistent-menus',
     'autostart': 'toggle-autostart'
   };
   

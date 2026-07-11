@@ -221,6 +221,14 @@ ChordGetVisibleHintMs(prefixHotkey := "") {
     return ChordGetTimeoutMs(prefixHotkey)
 }
 
+ChordIsPersistent(prefixHotkey) {
+    global CHORD_PREFIX_SETTINGS
+    if !CHORD_PREFIX_SETTINGS.Has(prefixHotkey)
+        return false
+    settings := CHORD_PREFIX_SETTINGS[prefixHotkey]
+    return settings.HasOwnProp("persistent") && settings.persistent
+}
+
 ChordGetTotalPendingMs(prefixHotkey := "") {
     return ChordGetHintDelayMs(prefixHotkey) + ChordGetVisibleHintMs(prefixHotkey)
 }
@@ -295,6 +303,8 @@ ChordNormalizeRegisterOptions(registerOptions?) {
         settings.hintDelay := registerOptions.hintDelay
     if (registerOptions.HasOwnProp("timeout"))
         settings.timeout := registerOptions.timeout
+    if (registerOptions.HasOwnProp("persistent"))
+        settings.persistent := registerOptions.persistent
     if (registerOptions.HasOwnProp("prefixLabel"))
         settings.prefixLabel := registerOptions.prefixLabel
     if (registerOptions.HasOwnProp("holdOpenKeys"))
@@ -667,7 +677,7 @@ ChordNormalizeCapturedInput(ih) {
     inputText := ih.Input
     endKey := StrLower(ih.EndKey)
 
-    if (inputText = "␛" || endKey = "escape" || endKey = "esc")
+    if (inputText = "␛" || inputText = Chr(27) || endKey = "escape" || endKey = "esc")
         return "esc"
     if (inputText = A_Space || endKey = "space")
         return "space"
@@ -705,12 +715,14 @@ ChordNormalizeCapturedInput(ih) {
 ChordCaptureInput(timeoutMs) {
     global CHORD_ACTIVE_IH, CHORD_MOUSE_RESULT
 
-    if (timeoutMs <= 0)
+    if (timeoutMs = 0)
         return ""
 
     CHORD_MOUSE_RESULT := ""
-    secs := timeoutMs / 1000
-    ih := InputHook("L1 M T" . secs)
+    options := "L1 M"
+    if (timeoutMs > 0)
+        options .= " T" . (timeoutMs / 1000)
+    ih := InputHook(options)
     CHORD_ACTIVE_IH := ih
     ChordMouseHookInstall()
     ih.Start()
@@ -728,6 +740,14 @@ ChordWaitForStep(prefixHotkey, items, path, hintDelayMs := 0, visibleHintMs := "
     if (visibleHintMs = "")
         visibleHintMs := ChordGetVisibleHintMs(prefixHotkey)
     ChordDebug("waiting for step: " . prefixHotkey . " path=" . ChordJoin(path, ">") . " hintDelayMs=" . hintDelayMs . " visibleHintMs=" . visibleHintMs)
+
+    if (ChordIsPersistent(prefixHotkey)) {
+        ChordSetPendingState(prefixHotkey, items, path, 0)
+        ChordShowHint(prefixHotkey, items, path)
+        key := ChordCaptureInput(-1)
+        ChordDebug("persistent captured key: " . (key != "" ? key : "<none>"))
+        return { key: key, hintShown: true }
+    }
 
     if (hintDelayMs > 0) {
         ChordSetPendingState(prefixHotkey, items, path, hintDelayMs, hintDelayMs)
@@ -750,7 +770,7 @@ ChordWaitForStep(prefixHotkey, items, path, hintDelayMs := 0, visibleHintMs := "
         ChordDebug("hold-open key: " . key)
         ChordSetPendingState(prefixHotkey, items, path, 0, hintDelayMs)
         ChordShowHint(prefixHotkey, items, path, true)
-        key := ChordCaptureInput(2147483647)
+        key := ChordCaptureInput(-1)
     }
     ChordDebug("captured key: " . (key != "" ? key : "<none>"))
     return { key: key, hintShown: true }
@@ -776,8 +796,8 @@ ChordRunPendingSession(prefixHotkey, rootItems) {
         }
 
         if (key = "esc") {
-            if (currentPath.Length = 0) {
-                ChordDebug("session cancelled at root: " . prefixHotkey)
+            if (ChordIsPersistent(prefixHotkey) || currentPath.Length = 0) {
+                ChordDebug("session cancelled: " . prefixHotkey)
                 ChordClearPending()
                 return
             }
@@ -1168,7 +1188,7 @@ ChordShowHint(prefixHotkey, items, path, holdOpenActive := false) {
     columnGap := 14
     rowHeight := 30
     headerHeight := 22
-    footerHeight := ChordGetHoldOpenKeyLabel(prefixHotkey) != "" ? 22 : 0
+    footerHeight := !ChordIsPersistent(prefixHotkey) && ChordGetHoldOpenKeyLabel(prefixHotkey) != "" ? 22 : 0
     paddingY := 26 + footerHeight
     bottomMargin := 60
     topMargin := 32
@@ -1180,7 +1200,7 @@ ChordShowHint(prefixHotkey, items, path, holdOpenActive := false) {
     width := (columnWidth * columns) + (columnGap * Max(0, columns - 1))
     height := paddingY + headerHeight + rowsHeight
     prefixText := ChordBuildHintPrefixText(prefixHotkey, path)
-    holdOpenKey := ChordGetHoldOpenKeyLabel(prefixHotkey)
+    holdOpenKey := ChordIsPersistent(prefixHotkey) ? "" : ChordGetHoldOpenKeyLabel(prefixHotkey)
     hintJson := ChordHintBuildJSON(prefixText, rows, columns, rowsHeight, holdOpenKey, holdOpenActive)
 
     cm := CoordMode("Mouse", "Screen")

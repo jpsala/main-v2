@@ -2,12 +2,13 @@
 
 Generated cache. Do not edit by hand.
 
-Generated: 2026-07-11T03:18:40.550Z
+Generated: 2026-07-11T13:48:51.509Z
 
 ## Topics
 
 - active: [agent-tool-routing](../topics/agent-tool-routing.md) - tool routing, routing decision, combinar tools, elegir herramienta, dgoal, until-done, taskflow, advisor
 - active: [agentic-os-operations](../topics/agentic-os-operations.md) - aos, realinear os, auditar sistema agentico, reparar sistema agentico, actualizar os, adoptar os, contexto agentico
+- active: [autohotkey-validation](../topics/autohotkey-validation.md) - autohotkey, ahk, probe, runtime error, webview
 - active: [automation-workflows](../topics/automation-workflows.md) - menus, roa, run or activate, bookmarks, perfiles, vivaldi, cursor, vscode
 - active: [docs-knowledge-system](../topics/docs-knowledge-system.md) - docs, documentacion, topics, memoria, context index, guardar sesion, tracks
 - reference: [local-codex-skills](../topics/local-codex-skills.md) - skills, codex skills, .agents, slash noise, discovery
@@ -19,6 +20,7 @@ Generated: 2026-07-11T03:18:40.550Z
 
 ## Tracks
 
+- active: [Command Palette (`Win+Alt+E`)](../tracks/command-palette.md)
 - active: [Main OS Alignment](../tracks/main-os-alignment.md)
 
 ## Specs

@@ -14,6 +14,7 @@ Router de conocimiento local. Abrir solo lo necesario.
 | Topic | Cuando usarlo |
 | --- | --- |
 | [`project-architecture`](topics/project-architecture.md) | Include graph, runtime AHK, config, hot reload, estructura general. |
+| [`autohotkey-validation`](topics/autohotkey-validation.md) | Probes AHK sin dialogos, runner bloqueante, WebView/JS y smoke fisico. |
 | [`automation-workflows`](topics/automation-workflows.md) | Menus, ROA, bookmarks, browser profiles, VS Code/Cursor, chords y gestos. |
 | [`agentic-os-operations`](topics/agentic-os-operations.md) | Realinear/adoptar/actualizar/auditar la capa agentica local. |
 | [`docs-knowledge-system`](topics/docs-knowledge-system.md) | Como guardar contexto durable sin convertir docs en transcript. |

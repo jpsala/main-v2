@@ -298,10 +298,14 @@ MenuWebViewBuildJSON(options, parentKeys) {
     
     ; Add items
     json .= '"items":['
-    for index, item in options.items {
-        if (index > 1)
+    itemCount := 0
+    for _, item in options.items {
+        if (item.HasProp("chordHidden") && item.chordHidden)
+            continue
+        if (itemCount > 0)
             json .= ','
         json .= MenuWebViewBuildItemJSON(item)
+        itemCount += 1
     }
     json .= '],'
     
@@ -331,10 +335,14 @@ MenuWebViewBuildItemJSON(item) {
     ; Add subitems if present
     if (item.HasProp("items") && IsObject(item.items) && item.items.Length > 0) {
         json .= ',"items":['
-        for index, subitem in item.items {
-            if (index > 1)
+        itemCount := 0
+        for _, subitem in item.items {
+            if (subitem.HasProp("chordHidden") && subitem.chordHidden)
+                continue
+            if (itemCount > 0)
                 json .= ','
             json .= MenuWebViewBuildItemJSON(subitem)
+            itemCount += 1
         }
         json .= ']'
     }

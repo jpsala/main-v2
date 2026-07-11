@@ -71,6 +71,10 @@ vm.runInContext(`
 
   setPaletteState({ catalog: sample, levelsPerPage: 1, groupsFirst: false });
   assert(filtered.map(command => command.id).join(',') === 'Apps:1,Web:6,Apps:2', 'actions-first ordering');
+  setPaletteState({ catalog: sample, frecency: { 'Web:6': 4, 'Apps:2': 9 }, levelsPerPage: 1, groupsFirst: false });
+  assert(filtered.map(command => command.id).join(',') === 'Web:6,Apps:1,Apps:2', 'frecency orders within kind blocks');
+  filterCommands('direct');
+  assert(filtered[0].id === 'Apps:1', 'fuzzy relevance outranks frecency');
   setPaletteState({ catalog: sample, levelsPerPage: 1, groupsFirst: true });
   assert(filtered.map(command => command.id).join(',') === 'Apps:2,Apps:1,Web:6', 'groups-first ordering');
   setPaletteState({ catalog: sample, levelsPerPage: 1, groupsFirst: false });

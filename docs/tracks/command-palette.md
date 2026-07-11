@@ -4,19 +4,19 @@ updated: 2026-07-11
 priority: high
 ---
 
-# Command Palette (`Win+Alt+E`)
+# Command Palette (`Win+A`)
 
 ## Estado
 
-V1 implementada y verificada: abre con comandos A/W/C, ejecuta una acción real, `Esc` cierra y la reapertura limpia la consulta. `CommandPaletteInit(levelsPerPage := 0, groupsFirst := false)` permite drill-down y orden por tipo sin cambiar el comportamiento plano predeterminado. Quedan fuera de alcance CopyQ, historial y favoritos hasta evaluar uso real.
+V1 implementada y verificada: abre con comandos A/W/C, ejecuta una acción real, `Esc` cierra y la reapertura limpia la consulta. `CommandPaletteInit(levelsPerPage := 0, groupsFirst := false)` permite drill-down y orden por tipo. Las acciones y sus grupos padres aprenden orden por frecency local con una vida media de 14 días; la búsqueda conserva fuzzy como criterio principal.
 
 ## Objetivo
 
-Agregar una command palette personal, inspirada en PowerToys Command Palette, que busque y ejecute las acciones existentes de `Win+A`, `Win+W` y `Win+C` sin modificar esos menús durante la evaluación.
+Agregar una command palette personal, inspirada en PowerToys Command Palette, que busque y ejecute las acciones existentes de los menús A/W/C. La palette reemplaza temporalmente sus hotkeys directos durante la evaluación.
 
 ## Alcance V1
 
-- Registrar exclusivamente `#!e` (`Win+Alt+E`).
+- Registrar exclusivamente `#a` (`Win+A`).
 - Catalogar grupos y acciones de `GetMainSeqAOptions()`, `GetMainSeqWOptions()` y `GetMainSeqCOptions()`; con `levelsPerPage=0` mostrar las acciones finales planas como antes.
 - Excluir `chordHidden`, CopyQ, bookmarks y chords contextuales de VS Code.
 - Búsqueda local por nombre, categoría, breadcrumb, atajo, `doc` y `command`.
@@ -28,8 +28,8 @@ Agregar una command palette personal, inspirada en PowerToys Command Palette, qu
 
 ## No objetivos
 
-- No reemplazar `Win+A/W/C` ni el experimento WebView actual.
-- No historial, favoritos, plugins, comandos arbitrarios, CopyQ ni acciones de VS Code.
+- No eliminar las definiciones de los menús A/W/C; solo desactivar sus registros directos mientras la palette usa `Win+A`.
+- No historial visible, favoritos, plugins, comandos arbitrarios, CopyQ ni acciones de VS Code.
 - No instalar dependencias ni copiar el código de PowerToys.
 - No commit/push ni tocar `config.ini`.
 
@@ -39,6 +39,7 @@ Agregar una command palette personal, inspirada en PowerToys Command Palette, qu
 | --- | --- |
 | `command-palette-catalog.ahk` | Flattening puro, datos serializables y dispatch por closure. |
 | `command-palette.ahk` | Hotkey y ciclo WebView con errores contenidos. |
+| `command-palette-frecency.ahk` | Ranking local persistente con decaimiento exponencial de 14 días. |
 | `ui/command-palette.html` | UI estilo PowerToys: búsqueda, lista, metadata, atajos y estados. |
 | `main.ahk` | Include e inicialización explícita. |
 | `init.ahk` | Hot reload de AHK, catálogo y HTML. |
@@ -85,7 +86,7 @@ Las closures de acciones se guardan por separado en `Map(id → action)`; los gr
 
 1. **Catálogo y hotkey**
    - Implementar flattening de A/W/C, exclusión de ocultos y Map de dispatch.
-   - Registrar `#!e` sin tocar los otros hotkeys.
+   - Registrar `#a` y comentar los registros directos `#a/#w/#c`.
    - Probe AHK para rutas, IDs, ocultos y ejecución de una closure de prueba.
 
 2. **UI base**
@@ -97,19 +98,20 @@ Las closures de acciones se guardan por separado en `Map(id → action)`; los gr
    - Validar consultas exactas, prefijos, acentos y subsecuencias.
 
 4. **Smoke final**
-   - Verificar `#!e`, una búsqueda y acción inocua por cada fuente, Escape/click exterior, reapertura limpia y que `Win+A/W/C` sigan intactos.
+   - Verificar `#a`, una búsqueda y acción inocua por cada fuente, Escape/click exterior y reapertura limpia.
    - Ejecutar probe, parseo JS, `git diff --check` y revisión visual contra PowerToys instalado.
 
 ## Riesgos y rollback
 
 - El worktree ya está sucio: limitar el diff a estas superficies y no revertir cambios previos.
-- Si la palette degrada el escritorio, borrar el registro `#!e` y el include nuevo restaura el comportamiento anterior.
+- Si la palette degrada el escritorio, restaurar los registros `#a/#w/#c` y quitar el registro `#a` de la palette.
 - Mantener acciones en closures locales evita ejecutar comandos arbitrarios desde el input.
 
 ## Validación
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/run-ahk-probe.ps1 -Script tests/command-palette-probe.ahk
+powershell -ExecutionPolicy Bypass -File scripts/run-ahk-probe.ps1 -Script tests/command-palette-frecency-probe.ahk
 powershell -ExecutionPolicy Bypass -File scripts/run-ahk-probe.ps1 -Script tests/command-palette-load-probe.ahk
 powershell -ExecutionPolicy Bypass -File scripts/run-ahk-probe.ps1 -Script tests/command-palette-webview-probe.ahk
 node tests/command-palette-ui-probe.cjs

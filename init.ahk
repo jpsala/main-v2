@@ -113,6 +113,7 @@ if (!A_IsCompiled) {
     {path: './menu-webview.ahk', lastModVar: FileGetTime('./menu-webview.ahk', "M")},
     {path: './command-palette.ahk', lastModVar: FileGetTime('./command-palette.ahk', "M")},
     {path: './command-palette-catalog.ahk', lastModVar: FileGetTime('./command-palette-catalog.ahk', "M")},
+    {path: './command-palette-frecency.ahk', lastModVar: FileGetTime('./command-palette-frecency.ahk', "M")},
     {path: './tray-menu.ahk', lastModVar: FileGetTime('./tray-menu.ahk', "M")},
   ]
 }

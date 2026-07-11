@@ -2,6 +2,7 @@
 
 #Include ".\lib\WebViewToo.ahk"
 #Include ".\command-palette-catalog.ahk"
+#Include ".\command-palette-frecency.ahk"
 
 global COMMAND_PALETTE_GUI := false
 global COMMAND_PALETTE_READY := false
@@ -17,7 +18,8 @@ CommandPaletteInit(levelsPerPage := 0, groupsFirst := false) {
     COMMAND_PALETTE_LEVELS_PER_PAGE := Max(0, levelsPerPage)
     COMMAND_PALETTE_GROUPS_FIRST := groupsFirst
     CommandPaletteBuildCatalog()
-    Hotkey("$#!e", CommandPaletteOpen)
+    CommandPaletteFrecencyInit()
+    Hotkey("$#a", CommandPaletteOpen)
     SetTimer(CommandPalettePrewarm, -700)
 }
 
@@ -83,7 +85,7 @@ CommandPaletteOpenCore() {
     COMMAND_PALETTE_GUI.Show("x" . x . " y" . y . " w" . width . " h" . height)
     WinActivate("ahk_id " . COMMAND_PALETTE_GUI.Hwnd)
     COMMAND_PALETTE_GUI.Control.MoveFocus(0)
-    stateJson := JsonDump(Map("catalog", COMMAND_PALETTE_CATALOG, "levelsPerPage", COMMAND_PALETTE_LEVELS_PER_PAGE, "groupsFirst", COMMAND_PALETTE_GROUPS_FIRST))
+    stateJson := JsonDump(Map("catalog", COMMAND_PALETTE_CATALOG, "frecency", CommandPaletteFrecencyGetSnapshot(), "levelsPerPage", COMMAND_PALETTE_LEVELS_PER_PAGE, "groupsFirst", COMMAND_PALETTE_GROUPS_FIRST))
     COMMAND_PALETTE_GUI.Control.ExecuteScript("window.setPaletteState(" . stateJson . ");")
     CommandPaletteMouseHookInstall()
 
@@ -92,8 +94,10 @@ CommandPaletteOpenCore() {
 
     result := COMMAND_PALETTE_RESULT
     CommandPaletteClose()
-    if (result != "" && COMMAND_PALETTE_ACTIONS.Has(result))
+    if (result != "" && COMMAND_PALETTE_ACTIONS.Has(result)) {
+        CommandPaletteFrecencyRecordUse(result)
         SetTimer(COMMAND_PALETTE_ACTIONS[result], -1)
+    }
 }
 
 CommandPaletteGetWorkArea(&left, &top, &right, &bottom) {

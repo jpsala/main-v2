@@ -45,9 +45,9 @@ InitMenusWhichKey() {
 }
 
 MenuWhichKeyRefreshMainMenus() {
-    MenuWebViewRegisterWithActions("#a", GetMainSeqAOptions())
-    MenuWhichKeyRegisterWithActions("#w", GetMainSeqWOptions())
-    MenuWhichKeyRegisterWithActions("#c", GetMainSeqCOptions())
+    ; MenuWebViewRegisterWithActions("#a", GetMainSeqAOptions())
+    ; MenuWhichKeyRegisterWithActions("#w", GetMainSeqWOptions())
+    ; MenuWhichKeyRegisterWithActions("#c", GetMainSeqCOptions())
 }
 
 MenuWhichKeyRegisterWithActions(prefixHotkey, options) {

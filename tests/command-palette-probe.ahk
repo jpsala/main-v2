@@ -18,7 +18,7 @@ try {
 }
 
 CommandPaletteProbeRun() {
-    global COMMAND_PALETTE_ACTIONS, COMMAND_PALETTE_CATALOG, COMMAND_PALETTE_PROBE_ACTION
+    global COMMAND_PALETTE_ACTIONS, COMMAND_PALETTE_BY_ID, COMMAND_PALETTE_CATALOG, COMMAND_PALETTE_PROBE_ACTION
 
     COMMAND_PALETTE_PROBE_ACTION := ""
     items := [
@@ -34,14 +34,15 @@ CommandPaletteProbeRun() {
 
     COMMAND_PALETTE_CATALOG := []
     COMMAND_PALETTE_ACTIONS := Map()
-    nextId := 1
-    CommandPaletteFlattenItems({ source: "Apps", shortcut: "Win+A" }, items, [], [], "", 1, &nextId)
+    COMMAND_PALETTE_BY_ID := Map()
+    CommandPaletteFlattenItems({ source: "Apps", shortcut: "Win+A" }, items, [], [], [], "", 1)
 
     CommandPaletteProbeAssert(COMMAND_PALETTE_CATALOG.Length = 3, "hidden subtree exclusion")
     directAction := COMMAND_PALETTE_CATALOG[1]
     group := COMMAND_PALETTE_CATALOG[2]
     nestedAction := COMMAND_PALETTE_CATALOG[3]
     CommandPaletteProbeAssert(directAction["kind"] = "action" && directAction["depth"] = 1 && directAction["parentId"] = "", "direct action hierarchy")
+    CommandPaletteProbeAssert(directAction["id"] = "Apps:a" && group["id"] = "Apps:g" && nestedAction["id"] = "Apps:g.p3", "stable structural ids")
     CommandPaletteProbeAssert(group["kind"] = "group" && group["depth"] = 1 && group["parentId"] = "", "group hierarchy")
     CommandPaletteProbeAssert(nestedAction["kind"] = "action" && nestedAction["depth"] = 2 && nestedAction["parentId"] = group["id"], "nested action hierarchy")
     CommandPaletteProbeAssert(InStr(nestedAction["shortcut"], "P 3"), "chordPath shortcut")
@@ -50,6 +51,19 @@ CommandPaletteProbeRun() {
 
     COMMAND_PALETTE_ACTIONS[nestedAction["id"]].Call()
     CommandPaletteProbeAssert(COMMAND_PALETTE_PROBE_ACTION = "nested", "closure dispatch")
+
+    COMMAND_PALETTE_CATALOG := []
+    COMMAND_PALETTE_ACTIONS := Map()
+    COMMAND_PALETTE_BY_ID := Map()
+    changedItems := [
+        { key: "before", label: "Inserted", action: CommandPaletteProbeAction.Bind("inserted") },
+        { key: "a", label: "Renamed", action: CommandPaletteProbeAction.Bind("visible") },
+        { key: "g", label: "Renamed group", items: [
+            { key: "p3", chordPath: ["different"], label: "Renamed nested", action: CommandPaletteProbeAction.Bind("nested") }
+        ] }
+    ]
+    CommandPaletteFlattenItems({ source: "Apps", shortcut: "Win+A" }, changedItems, [], [], [], "", 1)
+    CommandPaletteProbeAssert(COMMAND_PALETTE_BY_ID.Has("Apps:a") && COMMAND_PALETTE_BY_ID.Has("Apps:g.p3"), "ids survive insertion and metadata changes")
 
     CommandPaletteBuildCatalog()
     CommandPaletteProbeAssert(COMMAND_PALETTE_CATALOG.Length > 0, "real menu catalog")
@@ -86,9 +100,9 @@ CommandPaletteProbeRun() {
     catalogCopy := JsonLoad(&catalogJson)
     CommandPaletteProbeAssert(catalogCopy.Length = COMMAND_PALETTE_CATALOG.Length, "catalog JSON round-trip")
 
-    executeJson := '{"action":"execute","id":"Apps:1"}'
+    executeJson := '{"action":"execute","id":"Apps:b"}'
     executePayload := JsonLoad(&executeJson)
-    CommandPaletteProbeAssert(executePayload["action"] = "execute" && executePayload["id"] = "Apps:1", "execute payload")
+    CommandPaletteProbeAssert(executePayload["action"] = "execute" && executePayload["id"] = "Apps:b", "execute payload")
     cancelJson := '{"action":"cancel"}'
     cancelPayload := JsonLoad(&cancelJson)
     CommandPaletteProbeAssert(cancelPayload["action"] = "cancel", "cancel payload")

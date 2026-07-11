@@ -54,6 +54,7 @@ let filtered = [];
 let activeIndex = 0;
 let levelsPerPage = 0;
 let groupsFirst = false;
+let frecency = {};
 let currentGroupId = null;
 
 function fold(value) {
@@ -112,10 +113,15 @@ function kindPriority(command) {
   return groupsFirst ? 1 : 0;
 }
 
+function frecencyScore(command) {
+  const score = Number(frecency[command.id]);
+  return Number.isFinite(score) && score > 0 ? score : 0;
+}
+
 function orderByKind(commands) {
   return commands
     .map((command, order) => ({ command, order }))
-    .sort((a, b) => kindPriority(a.command) - kindPriority(b.command) || a.order - b.order)
+    .sort((a, b) => kindPriority(a.command) - kindPriority(b.command) || frecencyScore(b.command) - frecencyScore(a.command) || a.order - b.order)
     .map(item => item.command);
 }
 
@@ -134,11 +140,11 @@ function visiblePageItems() {
 function pageItems(query) {
   const normalized = fold(query.trim());
   const visible = visiblePageItems();
-  if (!normalized) return visible;
+  if (!normalized) return orderByKind(visible);
   return visible
     .map((command, order) => ({ command, order, score: scoreCommand(normalized, command) }))
     .filter(item => item.score > 0)
-    .sort((a, b) => kindPriority(a.command) - kindPriority(b.command) || b.score - a.score || a.order - b.order)
+    .sort((a, b) => kindPriority(a.command) - kindPriority(b.command) || b.score - a.score || frecencyScore(b.command) - frecencyScore(a.command) || a.order - b.order)
     .map(item => item.command);
 }
 
@@ -259,6 +265,7 @@ function setPaletteState(state) {
   catalog = Array.isArray(state?.catalog) ? state.catalog : [];
   levelsPerPage = Math.max(0, Number(state?.levelsPerPage) || 0);
   groupsFirst = Boolean(state?.groupsFirst);
+  frecency = state?.frecency && typeof state.frecency === 'object' ? state.frecency : {};
   document.querySelector('#source-count').textContent = `${catalog.filter(command => command.kind === 'action').length} commands`;
   focusPalette();
 }

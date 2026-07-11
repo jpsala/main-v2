@@ -206,7 +206,7 @@ GetMainSeqAOptions() {
     return {
         showDelaySeconds: 2,
         items: [
-            { key: "a", label: "Audio devices", action: () => ShowAudioDeviceSwitcher() },
+            ; { key: "a", label: "Audio devices", action: () => ShowAudioDeviceSwitcher() },
             { key: "b", label: "Show Bookmarks", action: () => showBookmarks() },
             { key: "c", label: "SpeedCrunch", action: () => OpenResolvedApp("SpeedCrunch", "SpeedCrunch", ["C:\tools\speedcrunch\speedcrunch.exe", A_ProgramFiles . "\SpeedCrunch\speedcrunch.exe", A_ProgramFiles . " (x86)\SpeedCrunch\speedcrunch.exe"]) },
             { key: "C", label: "LibreOffice Calc", action: () => OpenResolvedApp("libreoffice-calc", "LibreOffice Calc", [A_ProgramFiles . "\LibreOffice\program\scalc.exe", A_ProgramFiles . " (x86)\LibreOffice\program\scalc.exe"]) },
@@ -277,9 +277,9 @@ GetMainSeqAOptions() {
                 { key: "c", label: "Show current", action: () => DisplayResolutionShowCurrent() },
             ] },
             { key: "s", label: "Spotify", action: () => Roa("spotify", "spotify.exe") },
-            { key: "S", label: "ShareX screenshots", action: () => OpenFolderInExplorer("sharex-folder", [EnvGet("USERPROFILE") . "\Pictures\ShareX", EnvGet("USERPROFILE") . "\Pictures\sharex", EnvGet("USERPROFILE") . "\Pictures"]) },
-            { key: "v", label: "Web Clipboard Sender", action: () => OpenWebClipboardSender() },
-            { key: "w", label: "Restart Wispr Flow", action: () => RestartWisprFlow() },
+            ; { key: "S", label: "ShareX screenshots", action: () => OpenFolderInExplorer("sharex-folder", [EnvGet("USERPROFILE") . "\Pictures\ShareX", EnvGet("USERPROFILE") . "\Pictures\sharex", EnvGet("USERPROFILE") . "\Pictures"]) },
+            ; { key: "v", label: "Web Clipboard Sender", action: () => OpenWebClipboardSender() },
+            ; { key: "w", label: "Restart Wispr Flow", action: () => RestartWisprFlow() },
             { key: "z", label: "WezTerm themes", idleTimeoutSeconds: 5, items: [
                 { key: "p", label: "Popular dark", items: [
                     { key: "t", label: "Tokyo Night", action: () => OpenWezTermTheme("Tokyo Night", "tokyo-night.lua", "Tokyo Night") },
@@ -346,9 +346,9 @@ GetMainSeqAOptions() {
                 { key: "p3", label: "Phone 700px", chordPath: ["p", "3"], chordPathLabel: "Phone", action: () => RunScrcpyPhone(700) },
                 { key: "p4", label: "Phone 900px", chordPath: ["p", "4"], chordPathLabel: "Phone", action: () => RunScrcpyPhone(900) },
             ] },
-            { key: "i", label: "Clipboard Agent (AI)", action: () => RunClipboardAgent() },
-            { key: "x", label: "XYplorer", action: () => Roa("xyplorer", xyplorerExe) },
-            { key: "y", label: "Window Spy", action: () => OpenWindowSpy() },
+            ; { key: "i", label: "Clipboard Agent (AI)", action: () => RunClipboardAgent() },
+            ; { key: "x", label: "XYplorer", action: () => Roa("xyplorer", xyplorerExe) },
+            ; { key: "y", label: "Window Spy", action: () => OpenWindowSpy() },
         ]
     }
 }
@@ -362,10 +362,10 @@ GetMainSeqWOptions() {
         showDelaySeconds: 1,
         items: [
             ; { key: "$", label: "USD" },
-            { key: "a", label: "AI", action: () => OpenRepoInEditor("ai-project", "AI", cursorExe, "ai") },
+            ; { key: "a", label: "AI", action: () => OpenRepoInEditor("ai-project", "AI", cursorExe, "ai") },
             ; { key: "A", label: "Amaia", action: () => OpenRepoInEditor("amaia-project", "Amaia", cursorExe, "amaia") },
             ; { key: "b", label: "Browser Books", action: () => Roa("vivaldi-books", vivaldiWithBooksProfile, "#b") },
-            { key: "c", label: "Browser Carnival", action: () => OpenBrowserProfile("chrome-carnival", vivaldiWithCarnivalProfile) },
+            ; { key: "c", label: "Browser Carnival", action: () => OpenBrowserProfile("chrome-carnival", vivaldiWithCarnivalProfile) },
             { key: "C", label: "Constelaciones", idleTimeoutSeconds: 3, items: [
                 { key: "d", label: "Dev server: bun run dev", doc: "Runs the local full-stack dev server from C:\dev\chat\constelaciones in a visible terminal.", command: "bun run dev", action: () => RunConstelacionesWebDev() },
                 { key: "p", label: "Publish controlled URL: dev + tunnel", doc: "Starts the local dev server and the Cloudflare tunnel for https://turnos.jpsala.dev in separate terminal tabs.", command: "bun run dev; cloudflared tunnel run paperclip-jpsala-dev", action: () => RunConstelacionesPublishControlled() },
@@ -432,7 +432,7 @@ GetMainSeqWOptions() {
             ; { key: "#w", label: "Work (Alt)", chordHidden: true },
             ; { key: "#d", label: "chrome-debug (Alt)", chordHidden: true },
             { key: "v", label: "Youtube", action: () => OpenBrowserProfile("vivaldi-youtube", vivaldiWithYoutubeProfile, "#v") },
-            { key: "w", label: "Web Clipboard Sender", action: () => OpenWebClipboardSender() },
+            ; { key: "w", label: "Web Clipboard Sender", action: () => OpenWebClipboardSender() },
             ; { key: "yv", label: "YouTube Video Downloader", chordPath: ["y", "v"], chordPathLabel: "YouTube DL", action: () => DownloadYouTubeVideoFromClipboard() },
             ; { key: "ya", label: "YouTube Audio Downloader", chordPath: ["y", "a"], chordPathLabel: "YouTube DL", action: () => DownloadYouTubeAudioFromClipboard() },
             ; { key: "V", label: "Vivaldi (App)", action: () => Roa("vivaldi", vivaldiExe) },
@@ -466,9 +466,9 @@ GetMainSeqCOptions() {
         showDelaySeconds: 1,
         items: [
             ; { key: "M", label: "Main script with cursor", action: () => OpenRepoInEditor("main-scripts", "Main script with cursor", cursorExe, "scripts\main", "!m") },
-            { key: "a", label: "auto.ahk in vscode", action: () => OpenFileWithCodeCli("auto.ahk in vscode", A_ScriptDir, A_ScriptDir . "\auto.ahk") },
-            { key: "m", label: "Main script with vscode", action: () => OpenRepoInEditor("main-scripts", "Main script with vscode", vscodeExe, "scripts\main", "!m") },
-            { key: "t", label: "Chat", action: () => OpenRepoInEditor("chat", "Chat", vscodeExe, "chat", "#t") },
+            ; { key: "a", label: "auto.ahk in vscode", action: () => OpenFileWithCodeCli("auto.ahk in vscode", A_ScriptDir, A_ScriptDir . "\auto.ahk") },
+            ; { key: "m", label: "Main script with vscode", action: () => OpenRepoInEditor("main-scripts", "Main script with vscode", vscodeExe, "scripts\main", "!m") },
+            ; { key: "t", label: "Chat", action: () => OpenRepoInEditor("chat", "Chat", vscodeExe, "chat", "#t") },
             { key: "C", label: "Code", action: () => RoAWithPattern("ahk_exe Code.exe", vscodeExe, "^!c") },
             { key: "c", label: "Cursor", action: () => Roa("cursor", vscodeExe) },
             { key: "l", label: "Claude Code", action: () => Roa("claude-code", 'wt --size 90,35 -p "Claude" -- claude --dangerously-skip-permissions --chrome --ide ') },

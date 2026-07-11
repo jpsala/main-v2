@@ -16,24 +16,14 @@ en herramientas compatibles.
 
 ## Contenido Actual
 
-- `aos-help/`: mostrar comandos AOS disponibles y cuando usarlos.
-- `aos-sigamos/` y `aos-gol-lite/`: continuar con cortes chicos verificables.
-- `aos-plan-implementar/`: crear/revisar/ejecutar planes acotados eligiendo un
-  solo motor principal.
-- `aos-guardar-sesion/`, `aos-checkpoint/`, `aos-cerrar-sesion/`: guardar valor
-  durable sin transcript.
-- `aos-orquestar/` y `aos-fanout/`: fan-out controlado con taskflow/subagentes.
-- `aos-realinear-os/`, `aos-perfect-os/`, `aos-update-os/`: auditar, optimizar y
-  actualizar la capa agentica local.
-- `aos-evaluar-skills/`: auditar que partes del sistema agentico conviene
-  promover a skills hibridas.
-- `aos-repo-commit-push/`: checklist para incluir cambios necesarios, commitear y
-  pushear cuando JP lo pide.
+- `aos-gol-lite/`: ejecutar el proximo lote chico y verificable sin activar un
+  loop autonomo pesado.
 
-Las herramientas Pi de pensamiento/implementacion (`taskflow`, planner,
-`advisor`, Ponytail, `dgoal`, `until-done`, `pi-lens`) se documentan en
-`docs/topics/pi-extension-stack.md` y `docs/topics/agent-tool-routing.md`, no como
-skills locales separadas.
+Las skills AOS portables removidas de este downstream se consultan en
+`C:/dev/os/docs/skills/`; no duplicarlas localmente. Las herramientas Pi de
+pensamiento/implementacion (`taskflow`, planner, `advisor`, Ponytail, `dgoal`,
+`until-done`, `pi-lens`) se documentan en `docs/topics/pi-extension-stack.md` y
+`docs/topics/agent-tool-routing.md`, no como skills locales separadas.
 
 ## Validacion
 

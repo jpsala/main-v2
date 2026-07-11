@@ -19,7 +19,8 @@ triggers:
   - instalar paquetes
   - instalar cli
 primary_refs:
-  - .pi/prompts/aos-gol.md
+  - .pi/prompts/
+  - .pi/extensions/
   - docs/skills/
   - docs/topics/pi-extension-stack.md
   - docs/topics/agent-tool-routing.md
@@ -29,10 +30,9 @@ primary_refs:
 
 # Pi Agentic OS
 
-Integracion Pi para `main`. La fuente de verdad sigue siendo el repo
-(`AGENTS.md`, `WORKING_MEMORY`, topics, tracks y decisiones); los adapters AOS
-comunes resuelven desde el `AOS_HOME` global y el repo conserva solo su prompt
-Pi especifico.
+Adapter Pi local para `main`. La fuente de verdad sigue siendo el repo
+(`AGENTS.md`, `WORKING_MEMORY`, topics, tracks y decisiones); Pi aporta slash
+commands, prompts, tools y compaction controlada.
 
 ## Web, Internet E Instalaciones
 
@@ -48,16 +48,17 @@ Pi especifico.
   explicita con comando, alcance, motivo, riesgos, alternativas, cambios y
   rollback.
 
-## Comandos Pi
+## Comandos Pi Locales
 
-- Los prompts y extensiones AOS comunes se cargan desde el `AOS_HOME` global.
-- `.pi/prompts/aos-gol.md` es el unico prompt local especifico del proyecto.
-- `docs/skills/` conserva las instrucciones portables locales detras de los comandos.
-- El audit admite adapters locales solo como fallback de compatibilidad, no como estado esperado.
+- `.pi/prompts/aos-*.md`: prompts slash locales.
+- `.pi/extensions/aos-tools.ts`: `/aos-status`, `/aos-sync`, `/aos-skills`,
+  `/aos-compact`, `/aos-continuar`, `/aos-plan-implementar`.
+- `.pi/extensions/aos-checkpoint-nudge.ts`: nudges de checkpoint.
+- `docs/skills/`: instrucciones portables detras de los comandos.
 
 | Comando | Uso |
 | --- | --- |
-| `/aos-help` | Mostrar comandos AOS disponibles. |
+| `/aos-help` | Mostrar comandos AOS locales. |
 | `/aos-guardar-sesion`, `/aos-checkpoint`, `/aos-cerrar` | Persistir valor durable sin transcript. |
 | `/aos-continuar [objetivo]` | Abrir sesion nueva con prompt desde docs vivos despues de guardar. |
 | `/aos-plan-implementar` | Crear/revisar plan y elegir un motor principal. |
@@ -130,7 +131,6 @@ plan aprobado.
 
 ## Portabilidad
 
-`.pi/` queda reservado para adapters especificos del proyecto; los adapters AOS
-comunes vienen del `AOS_HOME` global. Este downstream referencia `C:/dev/os` para
-inventario global, routing/fleet upstream y aprendizajes portables; no copia
-registry, settings globales ni inventarios de JP.
+`.pi/` es adapter opcional. Este downstream referencia `C:/dev/os` para inventario
+global, routing/fleet upstream y aprendizajes portables; no copia registry,
+settings globales ni inventarios de JP.

@@ -38,7 +38,7 @@ Checklist para dejar la capa agentica confiable.
 
 - `docs/skills/` es canon local.
 - `.agents/skills` es junction estable de compatibilidad; si existe debe resolver a `docs/skills`.
-- Los prompts/extensiones AOS comunes deben resolver desde el paquete global `AOS_HOME`; `.pi/prompts/aos-gol.md` debe preservarse como prompt local especifico del proyecto.
+- `.pi` debe tener prompts/extensiones `/aos-*` sincronizados.
 
 ## Seguridad
 
@@ -52,5 +52,6 @@ Checklist para dejar la capa agentica confiable.
 bun run context:index
 bun run context:audit
 powershell -ExecutionPolicy Bypass -File scripts/toggle-skills-link.ps1 status
+bun -e "await import('./.pi/extensions/aos-tools.ts'); console.log('aos-tools import ok')"
 git diff --check
 ```

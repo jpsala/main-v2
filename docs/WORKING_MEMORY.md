@@ -13,7 +13,7 @@ Ultima actualizacion: 2026-07-11.
 | Gestos | active | `docs/features/gestures.md` | Editar condiciones antes que motor salvo cambio de reconocimiento. |
 | OS local | active | `docs/topics/agentic-os-operations.md` | AOS adoptado localmente; mantener docs/context index/audit/skills. |
 | Docs/contexto | active | `docs/topics/docs-knowledge-system.md` | Promover conocimiento durable a topics/docs, no transcript. |
-| Pi adapter | active | `docs/topics/pi-agentic-os.md`, `docs/topics/agent-tool-routing.md` | Adapters AOS comunes desde `AOS_HOME`; `.pi/prompts/aos-gol.md` local, routing y skills link estable. |
+| Pi adapter | active | `docs/topics/pi-agentic-os.md`, `docs/topics/agent-tool-routing.md` | `.pi` con comandos AOS locales, routing y skills link estable. |
 
 ## Decisiones recientes
 
@@ -21,9 +21,8 @@ Ultima actualizacion: 2026-07-11.
 - 2026-06-30: `AGENTS.md` se compacto; la version larga previa quedo en `docs/reference/agent-guide-before-aos-2026-06-30.md`.
 - 2026-06-30: se agregaron scripts de contexto, topics, tracks, skills AOS y adapter Pi local.
 - 2026-07-09: AOS local alineado con routing actual: `advisor` solo para decisiones fuertes/loops largos, fleet updates desde `C:/dev/os` con `pi_long_task`, y `.agents/skills` como junction estable.
-- 2026-07-11: `Win+A/W/C` soportan modo persistente; `Esc` y click exterior cierran, sin timeout. El Settings aplica el toggle en vivo; `settings-window.ahk` y `ui/settings.html` ya participan del hot reload.
-- 2026-07-11: Experimento activo: `Win+A` abre la palette WebView con filtro reiniciado, navegación y selección ordinal `1–9/0`; `Win+W/C` siguen en which-key.
-- 2026-07-11: `Win+Alt+E` (`#!e`) abre una command palette estilo PowerToys con acciones de `Win+A/W/C`, fuzzy search, metadata y dispatch por closures. `CommandPaletteInit(levelsPerPage := 0, groupsFirst := false)` conserva la lista plana; valores `1+` aplanan esa cantidad de niveles por página y habilitan drill-down y back. `groupsFirst=false` ordena acciones antes que submenús y `true` los invierte. La búsqueda respeta la página visible: para buscar más profundo hay que abrir el submenú. CopyQ, historial y favoritos quedan fuera de V1. Los probes AHK pasan por `scripts/run-ahk-probe.ps1`, que captura runtime errors sin diálogos, espera el proceso, aplica timeout y valida el exit code real.
+- 2026-07-11: Los registros directos de los menús `Win+A/W/C` quedaron comentados durante la evaluación de la command palette; sus definiciones y acciones siguen disponibles para el catálogo.
+- 2026-07-11: `Win+A` (`#a`) abre una command palette estilo PowerToys con acciones de los menús A/W/C, fuzzy search, metadata y dispatch por closures. `CommandPaletteInit(levelsPerPage := 0, groupsFirst := false)` conserva la lista plana; valores `1+` aplanan esa cantidad de niveles por página y habilitan drill-down y back. `groupsFirst=false` ordena acciones antes que submenús y `true` los invierte. La búsqueda respeta la página visible: para buscar más profundo hay que abrir el submenú. CopyQ, historial y favoritos quedan fuera de V1. Los probes AHK pasan por `scripts/run-ahk-probe.ps1`, que captura runtime errors sin diálogos, espera el proceso, aplica timeout y valida el exit code real.
 
 ## Riesgos
 
@@ -36,7 +35,7 @@ Ultima actualizacion: 2026-07-11.
 
 1. Revisar si `docs/constelaciones-smoke-2026-06-18.md` debe quedarse en este repo, moverse a referencia externa o archivarse.
 2. Decidir si los analisis raiz (`ANALISIS-PROYECTO.md`, `ARCHIVOS-PARA-LIMPIAR.md`, `PORTABILIDAD-PATHS.md`, etc.) deben migrar progresivamente a `docs/reference/`.
-3. Evaluar la experiencia de `Win+A` WebView frente a which-key antes de extenderla.
+3. Evaluar la command palette en `Win+A` antes de restaurar o reasignar los menús directos A/W/C.
 
 ## Comandos utiles
 
@@ -46,6 +45,7 @@ bun run context:audit
 bun run context:refresh
 powershell -ExecutionPolicy Bypass -File scripts/toggle-skills-link.ps1 status
 powershell -ExecutionPolicy Bypass -File scripts/run-ahk-probe.ps1 -Script tests/command-palette-probe.ahk
+bun -e "await import('./.pi/extensions/aos-tools.ts'); console.log('aos-tools import ok')"
 ```
 
 - Continuidad Pi 2026-07-04: JP guarda primero con `/aos-guardar-sesion`; luego `/aos-continuar [objetivo]` es el unico comando para abrir sesion nueva con prompt de continuidad desde docs vivos. `--preview` permite revisar antes de enviar.

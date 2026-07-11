@@ -16,7 +16,8 @@ primary_refs:
   - docs/reference/tool-routing.yaml
   - docs/topics/pi-agentic-os.md
   - docs/topics/pi-extension-stack.md
-  - docs/skills/aos-plan-implementar/SKILL.md
+  - C:/dev/os/docs/skills/aos-plan-implementar/SKILL.md
+  - .pi/extensions/aos-tools.ts
 ---
 
 # Agent Tool Routing

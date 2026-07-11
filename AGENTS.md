@@ -68,16 +68,13 @@ Referencia profunda preservada del AGENTS anterior: `docs/reference/agent-guide-
 
 ## Agentic OS local
 
-- Skills AOS locales viven en `docs/skills/`; `.agents/skills` es junction estable de compatibilidad. El unico prompt Pi especifico del proyecto es `.pi/prompts/aos-gol.md`; los prompts y extensiones AOS comunes vienen del `AOS_HOME` global.
-- `aos-realinear-os`: abrir `docs/topics/agentic-os-operations.md` y auditar solo capa agentica por defecto.
-- `aos-guardar-sesion` / `aos-checkpoint`: persistir valor durable en docs sin transcript.
-- `aos-cerrar-sesion`: alias legado de guardado/cierre con sintesis final.
+- Las skills AOS portables se consultan en `C:/dev/os/docs/skills/`; `docs/skills/` retiene solo skills propias de main y `.agents/skills` sigue siendo su junction de compatibilidad.
+- `aos-realinear-os`: abrir `docs/topics/agentic-os-operations.md` y la skill portable upstream; auditar solo capa agentica por defecto.
+- `aos-guardar-sesion` / `aos-checkpoint` / `aos-cerrar-sesion`, `aos-sigamos`, `aos-plan-implementar`, `aos-orquestar` y `aos-fanout`: seguir sus skills en `C:/dev/os/docs/skills/` junto con las reglas locales de este archivo y topics.
 - `/aos-continuar [objetivo]`: abrir sesion nueva con prompt desde docs vivos despues de guardar.
-- `aos-sigamos` / `aos-gol-lite`: avanzar en lote chico verificable.
-- `aos-plan-implementar`: para trabajos medianos/grandes, declarar un motor principal segun `docs/topics/agent-tool-routing.md`.
+- `aos-gol-lite` / `avancemos`: avanzar en lote chico verificable con la skill local `docs/skills/aos-gol-lite/`.
 - `advisor`: usar solo para decisiones fuertes, arquitectura/storage/prod/security o loops largos; no para orientacion/checks/pasos chicos.
 - Fleet updates AOS se gobiernan desde `C:/dev/os` con `/aos-fleet-update` -> `pi_long_task`; no usar `dgoal` para ese caso.
-- `aos-orquestar` / `aos-fanout`: usar subagentes solo si JP lo pide o si aporta paralelismo claro.
 
 ## Validacion recomendada
 

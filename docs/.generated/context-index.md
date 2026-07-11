@@ -2,7 +2,7 @@
 
 Generated cache. Do not edit by hand.
 
-Generated: 2026-07-11T13:48:51.509Z
+Generated: 2026-07-11T21:22:56.683Z
 
 ## Topics
 
@@ -20,7 +20,7 @@ Generated: 2026-07-11T13:48:51.509Z
 
 ## Tracks
 
-- active: [Command Palette (`Win+Alt+E`)](../tracks/command-palette.md)
+- active: [Command Palette (`Win+A`)](../tracks/command-palette.md)
 - active: [Main OS Alignment](../tracks/main-os-alignment.md)
 
 ## Specs
@@ -34,7 +34,7 @@ Generated: 2026-07-11T13:48:51.509Z
 ## Skills
 
 - Canon: [docs/skills/](../skills/)
-- Operational commands: aos-evaluar-skills, aos-fanout, aos-gol-lite, aos-guardar-sesion, aos-help, aos-orquestar, aos-perfect-os, aos-plan-implementar, aos-realinear-os, aos-repo-commit-push, aos-sigamos, aos-update-os
+- Operational commands: aos-gol-lite
 - Guidance: [local-codex-skills](../topics/local-codex-skills.md)
 
 ## Pi Resources

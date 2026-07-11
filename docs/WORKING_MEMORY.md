@@ -2,7 +2,7 @@
 
 Estado vivo corto del repo. Mantener liviano.
 
-Ultima actualizacion: 2026-06-30.
+Ultima actualizacion: 2026-07-09.
 
 ## Lectura rapida
 
@@ -13,13 +13,14 @@ Ultima actualizacion: 2026-06-30.
 | Gestos | active | `docs/features/gestures.md` | Editar condiciones antes que motor salvo cambio de reconocimiento. |
 | OS local | active | `docs/topics/agentic-os-operations.md` | AOS adoptado localmente; mantener docs/context index/audit/skills. |
 | Docs/contexto | active | `docs/topics/docs-knowledge-system.md` | Promover conocimiento durable a topics/docs, no transcript. |
-| Pi adapter | active | `docs/topics/pi-agentic-os.md` | `.pi` con comandos AOS locales instalado. |
+| Pi adapter | active | `docs/topics/pi-agentic-os.md`, `docs/topics/agent-tool-routing.md` | Adapters AOS comunes desde `AOS_HOME`; `.pi/prompts/aos-gol.md` local, routing y skills link estable. |
 
 ## Decisiones recientes
 
 - 2026-06-30: `main-v2` fue agregado al registry AOS upstream y adoptado como downstream local.
 - 2026-06-30: `AGENTS.md` se compacto; la version larga previa quedo en `docs/reference/agent-guide-before-aos-2026-06-30.md`.
 - 2026-06-30: se agregaron scripts de contexto, topics, tracks, skills AOS y adapter Pi local.
+- 2026-07-09: AOS local alineado con routing actual: `advisor` solo para decisiones fuertes/loops largos, fleet updates desde `C:/dev/os` con `pi_long_task`, y `.agents/skills` como junction estable.
 
 ## Riesgos
 
@@ -42,3 +43,5 @@ bun run context:audit
 bun run context:refresh
 powershell -ExecutionPolicy Bypass -File scripts/toggle-skills-link.ps1 status
 ```
+
+- Continuidad Pi 2026-07-04: JP guarda primero con `/aos-guardar-sesion`; luego `/aos-continuar [objetivo]` es el unico comando para abrir sesion nueva con prompt de continuidad desde docs vivos. `--preview` permite revisar antes de enviar.

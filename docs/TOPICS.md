@@ -18,6 +18,8 @@ Router de conocimiento local. Abrir solo lo necesario.
 | [`agentic-os-operations`](topics/agentic-os-operations.md) | Realinear/adoptar/actualizar/auditar la capa agentica local. |
 | [`docs-knowledge-system`](topics/docs-knowledge-system.md) | Como guardar contexto durable sin convertir docs en transcript. |
 | [`pi-agentic-os`](topics/pi-agentic-os.md) | Comandos Pi `.pi`, `/aos-*`, ask_user, computer use seguro. |
+| [`pi-extension-stack`](topics/pi-extension-stack.md) | Elegir herramientas Pi sin copiar inventario global; referencia `C:/dev/os`. |
+| [`agent-tool-routing`](topics/agent-tool-routing.md) | Elegir un motor principal, gates de advisor/ask_user y evitar nesting riesgoso. |
 | [`os-quality`](topics/os-quality.md) | Checklist para dejar el OS local liviano y confiable. |
 | [`minimal-implementation`](topics/minimal-implementation.md) | Politica de cambios chicos, YAGNI y evitar bloat. |
 | [`local-codex-skills`](topics/local-codex-skills.md) | Junction opcional `.agents/skills` y discovery de skills. |

@@ -37,8 +37,8 @@ Checklist para dejar la capa agentica confiable.
 ## Adapters
 
 - `docs/skills/` es canon local.
-- `.agents/skills` puede estar deshabilitado; si existe debe resolver a `docs/skills`.
-- `.pi` debe tener prompts/extensiones `/aos-*` sincronizados.
+- `.agents/skills` es junction estable de compatibilidad; si existe debe resolver a `docs/skills`.
+- Los prompts/extensiones AOS comunes deben resolver desde el paquete global `AOS_HOME`; `.pi/prompts/aos-gol.md` debe preservarse como prompt local especifico del proyecto.
 
 ## Seguridad
 

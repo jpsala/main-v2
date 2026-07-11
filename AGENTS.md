@@ -31,6 +31,12 @@ Referencia profunda preservada del AGENTS anterior: `docs/reference/agent-guide-
 - WebView UIs: `settings-window.ahk`, `menu-webview.ahk`, `ui/*.html`.
 - Portable toolkit separado: `MainPortable/` y `MainPortable/AGENTS.md`.
 
+## Web, Internet E Instalaciones
+
+- Usar web/internet libremente por defecto cuando conocimiento externo o cambiante evite adivinar: docs oficiales, releases, issues/source, metadata de paquetes, errores, APIs y comparativas. No enviar secretos, `.env`, codigo privado sensible, datos personales ni credenciales a servicios externos.
+- Si evidencia online contradice el repo local, docs del proyecto o comportamiento observado, consultar a JP antes de decidir; presentar ambas evidencias, fuentes e impacto practico.
+- Antes de instalar dependencias, CLIs globales, paquetes de sistema, herramientas de package-manager o binarios/scripts remotos, pedir autorizacion explicita con comando exacto, alcance, motivo, riesgos, alternativa, cambios esperados y rollback. Tratar `curl | sh`/scripts remotos como alto riesgo y preferir alternativas auditables.
+
 ## Reglas de cambio
 
 - No tocar `.env`, `config.ini`, logs ni datos locales salvo pedido explicito.
@@ -54,12 +60,15 @@ Referencia profunda preservada del AGENTS anterior: `docs/reference/agent-guide-
 
 ## Agentic OS local
 
-- Comandos AOS locales viven en `docs/skills/` y `.pi/`.
+- Skills AOS locales viven en `docs/skills/`; `.agents/skills` es junction estable de compatibilidad. El unico prompt Pi especifico del proyecto es `.pi/prompts/aos-gol.md`; los prompts y extensiones AOS comunes vienen del `AOS_HOME` global.
 - `aos-realinear-os`: abrir `docs/topics/agentic-os-operations.md` y auditar solo capa agentica por defecto.
 - `aos-guardar-sesion` / `aos-checkpoint`: persistir valor durable en docs sin transcript.
-- `aos-cerrar-sesion`: guardar valor durable y cerrar con sintesis final.
-- `aos-continuar-sesion`: alias legado de nueva sesion; no significa seguir en el hilo actual.
+- `aos-cerrar-sesion`: alias legado de guardado/cierre con sintesis final.
+- `/aos-continuar [objetivo]`: abrir sesion nueva con prompt desde docs vivos despues de guardar.
 - `aos-sigamos` / `aos-gol-lite`: avanzar en lote chico verificable.
+- `aos-plan-implementar`: para trabajos medianos/grandes, declarar un motor principal segun `docs/topics/agent-tool-routing.md`.
+- `advisor`: usar solo para decisiones fuertes, arquitectura/storage/prod/security o loops largos; no para orientacion/checks/pasos chicos.
+- Fleet updates AOS se gobiernan desde `C:/dev/os` con `/aos-fleet-update` -> `pi_long_task`; no usar `dgoal` para ese caso.
 - `aos-orquestar` / `aos-fanout`: usar subagentes solo si JP lo pide o si aporta paralelismo claro.
 
 ## Validacion recomendada

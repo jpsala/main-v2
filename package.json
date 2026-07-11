@@ -8,6 +8,8 @@
     "context:refresh": "bun scripts/context-refresh.ts",
     "skills:status": "powershell -ExecutionPolicy Bypass -File scripts/toggle-skills-link.ps1 status",
     "skills:on": "powershell -ExecutionPolicy Bypass -File scripts/toggle-skills-link.ps1 on",
-    "skills:off": "powershell -ExecutionPolicy Bypass -File scripts/toggle-skills-link.ps1 off"
+    "skills:off": "powershell -ExecutionPolicy Bypass -File scripts/toggle-skills-link.ps1 off",
+    "check": "bun run context:audit && bun run skills:status",
+    "check:ci": "bun scripts/agent-context-audit.ts"
   }
 }

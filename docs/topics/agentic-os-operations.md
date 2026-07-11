@@ -43,8 +43,9 @@ Por defecto, `realinear os` toca solo capa agentica. No cambiar runtime AHK, con
 - Topics con frontmatter, triggers y refs existentes.
 - Tracks activas con status/updated/next step.
 - `docs/skills/` como canon local.
-- `.agents/skills` como junction opcional, apagable.
-- `.pi/prompts` y `.pi/extensions` con comandos `/aos-*`.
+- `.agents/skills` como junction estable de compatibilidad; `off`/`toggle` son aliases legacy no destructivos.
+- Los prompts y extensiones AOS comunes resuelven desde el `AOS_HOME` global; `.pi/prompts/aos-gol.md` queda como prompt local especifico del proyecto.
+- Routing de herramientas en `docs/topics/agent-tool-routing.md` y `docs/reference/tool-routing.yaml`.
 - Scripts `context-index.ts`, `agent-context-audit.ts`, `context-refresh.ts`.
 - Docs raiz historicos con destino claro.
 

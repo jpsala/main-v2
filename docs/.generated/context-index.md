@@ -2,17 +2,19 @@
 
 Generated cache. Do not edit by hand.
 
-Generated: 2026-07-02T12:33:36.033Z
+Generated: 2026-07-11T03:18:40.550Z
 
 ## Topics
 
+- active: [agent-tool-routing](../topics/agent-tool-routing.md) - tool routing, routing decision, combinar tools, elegir herramienta, dgoal, until-done, taskflow, advisor
 - active: [agentic-os-operations](../topics/agentic-os-operations.md) - aos, realinear os, auditar sistema agentico, reparar sistema agentico, actualizar os, adoptar os, contexto agentico
 - active: [automation-workflows](../topics/automation-workflows.md) - menus, roa, run or activate, bookmarks, perfiles, vivaldi, cursor, vscode
 - active: [docs-knowledge-system](../topics/docs-knowledge-system.md) - docs, documentacion, topics, memoria, context index, guardar sesion, tracks
 - reference: [local-codex-skills](../topics/local-codex-skills.md) - skills, codex skills, .agents, slash noise, discovery
 - active: [minimal-implementation](../topics/minimal-implementation.md) - implementacion minima, minimal implementation, yagni, bloat, over-engineering, ponytail
 - active: [os-quality](../topics/os-quality.md) - perfect os, dejar en condiciones, calidad agentica, audit, contexto liviano
-- active: [pi-agentic-os](../topics/pi-agentic-os.md) - pi, slash commands, aos-sync, aos-gol, ask_user, computer use, rtk
+- active: [pi-agentic-os](../topics/pi-agentic-os.md) - pi, slash commands, aos-sync, aos-gol, aos-continuar, aos-plan-implementar, ask_user, taskflow
+- active: [pi-extension-stack](../topics/pi-extension-stack.md) - extensiones pi, paquetes pi, pi packages, sincronizar pi, web_search, web_research, codemapper, fff
 - active: [project-architecture](../topics/project-architecture.md) - arquitectura, include graph, main.ahk, init.ahk, hot reload, config.ini, webview
 
 ## Tracks
@@ -30,13 +32,12 @@ Generated: 2026-07-02T12:33:36.033Z
 ## Skills
 
 - Canon: [docs/skills/](../skills/)
-- Operational commands: aos-fanout, aos-gol-lite, aos-guardar-sesion, aos-help, aos-nueva-sesion, aos-nueva-sesion-con-gol, aos-orquestar, aos-perfect-os, aos-realinear-os, aos-repo-commit-push, aos-sigamos, aos-update-os
+- Operational commands: aos-evaluar-skills, aos-fanout, aos-gol-lite, aos-guardar-sesion, aos-help, aos-orquestar, aos-perfect-os, aos-plan-implementar, aos-realinear-os, aos-repo-commit-push, aos-sigamos, aos-update-os
 - Guidance: [local-codex-skills](../topics/local-codex-skills.md)
 
 ## Pi Resources
 
-- Prompts: aos-adopt-os, aos-align-os-project, aos-cerrar, aos-checkpoint, aos-continuar-sesion, aos-fanout, aos-gol, aos-guardar-sesion, aos-help, aos-init-os, aos-nueva-sesion-con-gol, aos-nueva-sesion, aos-orquestar, aos-perfect-os, aos-realinear, aos-sigamos, aos-siguiente, aos-update-os
-- Extensions: aos-checkpoint-nudge.ts, aos-tools.ts
+- Prompts: aos-gol
 - Guidance: [pi-agentic-os](../topics/pi-agentic-os.md)
 
 ## Aliases

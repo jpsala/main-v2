@@ -132,7 +132,7 @@ const skillDirs = exists("docs/skills")
   : [];
 if (skillDirs.length) {
   const nonCommandSkills = new Set(["aos-impeccable"]);
-  const legacyAliasSkills = new Set(["aos-checkpoint", "aos-cerrar-sesion", "aos-continuar-sesion", "aos-continuar-sesion-con-gol"]);
+  const legacyAliasSkills = new Set(["aos-checkpoint", "aos-cerrar-sesion"]);
   const operationalSkills = skillDirs
     .filter((skill) => !skill.startsWith("aos-speckit-") && !nonCommandSkills.has(skill) && !legacyAliasSkills.has(skill))
     .filter((skill) => exists(`docs/skills/${skill}/SKILL.md`));

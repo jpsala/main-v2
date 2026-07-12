@@ -8,8 +8,18 @@ CommandPaletteFrecencyInit() {
     CommandPaletteFrecencyLoad()
 }
 
+CommandPaletteSetLevelsPerPage(level, save := true) {
+    global COMMAND_PALETTE_LEVELS_PER_PAGE
+
+    if !(level is Number)
+        return
+    COMMAND_PALETTE_LEVELS_PER_PAGE := Min(2, Max(0, Integer(level)))
+    if save
+        CommandPaletteFrecencySave()
+}
+
 CommandPaletteFrecencyLoad() {
-    global COMMAND_PALETTE_FRECENCY, COMMAND_PALETTE_FRECENCY_STATE_PATH
+    global COMMAND_PALETTE_FRECENCY, COMMAND_PALETTE_FRECENCY_STATE_PATH, COMMAND_PALETTE_LEVELS_PER_PAGE
 
     COMMAND_PALETTE_FRECENCY := Map()
     if !FileExist(COMMAND_PALETTE_FRECENCY_STATE_PATH)
@@ -18,8 +28,10 @@ CommandPaletteFrecencyLoad() {
     try {
         json := FileRead(COMMAND_PALETTE_FRECENCY_STATE_PATH, "UTF-8")
         payload := JsonLoad(&json)
-        if (!payload.Has("version") || payload["version"] != 1 || !payload.Has("entries"))
+        if (!payload.Has("version") || !(payload["version"] = 1 || payload["version"] = 2) || !payload.Has("entries"))
             return
+        if (payload.Has("levelsPerPage") && payload["levelsPerPage"] is Number)
+            COMMAND_PALETTE_LEVELS_PER_PAGE := Min(2, Max(0, Integer(payload["levelsPerPage"])))
         for id, entry in payload["entries"] {
             if (!IsObject(entry) || !entry.Has("score") || !entry.Has("lastUsed"))
                 continue
@@ -81,7 +93,7 @@ CommandPaletteFrecencyGetSnapshot(now := "") {
 }
 
 CommandPaletteFrecencySave() {
-    global COMMAND_PALETTE_FRECENCY, COMMAND_PALETTE_FRECENCY_STATE_PATH
+    global COMMAND_PALETTE_FRECENCY, COMMAND_PALETTE_FRECENCY_STATE_PATH, COMMAND_PALETTE_LEVELS_PER_PAGE
 
     try {
         SplitPath(COMMAND_PALETTE_FRECENCY_STATE_PATH,, &directory)
@@ -89,7 +101,7 @@ CommandPaletteFrecencySave() {
         temporaryPath := COMMAND_PALETTE_FRECENCY_STATE_PATH . ".tmp"
         if FileExist(temporaryPath)
             FileDelete(temporaryPath)
-        FileAppend(JsonDump(Map("version", 1, "entries", COMMAND_PALETTE_FRECENCY)), temporaryPath, "UTF-8")
+        FileAppend(JsonDump(Map("version", 2, "entries", COMMAND_PALETTE_FRECENCY, "levelsPerPage", COMMAND_PALETTE_LEVELS_PER_PAGE)), temporaryPath, "UTF-8")
         FileMove(temporaryPath, COMMAND_PALETTE_FRECENCY_STATE_PATH, 1)
     } catch Error as e {
         OutputDebug("Command palette frecency save error: " . e.Message)

@@ -13,13 +13,13 @@ global COMMAND_PALETTE_LEVELS_PER_PAGE := 0
 global COMMAND_PALETTE_GROUPS_FIRST := false
 
 CommandPaletteInit(levelsPerPage := 0, groupsFirst := false) {
-    global COMMAND_PALETTE_GROUPS_FIRST, COMMAND_PALETTE_LEVELS_PER_PAGE
+    global COMMAND_PALETTE_GROUPS_FIRST
 
-    COMMAND_PALETTE_LEVELS_PER_PAGE := Max(0, levelsPerPage)
+    CommandPaletteSetLevelsPerPage(levelsPerPage, false)
     COMMAND_PALETTE_GROUPS_FIRST := groupsFirst
     CommandPaletteBuildCatalog()
     CommandPaletteFrecencyInit()
-    Hotkey("$#a", CommandPaletteOpen)
+    Hotkey("$#e", CommandPaletteOpen)
     SetTimer(CommandPalettePrewarm, -700)
 }
 
@@ -137,6 +137,8 @@ CommandPaletteHandleMessage(wv, args) {
             return
         if (payload["action"] = "execute" && payload.Has("id"))
             COMMAND_PALETTE_RESULT := payload["id"]
+        else if (payload["action"] = "setLevel" && payload.Has("level"))
+            CommandPaletteSetLevelsPerPage(payload["level"])
         else if (payload["action"] = "cancel")
             COMMAND_PALETTE_RESULT := "CANCELLED"
     } catch Error as e {

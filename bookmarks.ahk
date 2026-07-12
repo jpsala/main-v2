@@ -139,7 +139,7 @@ saveCharBookmark(char := false, deleteFirst := false) {
 ; Core window management functions
 BookmarkHotkeyIsReservedMenu(key) {
   normalized := StrLower(key)
-  return normalized = "#a" || normalized = "#w" || normalized = "#c"
+  return normalized = "#a" || normalized = "#e" || normalized = "#w" || normalized = "#c"
 }
 
 BookmarkHotkeyEnableActivation(key) {

@@ -94,6 +94,14 @@ vm.runInContext(`
   setPaletteState({ catalog: sample, levelsPerPage: 2, groupsFirst: false });
   assert(filtered.map(command => command.id).join(',') === 'Apps:1,Apps:3,Web:6,Apps:4', 'depth 2 boundary and ordering');
 
+  document.querySelector('#query').handlers.keydown({ key: 'n', altKey: true, preventDefault() {} });
+  assert(levelsPerPage === 0 && currentGroupId === null, 'Alt+N cycles 2 to 0 at root');
+  assert(messages.at(-1).action === 'setLevel' && messages.at(-1).level === 0, 'Alt+N persists level change');
+  document.querySelector('#query').handlers.keydown({ key: 'N', altKey: true, preventDefault() {} });
+  assert(levelsPerPage === 1, 'Alt+N cycles 0 to 1');
+  document.querySelector('#query').handlers.keydown({ key: 'n', altKey: true, preventDefault() {} });
+  assert(levelsPerPage === 2, 'Alt+N cycles 1 to 2');
+
   activate(commandById('Apps:2'));
   document.querySelector('#query').value = 'stale';
   focusPalette();

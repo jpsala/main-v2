@@ -4,11 +4,11 @@ updated: 2026-07-11
 priority: high
 ---
 
-# Command Palette (`Win+A`)
+# Command Palette (`Win+E`)
 
 ## Estado
 
-V1 implementada y verificada: abre con comandos A/W/C, ejecuta una acción real, `Esc` cierra y la reapertura limpia la consulta. `CommandPaletteInit(levelsPerPage := 0, groupsFirst := false)` permite drill-down y orden por tipo. Las acciones y sus grupos padres aprenden orden por frecency local con una vida media de 14 días; la búsqueda conserva fuzzy como criterio principal.
+V1 implementada y verificada: abre con `Win+E`, cataloga comandos A/W/C, ejecuta una acción real, `Esc` cierra y la reapertura limpia la consulta. `Win+A/W/C` volvieron a los menús convencionales which-key. `CommandPaletteInit(levelsPerPage := 0, groupsFirst := false)` permite drill-down y orden por tipo. Las acciones y sus grupos padres aprenden orden por frecency local con una vida media de 14 días; la búsqueda conserva fuzzy como criterio principal.
 
 ## Objetivo
 
@@ -16,7 +16,7 @@ Agregar una command palette personal, inspirada en PowerToys Command Palette, qu
 
 ## Alcance V1
 
-- Registrar exclusivamente `#a` (`Win+A`).
+- Registrar exclusivamente `#e` (`Win+E`).
 - Catalogar grupos y acciones de `GetMainSeqAOptions()`, `GetMainSeqWOptions()` y `GetMainSeqCOptions()`; con `levelsPerPage=0` mostrar las acciones finales planas como antes.
 - Excluir `chordHidden`, CopyQ, bookmarks y chords contextuales de VS Code.
 - Búsqueda local por nombre, categoría, breadcrumb, atajo, `doc` y `command`.
@@ -28,7 +28,7 @@ Agregar una command palette personal, inspirada en PowerToys Command Palette, qu
 
 ## No objetivos
 
-- No eliminar las definiciones de los menús A/W/C; solo desactivar sus registros directos mientras la palette usa `Win+A`.
+- No eliminar las definiciones de los menús A/W/C; `Win+A/W/C` conservan sus registros which-key.
 - No historial visible, favoritos, plugins, comandos arbitrarios, CopyQ ni acciones de VS Code.
 - No instalar dependencias ni copiar el código de PowerToys.
 - No commit/push ni tocar `config.ini`.
@@ -86,7 +86,7 @@ Las closures de acciones se guardan por separado en `Map(id → action)`; los gr
 
 1. **Catálogo y hotkey**
    - Implementar flattening de A/W/C, exclusión de ocultos y Map de dispatch.
-   - Registrar `#a` y comentar los registros directos `#a/#w/#c`.
+   - Registrar `#e` y restaurar los registros which-key `#a/#w/#c`.
    - Probe AHK para rutas, IDs, ocultos y ejecución de una closure de prueba.
 
 2. **UI base**
@@ -98,13 +98,13 @@ Las closures de acciones se guardan por separado en `Map(id → action)`; los gr
    - Validar consultas exactas, prefijos, acentos y subsecuencias.
 
 4. **Smoke final**
-   - Verificar `#a`, una búsqueda y acción inocua por cada fuente, Escape/click exterior y reapertura limpia.
+   - Verificar `#e`, una búsqueda y acción inocua por cada fuente, Escape/click exterior y reapertura limpia.
    - Ejecutar probe, parseo JS, `git diff --check` y revisión visual contra PowerToys instalado.
 
 ## Riesgos y rollback
 
 - El worktree ya está sucio: limitar el diff a estas superficies y no revertir cambios previos.
-- Si la palette degrada el escritorio, restaurar los registros `#a/#w/#c` y quitar el registro `#a` de la palette.
+- Si la palette degrada el escritorio, quitar el registro `#e`; `#a/#w/#c` conservan sus menús which-key.
 - Mantener acciones en closures locales evita ejecutar comandos arbitrarios desde el input.
 
 ## Validación

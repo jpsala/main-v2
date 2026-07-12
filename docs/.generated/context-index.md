@@ -2,7 +2,7 @@
 
 Generated cache. Do not edit by hand.
 
-Generated: 2026-07-11T22:14:10.471Z
+Generated: 2026-07-12T20:44:37.613Z
 
 ## Topics
 
@@ -20,7 +20,7 @@ Generated: 2026-07-11T22:14:10.471Z
 
 ## Tracks
 
-- active: [Command Palette (`Win+A`)](../tracks/command-palette.md)
+- active: [Command Palette (`Win+E`)](../tracks/command-palette.md)
 - active: [Main OS Alignment](../tracks/main-os-alignment.md)
 
 ## Specs

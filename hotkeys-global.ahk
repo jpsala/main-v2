@@ -185,6 +185,19 @@
     +Insert:: PasteIntoTerminalWithShiftInsert()
     #HotIf
 
+    ; Keep native mouse selection available while letting terminal apps scroll
+    ; their own history through keyboard navigation (for example pi-sticky-input).
+    #HotIf IsWindowsTerminalWheelScrollActive()
+    WheelUp:: Send("^{PgUp}")
+    WheelDown:: Send("^{PgDn}")
+    #HotIf
+
+    IsWindowsTerminalWheelScrollActive() {
+      try return WinActive("ahk_exe WindowsTerminal.exe") > 0
+      catch
+        return false
+    }
+
     IsTerminalShiftVPasteActive() {
       global terminalShiftVPasteEnabled
       return (terminalShiftVPasteEnabled = true || terminalShiftVPasteEnabled = "1") && IsTerminalPasteTarget()

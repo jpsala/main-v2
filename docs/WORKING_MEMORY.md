@@ -2,7 +2,12 @@
 
 Estado vivo corto del repo. Mantener liviano.
 
-Ultima actualizacion: 2026-07-11.
+Ultima actualizacion: 2026-07-25.
+
+## Foco Único De Ejecución
+
+- **Estado:** `needs_planning`.
+- **Siguiente acción:** elegir un único brief para runtime AHK o command palette; preservar WIP y no arrancar la automatización completa.
 
 ## Lectura rapida
 
@@ -13,7 +18,7 @@ Ultima actualizacion: 2026-07-11.
 | Gestos | active | `docs/features/gestures.md` | Editar condiciones antes que motor salvo cambio de reconocimiento. |
 | OS local | active | `docs/topics/agentic-os-operations.md` | AOS adoptado localmente; mantener docs/context index/audit/skills. |
 | Docs/contexto | active | `docs/topics/docs-knowledge-system.md` | Promover conocimiento durable a topics/docs, no transcript. |
-| Pi adapter | active | `docs/topics/pi-agentic-os.md`, `docs/topics/agent-tool-routing.md` | `.pi` con comandos AOS locales, routing y skills link estable. |
+| Pi adapter | active | `docs/topics/pi-agentic-os.md`, `docs/topics/agent-tool-routing.md` | Un único `/flow` global, routing por brief y skills link estable. |
 
 ## Decisiones recientes
 
@@ -46,7 +51,4 @@ bun run context:audit
 bun run context:refresh
 powershell -ExecutionPolicy Bypass -File scripts/toggle-skills-link.ps1 status
 powershell -ExecutionPolicy Bypass -File scripts/run-ahk-probe.ps1 -Script tests/command-palette-probe.ahk
-bun -e "await import('./.pi/extensions/aos-tools.ts'); console.log('aos-tools import ok')"
 ```
-
-- Continuidad Pi 2026-07-04: JP guarda primero con `/aos-guardar-sesion`; luego `/aos-continuar [objetivo]` es el unico comando para abrir sesion nueva con prompt de continuidad desde docs vivos. `--preview` permite revisar antes de enviar.

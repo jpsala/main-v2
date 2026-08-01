@@ -2,6 +2,51 @@
 ; Menu action helpers — functions called by menu items in menus.ahk
 ; ===================================================================
 
+; --- Pi launcher ---
+
+RunPiMenuPreset(preset) {
+    scriptPath := "C:\tools\pi-menu.ps1"
+    if (!FileExist(scriptPath)) {
+        MsgBox("No encontre " . scriptPath, "Pi launcher", "IconError")
+        return false
+    }
+
+    try {
+        Run('wt -d "' . A_ScriptDir . '" pwsh -NoLogo -NoProfile -ExecutionPolicy Bypass -File "' . scriptPath . '" -Preset ' . preset, A_ScriptDir)
+        return true
+    } catch Error as e {
+        MsgBox("No pude abrir Pi: " . e.Message, "Pi launcher", "IconError")
+        return false
+    }
+}
+
+ShowPiMenuHelp() {
+    help := "Elegí un preset; después pi-menu pregunta por la sesión:" . "`n"
+        . "1 = nueva, 2 = continuar la última, 3 = elegir una anterior." . "`n`n"
+        . "Plan: pensar y aprobar antes de editar.`n"
+        . "Arquitectura / Complex: decisiones y tradeoffs.`n"
+        . "Code: implementación cotidiana.`n"
+        . "Bounded: tarea cerrada con checks definidos.`n"
+        . "Mechanical: cambio repetible de uno o dos archivos.`n"
+        . "Review: revisión sin editar.`n"
+        . "Quick: consulta clara con contexto mínimo.`n"
+        . "Delegate: investigación con subagentes bajo pedido.`n"
+        . "Orchestrate: Taskflow bajo pedido.`n"
+        . "AOS: sesión normal con herramientas AOS."
+    MsgBox(help, "Pi launcher — Win+A > I", "IconInfo")
+    return true
+}
+
+OpenPsmuxTerminal() {
+    try {
+        Run('wt.exe -w new -p "psmux"', GetDevRoot())
+        return true
+    } catch Error as e {
+        MsgBox("No pude abrir psmux:`n`n" . e.Message, "psmux", "IconError")
+        return false
+    }
+}
+
 ; --- Tabby / terminal workspace ---
 
 GetTabbyExe() {
@@ -197,18 +242,19 @@ DisplayResolutionFormat(mode) {
     return mode.width . "x" . mode.height . frequencyText
 }
 
-DisplayResolutionSet(width, height) {
+DisplayResolutionSet(width, height, persist := false) {
     static ENUM_CURRENT_SETTINGS := -1
     static DM_SIZE := 156
     static DM_PELSWIDTH := 0x00080000
     static DM_PELSHEIGHT := 0x00100000
+    static CDS_UPDATEREGISTRY := 0x00000001
     static DISP_CHANGE_SUCCESSFUL := 0
 
     currentMode := DisplayResolutionGetCurrent()
     if !currentMode
         return false
 
-    if (currentMode.width = width && currentMode.height = height) {
+    if (currentMode.width = width && currentMode.height = height && !persist) {
         msg("Resolucion actual: " . DisplayResolutionFormat(currentMode), { seconds: 2 })
         return true
     }
@@ -225,7 +271,8 @@ DisplayResolutionSet(width, height) {
     NumPut("UInt", width, deviceMode, 108)
     NumPut("UInt", height, deviceMode, 112)
 
-    result := DllCall("ChangeDisplaySettingsA", "Ptr", deviceMode.Ptr, "UInt", 0, "Int")
+    changeFlags := persist ? CDS_UPDATEREGISTRY : 0
+    result := DllCall("ChangeDisplaySettingsA", "Ptr", deviceMode.Ptr, "UInt", changeFlags, "Int")
     if (result = DISP_CHANGE_SUCCESSFUL) {
         msg("Resolucion: " . width . "x" . height, { seconds: 2 })
         return true
@@ -294,7 +341,7 @@ DisplayResolutionRestoreSaved() {
         return false
     }
 
-    return DisplayResolutionSet(savedMode.width, savedMode.height)
+    return DisplayResolutionSet(savedMode.width, savedMode.height, true)
 }
 
 DisplayResolutionToggle720() {
@@ -326,6 +373,7 @@ DisplayTopologyRun(displaySwitchArg, label) {
 
     try {
         Run(QuoteCommandPath(displaySwitchExe) . " " . displaySwitchArg)
+        SetTimer(Func("DisplayResolutionRestoreSaved"), -2000)
         msg("Pantallas: " . label, { seconds: 3 })
         return true
     } catch as err {

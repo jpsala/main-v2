@@ -66,15 +66,15 @@ Referencia profunda preservada del AGENTS anterior: `docs/reference/agent-guide-
 - Ejecutar probes solo con `scripts/run-ahk-probe.ps1`; nunca usar `main.ahk` como test ni confiar en el exit code directo del exe GUI.
 - Validar por capas: carga -> logica/JSON -> WebView/JS -> hot reload -> proceso/log -> smoke fisico. No reiniciar `main.ahk`.
 
-## Agentic OS local
+## Agentic OS Local
 
-- Las skills AOS portables se consultan en `C:/dev/os/docs/skills/`; `docs/skills/` retiene solo skills propias de main y `.agents/skills` sigue siendo su junction de compatibilidad.
-- `aos-realinear-os`: abrir `docs/topics/agentic-os-operations.md` y la skill portable upstream; auditar solo capa agentica por defecto.
-- `aos-guardar-sesion` / `aos-checkpoint` / `aos-cerrar-sesion`, `aos-sigamos`, `aos-plan-implementar`, `aos-orquestar` y `aos-fanout`: seguir sus skills en `C:/dev/os/docs/skills/` junto con las reglas locales de este archivo y topics.
-- `/aos-continuar [objetivo]`: abrir sesion nueva con prompt desde docs vivos despues de guardar.
-- `aos-gol-lite` / `avancemos`: avanzar en lote chico verificable con la skill local `docs/skills/aos-gol-lite/`.
-- `advisor`: usar solo para decisiones fuertes, arquitectura/storage/prod/security o loops largos; no para orientacion/checks/pasos chicos.
-- Fleet updates AOS se gobiernan desde `C:/dev/os` con `/aos-fleet-update` -> `pi_long_task`; no usar `dgoal` para ese caso.
+- `/flow` es la única entrada Pi cotidiana: Pensar, Planear, Hacer o Cerrar.
+- Planear usa `balanced` con Sol Medium como ruta normal, incluso para trabajo multifile/cross-layer/nativo acotado. `strong` con Sol High queda sólo para ambigüedad material, arquitectura abierta, seguridad/auth/privacidad, irreversibilidad, alto impacto productivo o fallos materiales difíciles de detectar. `economical` con Luna requiere pedido explícito de JP por cuota y checks deterministas. Hacer abre una sesión nueva enlazada y bloquea sin fallback si falta modelo o auth.
+- `Ctrl+P` alterna Sol Medium/High; `Ctrl+L` conserva la selección manual de modelo.
+- Hacer ejecuta directamente allí sin Agent ni auto-send; Cerrar guarda sólo valor durable faltante. No recrear slash lifecycle locales ni motores retirados.
+- `aos-realinear-os` abre `docs/topics/agentic-os-operations.md`; init/adopt/update/align/perfect son operaciones manager de `C:/dev/os`.
+- `docs/skills/` retiene sólo skills propias de main y `.agents/skills` sigue siendo su junction de compatibilidad.
+- `advisor` se usa para decisiones fuertes, arquitectura, seguridad o evidencia en conflicto; no como ceremonia.
 
 ## Validacion recomendada
 

@@ -6,6 +6,7 @@ OnError(CommandPaletteProbeUnhandledError)
 
 #Include ..\lib\chord-hotkeys.ahk
 #Include ..\lib\json.ahk
+#Include ..\menu-actions.ahk
 #Include ..\menus.ahk
 #Include ..\command-palette-catalog.ahk
 
@@ -88,6 +89,11 @@ CommandPaletteProbeRun() {
     CommandPaletteProbeAssert(actionCount = COMMAND_PALETTE_ACTIONS.Count, "real action map count")
     for _, source in ["Apps", "Web", "Code"]
         CommandPaletteProbeAssert(sources.Has(source), "source " . source)
+    for _, piId in ["Apps:i.p", "Apps:i.a", "Apps:i.c", "Apps:i.b", "Apps:i.m", "Apps:i.r", "Apps:i.q", "Apps:i.d", "Apps:i.o", "Apps:i.s", "Apps:i.x", "Apps:i.h"]
+        CommandPaletteProbeAssert(records.Has(piId), "Pi launcher option " . piId)
+    CommandPaletteProbeAssert(records.Has("Apps:m"), "psmux launcher option Apps:m")
+    CommandPaletteProbeAssert(COMMAND_PALETTE_ACTIONS.Has("Apps:m"), "psmux launcher action")
+
     for _, command in COMMAND_PALETTE_CATALOG {
         if (command["parentId"] != "") {
             CommandPaletteProbeAssert(records.Has(command["parentId"]), "existing parent " . command["id"])

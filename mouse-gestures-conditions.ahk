@@ -88,6 +88,7 @@ HandleChromeGestures(event) {
 
 HandleGlobalGestures(event) {
     ; Used:
+    ; event.triggerButton = "RButton" && event.gesture = "D" && event.lengthPx < 110 -> Enter
     ; event.triggerButton = "RButton" && event.gesture = "U" && MouseGestureEventMatchesAnyCell(event, 8, 8, "8,3", "8,4", "8,5") -> Web Clipboard Sender
     ; event.triggerButton = "RButton" && event.gesture = "U" && MouseGestureEventMatchesAnyCell(event, 8, 8, "8,8") -> Send selected to web clipboard
     ; event.triggerButton = "RButton" && event.gesture = "D" && MouseGestureEventMatchesAnyCell(event, 4, 4, "4,1", "4,2", "4,3", "4,4") -> GoBottom
@@ -99,6 +100,11 @@ HandleGlobalGestures(event) {
     ; event.triggerButton = "MButton" && event.gesture = "D_R" -> Close app/window
     ; event.triggerButton = "RButton" && event.gesture = "D" -> Open Code End Voice
     ; event.triggerButton = "RButton" && event.gesture = "U" -> Open Code Start Voice
+
+    if (event.triggerButton = "RButton" && event.gesture = "D" && event.lengthPx < 110) {
+        MouseGestureQuickSend(event, "{Enter}", "Enter")
+        return true
+    }
 
     if (event.triggerButton = "RButton" && event.gesture = "D") {
         MouseGestureQuickSend(event, "^{End}", "GoBottom")

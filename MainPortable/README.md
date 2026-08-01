@@ -6,7 +6,9 @@ Canonical workspace location: `C:\dev\main\MainPortable`.
 
 ## Files
 
-- `MainPortable.ahk`: entrypoint.
+- `MainPortable.ahk`: source entrypoint.
+- `MainPortable.exe`: compiled portable executable.
+- `MainPortable.rar`: ready-to-copy runtime package.
 - `MainPortable.ini`: local runtime config, generated on first run.
 - `MainPortable.log`: local error log, generated when needed.
 - `mainportable.ico`: tray icon from Tulliana 2 `K control`, LGPL/open source, downloaded via IconArchive.
@@ -18,7 +20,6 @@ Canonical workspace location: `C:\dev\main\MainPortable`.
 - Window bookmarks with direct hotkeys and sequential bookmarks.
 - Bookmark manager GUI with search and quick activation.
 - Cursor-key layer copied from the main project.
-- Optional Vim mode for keyboard navigation.
 - Tray menu for common maintenance actions.
 - Personal custom hotkeys/functions through `user-custom.ahk`.
 
@@ -37,14 +38,12 @@ Canonical workspace location: `C:\dev\main\MainPortable`.
 - `Alt+Shift+j/k`: PageDown/PageUp.
 - `Win+Alt+K`: toggle Alt cursor keys.
 - `CapsLock+Esc`: toggle CapsLock cursor layer.
-- `Alt+V`: toggle Vim mode.
-- Vim mode keys: `h/j/k/l` arrows, `w/b` word movement, `0/$` line start/end, `g/Alt+g` document start/end, `x` delete, `i` or `Esc` exits.
 
 ## Portability
 
-Copy the whole `MainPortable` folder to another PC and run `MainPortable.ahk` with AutoHotkey v2.
+Copy the whole `MainPortable` folder to another PC and run `MainPortable.exe`, or run `MainPortable.ahk` directly when AutoHotkey v2 is installed.
 
-Keep generated local state (`MainPortable.ini`) next to the script unless you intentionally want a fresh machine profile.
+Keep generated local state (`MainPortable.ini`) next to the executable or script unless you intentionally want a fresh machine profile.
 
 ## Working Model
 

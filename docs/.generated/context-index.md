@@ -2,11 +2,11 @@
 
 Generated cache. Do not edit by hand.
 
-Generated: 2026-07-12T20:44:37.613Z
+Generated: 2026-08-01T23:15:04.982Z
 
 ## Topics
 
-- active: [agent-tool-routing](../topics/agent-tool-routing.md) - tool routing, routing decision, combinar tools, elegir herramienta, dgoal, until-done, taskflow, advisor
+- active: [agent-tool-routing](../topics/agent-tool-routing.md)
 - active: [agentic-os-operations](../topics/agentic-os-operations.md) - aos, realinear os, auditar sistema agentico, reparar sistema agentico, actualizar os, adoptar os, contexto agentico
 - active: [autohotkey-validation](../topics/autohotkey-validation.md) - autohotkey, ahk, probe, runtime error, webview
 - active: [automation-workflows](../topics/automation-workflows.md) - menus, roa, run or activate, bookmarks, perfiles, vivaldi, cursor, vscode
@@ -14,14 +14,13 @@ Generated: 2026-07-12T20:44:37.613Z
 - reference: [local-codex-skills](../topics/local-codex-skills.md) - skills, codex skills, .agents, slash noise, discovery
 - active: [minimal-implementation](../topics/minimal-implementation.md) - implementacion minima, minimal implementation, yagni, bloat, over-engineering, ponytail
 - active: [os-quality](../topics/os-quality.md) - perfect os, dejar en condiciones, calidad agentica, audit, contexto liviano
-- active: [pi-agentic-os](../topics/pi-agentic-os.md) - pi, slash commands, aos-sync, aos-gol, aos-continuar, aos-plan-implementar, ask_user, taskflow
-- active: [pi-extension-stack](../topics/pi-extension-stack.md) - extensiones pi, paquetes pi, pi packages, sincronizar pi, web_search, web_research, codemapper, fff
+- active: [pi-agentic-os](../topics/pi-agentic-os.md)
+- active: [pi-extension-stack](../topics/pi-extension-stack.md)
 - active: [project-architecture](../topics/project-architecture.md) - arquitectura, include graph, main.ahk, init.ahk, hot reload, config.ini, webview
 
 ## Tracks
 
-- active: [Command Palette (`Win+E`)](../tracks/command-palette.md)
-- active: [Main OS Alignment](../tracks/main-os-alignment.md)
+- No focused track. Search `docs/tracks/` on demand.
 
 ## Specs
 
@@ -33,13 +32,11 @@ Generated: 2026-07-12T20:44:37.613Z
 
 ## Skills
 
-- Canon: [docs/skills/](../skills/)
-- Operational commands: aos-gol-lite
-- Guidance: [local-codex-skills](../topics/local-codex-skills.md)
+- Missing docs/skills/
 
 ## Pi Resources
 
-- Prompts: aos-gol
+- No project Pi resources found.
 - Guidance: [pi-agentic-os](../topics/pi-agentic-os.md)
 
 ## Aliases

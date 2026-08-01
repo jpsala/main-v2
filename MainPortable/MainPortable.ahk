@@ -20,14 +20,6 @@ global dontSave := false
 global hotkeysSuspended := false
 global keyboardMouseEnabled := true
 global cursorKeysEnabled := true
-global vimMode := false
-global vimCurrentMode := "off"
-global vimVisualMode := false
-global vimVisualLineMode := false
-global vimPendingOperator := ""
-global vimLAltDownTick := 0
-global vimTapThresholdMs := 180
-global vimRegistered := false
 global watchedFileTimes := Map()
 
 global DEFAULT_BOOKMARK_HOTKEYS := [
@@ -40,7 +32,6 @@ OnExit(SaveBookmarks)
 EnsureUserCustomFile()
 SetupTray()
 LoadBookmarksInBookmarkMap()
-InitPortableVimMode()
 
 for key in LoadBookmarkHotkeys() {
     SetHotkeysForBookmark(key)
@@ -66,7 +57,7 @@ CapsLock & d::Send("{Delete}")
 CapsLock & Esc::ToggleKeyboardMouse()
 #HotIf
 
-#HotIf cursorKeysEnabled && !vimMode
+#HotIf cursorKeysEnabled
 !j::Send("{Down}")
 !+j::Send("{PgDn}")
 !k::Send("{Up}")
@@ -79,10 +70,6 @@ CapsLock & Esc::ToggleKeyboardMouse()
 #HotIf
 
 #!k::ToggleCursorKeys()
-!v::ToggleVimMode()
-
-~LAlt::PortableVimLAltDown()
-~LAlt Up::PortableVimLAltUp()
 
 SetupTray() {
     try {
@@ -107,8 +94,6 @@ SetupTray() {
     A_TrayMenu.Add("Toggle cursor keys`tWin+Alt+K", (*) => ToggleCursorKeys())
     A_TrayMenu.SetIcon("Toggle cursor keys`tWin+Alt+K", PortableIcon("keyboard"),, 0)
     A_TrayMenu.Check("Toggle cursor keys`tWin+Alt+K")
-    A_TrayMenu.Add("Toggle Vim mode`tAlt tap / Alt+V", (*) => ToggleVimMode())
-    A_TrayMenu.SetIcon("Toggle Vim mode`tAlt tap / Alt+V", PortableIcon("vim-off"),, 0)
     A_TrayMenu.Add()
     A_TrayMenu.Add("Save now", (*) => SaveBookmarks())
     A_TrayMenu.SetIcon("Save now", PortableIcon("check"),, 0)
@@ -279,9 +264,7 @@ CopyHotkeyHelp() {
         . "Alt+h/j/k/l: arrow keys when cursor keys enabled`n"
         . "CapsLock+n: left click | CapsLock+,: right click`n"
         . "CapsLock+Esc: toggle CapsLock cursor keys`n"
-        . "Win+Alt+K: toggle Alt cursor keys`n"
-        . "Tap Left Alt or Alt+V: toggle Vim mode`n"
-        . "Vim mode: h/j/k/l arrows, w/b/e words, 0/$ line, g/Shift+g doc, d/c/y ops, v visual"
+        . "Win+Alt+K: toggle Alt cursor keys"
     Notify("Hotkey help copied")
 }
 
@@ -317,322 +300,6 @@ ToggleCursorKeys() {
         A_TrayMenu.Uncheck("Toggle cursor keys`tWin+Alt+K")
     }
     Notify("cursor keys " . (cursorKeysEnabled ? "Enabled" : "Disabled"))
-}
-
-ToggleVimMode() {
-    global vimMode
-    SetVimMode(!vimMode)
-}
-
-SetVimMode(enabled) {
-    global vimMode, vimCurrentMode, vimVisualMode, vimVisualLineMode, vimPendingOperator
-    vimMode := enabled
-    vimCurrentMode := enabled ? "normal" : "off"
-    vimVisualMode := false
-    vimVisualLineMode := false
-    vimPendingOperator := ""
-    if (vimMode) {
-        A_TrayMenu.Check("Toggle Vim mode`tAlt tap / Alt+V")
-    } else {
-        A_TrayMenu.Uncheck("Toggle Vim mode`tAlt tap / Alt+V")
-    }
-    Notify(vimMode ? "Vim mode enabled" : "Vim mode disabled")
-    return vimMode
-}
-
-PortableVimLAltDown(*) {
-    global vimLAltDownTick
-    vimLAltDownTick := A_TickCount
-    Send("{Blind}{vkE8}")
-}
-
-PortableVimLAltUp(*) {
-    global vimLAltDownTick, vimTapThresholdMs, vimMode
-    if (A_PriorKey != "LAlt") {
-        return
-    }
-    if ((A_TickCount - vimLAltDownTick) > vimTapThresholdMs) {
-        return
-    }
-    if (vimMode) {
-        VimEscape()
-    } else {
-        SetVimMode(true)
-    }
-}
-
-InitPortableVimMode() {
-    global vimRegistered
-    if (vimRegistered) {
-        return
-    }
-    vimRegistered := true
-
-    keymap := Map(
-        "h", VimAction("motion", "left"),
-        "j", VimAction("motion", "down"),
-        "k", VimAction("motion", "up"),
-        "l", VimAction("motion", "right"),
-        "b", VimAction("motion", "word_back"),
-        "w", VimAction("motion", "word_forward"),
-        "+w", VimAction("motion", "word_back"),
-        "e", VimAction("motion", "word_end"),
-        "0", VimAction("motion", "line_start"),
-        "+4", VimAction("motion", "line_end"),
-        "g", VimAction("motion", "doc_start"),
-        "+g", VimAction("motion", "doc_end"),
-        "+h", VimAction("history_nav", "back"),
-        "+l", VimAction("history_nav", "forward"),
-        "v", VimAction("toggle_visual"),
-        "+v", VimAction("toggle_visual_line"),
-        "x", VimAction("delete_char", false),
-        "+x", VimAction("delete_char", true),
-        "d", VimAction("operator", "d"),
-        "+d", VimAction("operator_motion", { operator: "d", motion: "line_end" }),
-        "c", VimAction("operator", "c"),
-        "+c", VimAction("operator_motion", { operator: "c", motion: "line_end" }),
-        "y", VimAction("operator", "y"),
-        "+y", VimAction("line_operator", "y"),
-        "p", VimAction("paste"),
-        "+p", VimAction("paste_before"),
-        "u", VimAction("send", "^z"),
-        "i", VimAction("insert_here"),
-        "+i", VimAction("insert_here", "{Home}"),
-        "a", VimAction("insert_after", "{Right}"),
-        "+a", VimAction("insert_after", "{End}"),
-        "o", VimAction("insert_after", "{End}{Enter}"),
-        "+o", VimAction("insert_after", "{Home}{Enter}{Up}")
-    )
-
-    VimRegisterKeymap(keymap)
-    VimRegisterSuppressedPrintables(keymap)
-
-    HotIf(VimHotIfEnabled)
-    Hotkey("Esc", (*) => VimEscape(), "On")
-    Hotkey("~LButton", (*) => SetVimMode(false), "On")
-    HotIf()
-}
-
-VimAction(kind, value?) {
-    action := { kind: kind }
-    if (IsSet(value)) {
-        action.value := value
-    }
-    return action
-}
-
-VimHotIf(*) {
-    global vimMode
-    return vimMode
-}
-
-VimHotIfEnabled(*) {
-    global vimMode
-    return vimMode
-}
-
-VimRegisterKeymap(keymap) {
-    HotIf(VimHotIf)
-    for hotkeyName, actionSpec in keymap {
-        Hotkey(hotkeyName, VimBuildHotkeyHandler(actionSpec), "On")
-    }
-    HotIf()
-}
-
-VimBuildHotkeyHandler(actionSpec) {
-    return (*) => VimExecuteAction(actionSpec)
-}
-
-VimRegisterSuppressedPrintables(keymap) {
-    allowedKeys := Map()
-    for hotkeyName, _ in keymap {
-        allowedKeys[hotkeyName] := true
-    }
-
-    suppressList := [
-        "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
-        "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
-        "+a", "+b", "+c", "+d", "+e", "+f", "+g", "+h", "+i", "+j", "+k", "+l", "+m",
-        "+n", "+o", "+p", "+q", "+r", "+s", "+t", "+u", "+v", "+w", "+x", "+y", "+z",
-        "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-        "+0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9",
-        "Space", "-", "=", "[", "]", ";", "'", ",", ".", "/", "Tab", "Enter", "Backspace", "Delete"
-    ]
-
-    HotIf(VimHotIf)
-    for _, hotkeyName in suppressList {
-        if !allowedKeys.Has(hotkeyName) {
-            Hotkey(hotkeyName, (*) => "", "On")
-        }
-    }
-    HotIf()
-}
-
-VimExecuteAction(actionSpec) {
-    switch actionSpec.kind {
-        case "motion":
-            VimHandleMotion(actionSpec.value)
-        case "toggle_visual":
-            ToggleVimVisualMode()
-        case "toggle_visual_line":
-            ToggleVimVisualLineMode()
-        case "delete_char":
-            VimDeleteChar(actionSpec.HasOwnProp("value") ? actionSpec.value : false)
-        case "operator":
-            VimHandleOperator(actionSpec.value)
-        case "operator_motion":
-            VimApplyOperator(actionSpec.value.operator, actionSpec.value.motion)
-        case "line_operator":
-            VimApplyLineOperator(actionSpec.value)
-        case "paste":
-            Send("^v")
-        case "paste_before":
-            Send("{Left}^v")
-        case "history_nav":
-            Send(actionSpec.value = "back" ? "!{Left}" : "!{Right}")
-        case "send":
-            Send(actionSpec.value)
-        case "insert_after":
-            if actionSpec.HasOwnProp("value")
-                Send(actionSpec.value)
-            SetVimMode(false)
-        case "insert_here":
-            if actionSpec.HasOwnProp("value")
-                Send(actionSpec.value)
-            SetVimMode(false)
-    }
-}
-
-VimMotionKeys(motion, select := false) {
-    switch motion {
-        case "left": return select ? "+{Left}" : "{Left}"
-        case "down": return select ? "+{Down}" : "{Down}"
-        case "up": return select ? "+{Up}" : "{Up}"
-        case "right": return select ? "+{Right}" : "{Right}"
-        case "word_back": return select ? "^+{Left}" : "^{Left}"
-        case "word_forward": return select ? "^+{Right}" : "^{Right}"
-        case "line_start": return select ? "+{Home}" : "{Home}"
-        case "line_end": return select ? "+{End}" : "{End}"
-        case "doc_start": return select ? "^+{Home}" : "^{Home}"
-        case "doc_end": return select ? "^+{End}" : "^{End}"
-        default: return ""
-    }
-}
-
-VimSendMotion(motion, select := false) {
-    global vimVisualLineMode
-    if (motion = "word_end") {
-        Send(select ? "^+{Right}+{Left}" : "^{Right}{Left}")
-        return
-    }
-    keys := VimMotionKeys(motion, select || vimVisualLineMode)
-    if (keys != "") {
-        Send(keys)
-    }
-}
-
-VimHandleMotion(motion) {
-    global vimPendingOperator, vimVisualMode
-    if (vimPendingOperator != "") {
-        op := vimPendingOperator
-        vimPendingOperator := ""
-        VimApplyOperator(op, motion)
-        return
-    }
-    VimSendMotion(motion, vimVisualMode)
-}
-
-VimHandleOperator(op) {
-    global vimPendingOperator, vimVisualMode, vimVisualLineMode
-    if (vimVisualMode || vimVisualLineMode) {
-        switch op {
-            case "d": Send("{Delete}")
-            case "c":
-                Send("{Delete}")
-                SetVimMode(false)
-                return
-            case "y": Send("^c")
-        }
-        VimSetPrimaryMode("normal")
-        return
-    }
-    if (vimPendingOperator = op) {
-        vimPendingOperator := ""
-        VimApplyLineOperator(op)
-        return
-    }
-    vimPendingOperator := op
-    SetTimer(() => vimPendingOperator := "", -1200)
-}
-
-VimApplyOperator(op, motion) {
-    VimSendMotion(motion, true)
-    switch op {
-        case "d": Send("{Delete}")
-        case "c":
-            Send("{Delete}")
-            SetVimMode(false)
-        case "y": Send("^c")
-    }
-}
-
-VimApplyLineOperator(op) {
-    Send("{Home}+{End}")
-    switch op {
-        case "d": Send("{Delete}")
-        case "c":
-            Send("{Delete}")
-            SetVimMode(false)
-        case "y": Send("^c")
-    }
-}
-
-VimDeleteChar(backward := false) {
-    global vimVisualMode, vimVisualLineMode
-    if (vimVisualMode || vimVisualLineMode) {
-        Send("{Delete}")
-        VimSetPrimaryMode("normal")
-        return
-    }
-    Send(backward ? "{Backspace}" : "{Delete}")
-}
-
-VimSetPrimaryMode(mode) {
-    global vimCurrentMode, vimMode, vimVisualMode, vimVisualLineMode
-    vimCurrentMode := mode
-    vimMode := (mode != "off")
-    vimVisualMode := (mode = "visual")
-    vimVisualLineMode := (mode = "visual_line")
-}
-
-ToggleVimVisualMode() {
-    global vimVisualMode
-    VimSetPrimaryMode(vimVisualMode ? "normal" : "visual")
-}
-
-ToggleVimVisualLineMode() {
-    global vimVisualLineMode
-    if (vimVisualLineMode) {
-        VimSetPrimaryMode("normal")
-        return
-    }
-    VimSetPrimaryMode("visual_line")
-    Send("{Home}+{End}")
-}
-
-VimEscape() {
-    global vimPendingOperator, vimVisualMode, vimVisualLineMode, vimMode
-    if (vimPendingOperator != "") {
-        vimPendingOperator := ""
-        return
-    }
-    if (vimVisualMode || vimVisualLineMode) {
-        VimSetPrimaryMode("normal")
-        return
-    }
-    if (vimMode) {
-        SetVimMode(false)
-    }
 }
 
 ToggleBookmarkHotkeys() {

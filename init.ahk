@@ -111,6 +111,7 @@ if (!A_IsCompiled) {
     {path: './roa.ahk', lastModVar: FileGetTime('./roa.ahk', "M")},
     {path: './menu.ahk', lastModVar: FileGetTime('./menu.ahk', "M")},
     {path: './menu-webview.ahk', lastModVar: FileGetTime('./menu-webview.ahk', "M")},
+    {path: './psmux-menu.ahk', lastModVar: FileGetTime('./psmux-menu.ahk', "M")},
     {path: './command-palette.ahk', lastModVar: FileGetTime('./command-palette.ahk', "M")},
     {path: './command-palette-catalog.ahk', lastModVar: FileGetTime('./command-palette-catalog.ahk', "M")},
     {path: './command-palette-frecency.ahk', lastModVar: FileGetTime('./command-palette-frecency.ahk', "M")},

@@ -1,5 +1,6 @@
 #usehook
 #SingleInstance Force
+A_MaxHotkeysPerInterval := 200
 CoordMode('Mouse', 'Window')
 InstallKeybdHook()
 InstallMouseHook()
@@ -53,6 +54,7 @@ onceADay()
 #Include ".\chord-examples.ahk"
 #Include ".\menu.ahk"
 #Include ".\menu-webview.ahk"
+#Include ".\psmux-menu.ahk"
 #Include ".\command-palette.ahk"
 
 InitMenusWhichKey()

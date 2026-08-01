@@ -1,3 +1,5 @@
+/// <reference path="../types/aos-runtime.d.ts" />
+
 import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { isAbsolute, join, relative } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -28,28 +30,9 @@ function fullPath(path: string) {
   return isAbsolute(path) ? path : join(root, path);
 }
 
-const requiredAosPiPrompts = [
-  "aos-evaluar-skills.md",
-  "aos-fanout.md",
-  "aos-guardar-sesion.md",
-  "aos-help.md",
-  "aos-orquestar.md",
-  "aos-sigamos.md",
-];
-
-const requiredAosPiExtensions = [
-  "aos-checkpoint-nudge.ts",
-  "aos-tools.ts",
-];
-
-const requiredAosToolCommands = [
-  "aos-compact",
-  "aos-continuar",
-  "aos-plan-implementar",
-  "aos-skills",
-  "aos-status",
-  "aos-sync",
-];
+const requiredAosPiPrompts: string[] = [];
+const requiredAosPiExtensions: string[] = [];
+const requiredAosToolCommands: string[] = [];
 
 const legacyAosPiPrompts = [
   "adopt-os.md",
@@ -331,12 +314,9 @@ for (const file of walkMarkdownFiles(join(root, "docs", "tracks"))) {
 }
 
 if (exists("docs/skills")) {
-  const skillDirs = listDirs("docs/skills");
-  if (!skillDirs.length) {
-    add("warn", "docs/skills/ exists but has no skill directories");
-  }
+const skillDirs = listDirs("docs/skills");
 
-  if (exists("docs/skills/README.md")) {
+if (exists("docs/skills/README.md")) {
     const skillNames = new Set(skillDirs.map((dir) => dir.split("/").at(-1) ?? dir));
     for (const skillName of backtickedSkillRefs(read("docs/skills/README.md"))) {
       if (!skillNames.has(skillName)) {
@@ -434,6 +414,18 @@ if (hasPiAdapter) {
   }
 }
 
+if (!globalAosExists("runtime/aos-flujo.ts")) add("error", "AOS_HOME does not expose runtime/aos-flujo.ts");
+try {
+  const requirements = JSON.parse(read("aos.requirements.json"));
+  const flow = requirements?.commands?.flow;
+  if (requirements?.schemaVersion !== 1 || flow?.contract !== "aos.flow-first" || flow?.minVersion !== "1.1.0" || flow?.scope !== "user" || flow?.cardinality !== 1) add("error", "aos.requirements.json must require one user/package AOS 1.1 /flow");
+} catch { add("error", "Missing or invalid aos.requirements.json"); }
+if (exists(".pi/extensions/aos-flujo.ts")) add("error", "Local aos-flujo.ts duplicates global /flow");
+const routing = exists("docs/reference/tool-routing.yaml") ? read("docs/reference/tool-routing.yaml") : "";
+for (const phrase of ["field: execution_route", "default: balanced", "economical: openai-codex/gpt-5.6-luna@high", "balanced: openai-codex/gpt-5.6-sol@medium", "strong: openai-codex/gpt-5.6-sol@high", "unavailable: fail_closed_without_fallback"]) if (!routing.includes(phrase)) add("error", `tool-routing.yaml missing ${phrase}`);
+if (exists(".pi/prompts/aos-gol.md")) add("error", ".pi/prompts/aos-gol.md competes with /flow");
+if (exists("docs/skills/aos-gol-lite")) add("error", "docs/skills/aos-gol-lite competes with /flow");
+
 if (!exists(".agents/skills")) {
   // Allowed: .agents/skills is a discovery toggle. Pi sessions keep it disabled to avoid slash noise.
 } else if (exists("docs/skills")) {
@@ -476,6 +468,23 @@ for (const [prefix, paths] of specPrefixes) {
 if (!exists("docs/.generated/context-index.md")) {
   add("warn", "Missing generated context index docs/.generated/context-index.md");
 } else {
+  const generatedIndex = read("docs/.generated/context-index.md");
+  const tracksSection = sectionContent(generatedIndex, "Tracks") ?? "";
+  const indexedTracks = [...tracksSection.matchAll(/\]\(\.\.\/(tracks\/[^)#]+\.md)\)/g)]
+    .map((match) => `docs/${match[1]}`)
+    .sort();
+  const memoryFocus = exists("docs/WORKING_MEMORY.md")
+    ? sectionContent(read("docs/WORKING_MEMORY.md"), "Foco Único De Ejecución") ?? ""
+    : "";
+  const focusState = memoryFocus.match(/^- \*\*Estado:\*\* `([^`]+)`/m)?.[1];
+  const focusField = focusState === "ready" ? "Plan" : focusState === "blocked" || focusState === "waiting_gate" ? "Referencia" : undefined;
+  const focusedTracks = focusField
+    ? [...memoryFocus.matchAll(new RegExp("^- \\*\\*" + focusField + ":\\*\\* `(docs/tracks/[^`]+\\.md)`", "gm"))].map((match) => match[1]).sort()
+    : [];
+  if (JSON.stringify(indexedTracks) !== JSON.stringify(focusedTracks)) {
+    add("error", `Generated context index tracks must match the current execution focus (expected: ${focusedTracks.join(", ") || "none"}; found: ${indexedTracks.join(", ") || "none"})`);
+  }
+
   const indexTime = modifiedMs("docs/.generated/context-index.md");
   const trackMarkdown = walkMarkdownFiles(join(root, "docs", "tracks")).map((path) =>
     relative(root, path).replaceAll("\\", "/"),
@@ -484,6 +493,7 @@ if (!exists("docs/.generated/context-index.md")) {
     walkMarkdownFiles(join(root, spec.path)).map((path) => relative(root, path).replaceAll("\\", "/")),
   );
   const indexSources = [
+    "scripts/context-index.ts",
     "docs/WORKING_MEMORY.md",
     "docs/GLOSSARY.md",
     "docs/TOPICS.md",

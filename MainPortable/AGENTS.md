@@ -27,7 +27,6 @@ This project lives under `C:\dev\main\MainPortable` for discoverability, but it 
 
 - Bookmarks: window save, activate, minimize, manager GUI, local INI persistence.
 - Cursor movement: copied from main `hotkeys-global.ahk`; `CapsLock+h/j/k/l` sends arrows, `Alt+h/j/k/l` is gated by `cursorKeysEnabled`.
-- Vim mode: ported from main `vim-mode.ahk` / `vim-keymap.ahk`; tap `LAlt`, `Alt+V`, or tray toggles it.
 - Tray: icon, manager, save/reload/clean/clear, config/log/folder/help, suspend/exit.
 - User custom layer: `user-custom.ahk` for personal portable hotkeys/functions.
 
@@ -35,4 +34,4 @@ This project lives under `C:\dev\main\MainPortable` for discoverability, but it 
 
 Tray menu item icons should visually match the main app. Keep copied PNG icons beside `MainPortable.ahk` so the folder remains copyable. The tray icon itself is `mainportable.ico`, downloaded from IconArchive. Source icon: Tulliana 2 `K control`, LGPL/open source.
 
-Source page: https://www.iconarchive.com/show/tulliana-2-icons-by-umut-pulat/k-control-icon.html
+Source page: <https://www.iconarchive.com/show/tulliana-2-icons-by-umut-pulat/k-control-icon.html>

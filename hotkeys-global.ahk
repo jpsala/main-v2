@@ -185,17 +185,21 @@
     +Insert:: PasteIntoTerminalWithShiftInsert()
     #HotIf
 
-    ; Keep native mouse selection available while letting terminal apps scroll
-    ; their own history through keyboard navigation (for example pi-sticky-input).
+    ; One wheel step equals one plain PageUp/PageDown keystroke.
     #HotIf IsWindowsTerminalWheelScrollActive()
-    WheelUp:: Send("^{PgUp}")
-    WheelDown:: Send("^{PgDn}")
+    WheelUp:: Send("{PgUp}")
+    WheelDown:: Send("{PgDn}")
     #HotIf
 
+
     IsWindowsTerminalWheelScrollActive() {
-      try return WinActive("ahk_exe WindowsTerminal.exe") > 0
+      try return IsWindowsTerminalWheelScrollProcess(WinGetProcessName("A"))
       catch
         return false
+    }
+
+    IsWindowsTerminalWheelScrollProcess(exe) {
+      return exe = "WindowsTerminal.exe" || exe = "wezterm-gui.exe"
     }
 
     IsTerminalShiftVPasteActive() {
@@ -209,6 +213,7 @@
         return false
 
       return exe = "WindowsTerminal.exe"
+        || exe = "wezterm-gui.exe"
         || exe = "OpenCode.exe"
         || exe = "pwsh.exe"
         || exe = "powershell.exe"

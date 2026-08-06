@@ -1,8 +1,6 @@
-/// <reference path="../types/aos-runtime.d.ts" />
-
 import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
-import { isAbsolute, join, relative } from "node:path";
-import { pathToFileURL } from "node:url";
+import { join, relative } from "node:path";
+import { validateToolRoutingPolicy } from "./tool-routing-contract.ts";
 
 type Finding = {
   level: "error" | "warn";
@@ -11,56 +9,10 @@ type Finding = {
 
 const root = process.cwd();
 const findings: Finding[] = [];
-const aosHome =
-  process.env.AOS_HOME?.trim() ||
-  (process.platform === "win32"
-    ? "C:\\dev\\os"
-    : join(process.env.HOME ?? "", "dev", "os"));
-let globalAosExists = (_path: string) => false;
-try {
-  const { aosPathExists } = await import(
-    pathToFileURL(join(aosHome, "scripts", "aos-home.ts")).href
-  );
-  globalAosExists = (path: string) => aosPathExists(path, aosHome);
-} catch {
-  // AOS_HOME is optional; local adapters remain the fallback.
-}
 
-function fullPath(path: string) {
-  return isAbsolute(path) ? path : join(root, path);
-}
-
-const requiredAosPiPrompts: string[] = [];
-const requiredAosPiExtensions: string[] = [];
-const requiredAosToolCommands: string[] = [];
-
-const legacyAosPiPrompts = [
-  "adopt-os.md",
-  "align-os-project.md",
-  "cerrar.md",
-  "checkpoint.md",
-  "continuar.md",
-  "gol.md",
-  "guardar-sesion.md",
-  "init-os.md",
-  "nueva-sesion.md",
-  "nueva-sesion-con-gol.md",
-  "os-help.md",
-  "perfect-os.md",
-  "realinear.md",
-  "sigamos.md",
-  "siguiente.md",
-  "threads.md",
-  "update-os.md",
-];
-
-const legacyAosPiExtensions = [
-  "checkpoint-nudge.ts",
-  "os-tools.ts",
-];
 
 function read(path: string) {
-  return readFileSync(fullPath(path), "utf8");
+  return readFileSync(join(root, path), "utf8");
 }
 
 function exists(path: string) {
@@ -170,14 +122,6 @@ function walkMarkdownFiles(dir: string): string[] {
   });
 }
 
-function listFileNames(path: string, extension?: string) {
-  const fullPath = join(root, path);
-  if (!existsSync(fullPath)) return [];
-  return readdirSync(fullPath, { withFileTypes: true })
-    .filter((entry) => entry.isFile() && (!extension || entry.name.endsWith(extension)))
-    .map((entry) => entry.name)
-    .sort();
-}
 
 for (const path of ["AGENTS.md", "docs/WORKING_MEMORY.md", "docs/TOPICS.md"]) {
   if (!exists(path)) add("error", `Missing ${path}`);
@@ -217,14 +161,6 @@ const docsKnowledge = exists("docs/topics/docs-knowledge-system.md")
   ? read("docs/topics/docs-knowledge-system.md")
   : "";
 
-if ((exists("docs/topics/agentic-os-operations.md") || exists("docs/skills/aos-realinear-os") || globalAosExists("docs/skills/aos-realinear-os"))
-  && (!agents.includes("aos-realinear-os") || !agents.includes("docs/topics/agentic-os-operations.md"))) {
-  add("warn", "AGENTS.md should keep a short `aos-realinear-os` pointer to docs/topics/agentic-os-operations.md");
-}
-
-if ((exists("docs/skills/aos-cerrar-sesion") || globalAosExists("docs/skills/aos-cerrar-sesion")) && !agents.includes("aos-cerrar-sesion")) {
-  add("warn", "AGENTS.md should keep short pointer for `aos-cerrar-sesion`");
-}
 
 if (docsReadme) {
   const readingRoute = sectionContent(docsReadme, "Regla De Lectura Liviana");
@@ -253,9 +189,6 @@ if (exists("docs/topics/docs-knowledge-system.md") && !topicsIndex.includes("top
   add("warn", "docs/topics/docs-knowledge-system.md exists but is not linked from docs/TOPICS.md");
 }
 
-if (exists("docs/topics/pi-agentic-os.md") && !topicsIndex.includes("topics/pi-agentic-os.md")) {
-  add("warn", "docs/topics/pi-agentic-os.md exists but is not linked from docs/TOPICS.md");
-}
 
 const topicFiles = exists("docs/topics")
   ? readdirSync(join(root, "docs", "topics")).filter((name) => name.endsWith(".md")).sort()
@@ -346,88 +279,107 @@ if (exists("docs/skills/README.md")) {
   }
 }
 
-if (exists(".pi/prompts")) {
-  for (const file of walkMarkdownFiles(join(root, ".pi", "prompts"))) {
-    const promptPath = relative(root, file).replaceAll("\\", "/");
-    const fm = frontmatter(read(promptPath));
-    if (fm) warnIfFrontmatterYamlLooksUnsafe(promptPath, fm);
+const legacyRuntimeSurfaces = [
+  "runtime/aos-flujo.ts",
+  "runtime/aos-flujo-omp.ts",
+  "aos.manifest.json",
+  "aos.requirements.json",
+  "types/aos-runtime.d.ts",
+  ".pi",
+  "docs/topics/pi-agentic-os.md",
+  "docs/topics/pi-extension-stack.md",
+];
+for (const path of legacyRuntimeSurfaces) {
+  if (exists(path)) {
+    add("error", `${path} is a legacy project agent runtime or manifest surface; OMP supplies the agentic harness`);
   }
 }
 
-const hasPiAdapter =
-  exists(".pi") ||
-  exists(".pi/prompts") ||
-  exists(".pi/extensions") ||
-  globalAosExists(".pi/prompts") ||
-  globalAosExists(".pi/extensions");
-if (hasPiAdapter) {
-  const promptNames = new Set(listFileNames(".pi/prompts", ".md"));
-  for (const prompt of requiredAosPiPrompts) {
-    if (
-      !promptNames.has(prompt) &&
-      !globalAosExists(join(".pi", "prompts", prompt))
-    ) {
-      add(
-        "error",
-        `.pi/prompts/${prompt} is missing locally and from AOS_HOME; required /${prompt.replace(/\.md$/, "")} slash prompt will not be visible`,
-      );
-    }
-  }
-
-  for (const prompt of legacyAosPiPrompts) {
-    if (promptNames.has(prompt)) {
-      const command = prompt.replace(/\.md$/, "");
-      const level: Finding["level"] = prompt === "threads.md" ? "error" : "warn";
-      add(level, `.pi/prompts/${prompt} is legacy unprefixed AOS slash command /${command}; use /aos-* prompt names to avoid slash palette drift`);
-    }
-  }
-
-  const extensionNames = new Set(listFileNames(".pi/extensions", ".ts"));
-  for (const extension of requiredAosPiExtensions) {
-    if (
-      !extensionNames.has(extension) &&
-      !globalAosExists(join(".pi", "extensions", extension))
-    ) {
-      add(
-        "error",
-        `.pi/extensions/${extension} is missing locally and from AOS_HOME; required AOS Pi extension commands/nudges will not load`,
-      );
-    }
-  }
-
-  for (const extension of legacyAosPiExtensions) {
-    if (extensionNames.has(extension)) {
-      add("warn", `.pi/extensions/${extension} is legacy unprefixed AOS adapter; use .pi/extensions/aos-* to avoid duplicate or stale slash commands`);
-    }
-  }
-
-  const localAosTools = ".pi/extensions/aos-tools.ts";
-  const aosTools = exists(localAosTools)
-    ? read(localAosTools)
-    : globalAosExists(localAosTools)
-      ? readFileSync(join(aosHome, localAosTools), "utf8")
-      : "";
-  for (const command of requiredAosToolCommands) {
-    if (!aosTools.includes(`registerCommand("${command}"`)) {
-      add("error", `AOS tools do not register /${command}`);
-    }
-  }
-}
-
-if (!globalAosExists("runtime/aos-flujo.ts")) add("error", "AOS_HOME does not expose runtime/aos-flujo.ts");
 try {
-  const requirements = JSON.parse(read("aos.requirements.json"));
-  const flow = requirements?.commands?.flow;
-  if (requirements?.schemaVersion !== 1 || flow?.contract !== "aos.flow-first" || flow?.minVersion !== "1.1.0" || flow?.scope !== "user" || flow?.cardinality !== 1) add("error", "aos.requirements.json must require one user/package AOS 1.1 /flow");
-} catch { add("error", "Missing or invalid aos.requirements.json"); }
-if (exists(".pi/extensions/aos-flujo.ts")) add("error", "Local aos-flujo.ts duplicates global /flow");
+  const pkg = JSON.parse(read("package.json"));
+  if ("pi" in pkg || "omp" in pkg) {
+    add("error", "package.json must not publish Pi or OMP agent runtime extensions");
+  }
+} catch {
+  add("error", "package.json is invalid JSON");
+}
+
 const routing = exists("docs/reference/tool-routing.yaml") ? read("docs/reference/tool-routing.yaml") : "";
-for (const phrase of ["field: execution_route", "default: balanced", "economical: openai-codex/gpt-5.6-luna@high", "balanced: openai-codex/gpt-5.6-sol@medium", "strong: openai-codex/gpt-5.6-sol@high", "unavailable: fail_closed_without_fallback"]) if (!routing.includes(phrase)) add("error", `tool-routing.yaml missing ${phrase}`);
-if (exists(".pi/prompts/aos-gol.md")) add("error", ".pi/prompts/aos-gol.md competes with /flow");
-if (exists("docs/skills/aos-gol-lite")) add("error", "docs/skills/aos-gol-lite competes with /flow");
+for (const error of validateToolRoutingPolicy(routing)) add("error", error);
+if (!exists("docs/topics/portable-multiharness-contract.md")) add("error", "Missing docs/topics/portable-multiharness-contract.md");
+
+const agenticHotPaths = [
+  "AGENTS.md",
+  "docs/WORKING_MEMORY.md",
+  "docs/TOPICS.md",
+  "docs/README.md",
+  "docs/PROJECT.md",
+  "docs/GLOSSARY.md",
+  "docs/.generated/context-index.md",
+  "docs/OS_PLAYBOOK.md",
+  "docs/topics/agent-tool-routing.md",
+  "docs/topics/agentic-os-operations.md",
+  "docs/topics/portable-multiharness-contract.md",
+  "docs/topics/local-codex-skills.md",
+  "docs/topics/os-quality.md",
+  "docs/skills/README.md",
+  "docs/reference/tool-routing.yaml",
+];
+for (const path of agenticHotPaths.filter(exists)) {
+  const content = read(path);
+  for (const legacyToken of [
+    "/flow",
+    "AOS_HOME",
+    "aos.requirements.json",
+    "runtime/aos-flujo",
+    "execution_route",
+    "global_aos_package",
+    "flow_first_explicit_model_route",
+  ]) {
+    if (content.includes(legacyToken)) {
+      add("error", `${path} reintroduces legacy project agent runtime token ${legacyToken}`);
+    }
+  }
+}
+
+const productPiLauncherContract = [
+  {
+    path: "menu-actions.ahk",
+    phrases: [
+      "RunPiMenuPreset(preset)",
+      'scriptPath := "C:\\tools\\pi-menu.ps1"',
+      "ShowPiMenuHelp()",
+    ],
+  },
+  {
+    path: "menus.ahk",
+    phrases: [
+      'label: "Pi launcher"',
+      'RunPiMenuPreset("plan")',
+      'label: "AOS normal"',
+      'RunPiMenuPreset("aos")',
+    ],
+  },
+  {
+    path: "tests/command-palette-probe.ahk",
+    phrases: ['"Pi launcher option "'],
+  },
+];
+for (const contract of productPiLauncherContract) {
+  if (!exists(contract.path)) {
+    add("error", `${contract.path} is missing; preserve the external product Pi launcher`);
+    continue;
+  }
+  const content = read(contract.path);
+  for (const phrase of contract.phrases) {
+    if (!content.includes(phrase)) {
+      add("error", `${contract.path} no longer preserves product Pi launcher contract ${phrase}`);
+    }
+  }
+}
 
 if (!exists(".agents/skills")) {
-  // Allowed: .agents/skills is a discovery toggle. Pi sessions keep it disabled to avoid slash noise.
+  // Allowed when this repo does not expose local skills to OMP discovery.
 } else if (exists("docs/skills")) {
   const stats = lstatSync(join(root, ".agents/skills"));
   if (!(stats.isSymbolicLink() || stats.isDirectory())) {
@@ -500,14 +452,6 @@ if (!exists("docs/.generated/context-index.md")) {
     "docs/OS_PROJECTS.md",
     "docs/skills/README.md",
     "docs/tracks/README.md",
-    ...walkMarkdownFiles(join(root, ".pi", "prompts")).map((path) => relative(root, path).replaceAll("\\", "/")),
-    ...(
-      exists(".pi/extensions")
-        ? readdirSync(join(root, ".pi", "extensions"), { withFileTypes: true })
-          .filter((entry) => entry.isFile() && entry.name.endsWith(".ts"))
-          .map((entry) => `.pi/extensions/${entry.name}`)
-        : []
-    ),
     ...topicFiles.map((file) => `docs/topics/${file}`),
     ...walkMarkdownFiles(join(root, "docs", "skills")).map((path) => relative(root, path).replaceAll("\\", "/")),
     ...trackMarkdown,

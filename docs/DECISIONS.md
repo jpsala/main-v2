@@ -1,5 +1,28 @@
 # Decisions
 
+## 2026-08-04 — Usar OMP nativo y preservar el launcher Pi de producto
+
+Estado: superseded el 2026-08-06 por Traycer con harness nativo como control
+de sesión cotidiana; OMP queda standalone/manual.
+
+Historia preservada: la capa agentic de Main usaba intención conversacional y
+capacidades nativas de OMP. La autoridad vigente usa Traycer con harness nativo;
+el repo conserva docs, skills e índice/audit de contexto, pero no runtime,
+manifest, package, prompts lifecycle ni adapter agentic local.
+
+Historia preservada: el launcher Pi de `menu-actions.ahk` y `menus.ahk` sigue siendo una integración
+de escritorio externa con presets y etiquetas propios; no es el harness agentic.
+Las decisiones AOS/Pi anteriores se preservan debajo como historia supersedida.
+
+### 2026-08-06 — Traycer con harness nativo controla la sesión; launcher Pi conserva autoridad de producto
+
+Estado: accepted
+
+La intención, planificación y ejecución cotidiana de este repo usan Traycer con
+harness nativo. OMP permanece standalone/manual y no gobierna la sesión por
+defecto. El launcher Pi, sus presets, etiquetas, probes y runtime AHK siguen
+siendo una integración de producto externa y conservan su autoridad propia.
+
 ## 2026-06-30 — Adoptar AOS local en main-v2
 
 `main-v2` queda registrado como proyecto activo en el manager AOS (`C:\dev\os`) y recibe una capa local adaptada: docs, topics, tracks, skills, scripts de contexto y adapter Pi.
@@ -22,7 +45,8 @@ Decision: los agentes deben usar web/internet libremente por defecto cuando cono
 
 Motivo: JP quiere recuperar poder agente usando conocimiento disponible en internet en vez de inferir de memoria, pero conservar control humano sobre cambios de entorno/instalaciones y sobre conflictos entre fuentes externas y realidad local.
 
-Proximo paso: aplicar la politica desde `AGENTS.md` y `docs/topics/pi-agentic-os.md`.
+Estado histórico: la política anterior vivía en `AGENTS.md` y
+`docs/topics/agent-tool-routing.md`; el topic Pi anterior fue retirado.
 
 ### 2026-07-04 - Simplificar continuidad Pi a `/aos-continuar` post-guardado
 
@@ -32,4 +56,4 @@ Decision: AOS deja un unico comando Pi para abrir una sesion/thread nuevo: `/aos
 
 Motivo: los comandos previos (`/aos-nueva-sesion`, `/aos-continuar-sesion`, `/aos-nueva-sesion-con-gol`, `/aos-continuar-con-gol`, `/aos-siguiente`) mezclaban guardado, handoff y ejecucion, generando ambiguedad. JP quiere revisar/controlar el guardado por separado y tener una continuidad confiable basada en docs vivos.
 
-Proximo paso: usar `/aos-continuar` despues de `/aos-guardar-sesion` y ejecutar `/reload` tras actualizar el adapter Pi.
+Estado posterior: OMP resuelve la continuidad agentic de la sesión; estos comandos y el adapter Pi local fueron retirados sin cambiar el launcher Pi de producto.

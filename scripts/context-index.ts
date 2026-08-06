@@ -1,5 +1,3 @@
-/// <reference path="../types/aos-runtime.d.ts" />
-
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join } from "node:path";
 
@@ -162,24 +160,28 @@ if (skillDirs.length) {
   lines.push("- Canon: [docs/skills/](../skills/)");
   if (operationalSkills.length) lines.push(`- Operational commands: ${operationalSkills.join(", ")}`);
   lines.push("- Guidance: [local-codex-skills](../topics/local-codex-skills.md)");
+} else if (exists("docs/skills")) {
+  lines.push("- No project-local skill directories found; `.agents/skills` remains valid OMP discovery.");
+  lines.push("- Guidance: [local-codex-skills](../topics/local-codex-skills.md)");
 } else {
   lines.push("- Missing docs/skills/");
 }
 lines.push("");
 
-lines.push("## Pi Resources");
+lines.push("## Portable Harness");
 lines.push("");
-const piPrompts = markdownFiles(".pi/prompts").map((path) => path.replace(".pi/prompts/", "").replace(/\.md$/, ""));
-const piExtensions = exists(".pi/extensions")
-  ? readdirSync(join(root, ".pi", "extensions"), { withFileTypes: true })
-    .filter((entry) => entry.isFile() && entry.name.endsWith(".ts"))
-    .map((entry) => entry.name)
-    .sort()
-  : [];
-if (piPrompts.length) lines.push(`- Prompts: ${piPrompts.join(", ")}`);
-if (piExtensions.length) lines.push(`- Extensions: ${piExtensions.join(", ")}`);
-if (!piPrompts.length && !piExtensions.length) lines.push("- No project Pi resources found.");
-lines.push("- Guidance: [pi-agentic-os](../topics/pi-agentic-os.md)");
+lines.push("- Daily entry: Traycer with a supported native harness.");
+lines.push("- OMP remains a deliberate standalone/manual fallback; no automatic invocation.");
+lines.push("- Product Pi launcher and runtime remain outside the agentic control plane.");
+lines.push("- No project runtime, manifest or `.traycer` dependency is required.");
+lines.push("- Guidance: [portable-multiharness-contract](../topics/portable-multiharness-contract.md)");
+lines.push("");
+
+lines.push("## Product Pi Launcher");
+lines.push("");
+lines.push("- External desktop integration: `C:\\tools\\pi-menu.ps1`.");
+lines.push("- AHK entry points: `RunPiMenuPreset` and `ShowPiMenuHelp`.");
+lines.push("- This product launcher is independent from the repository agentic harness.");
 lines.push("");
 
 lines.push("## Aliases");

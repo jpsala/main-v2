@@ -24,9 +24,11 @@ No abrir analisis largos ni referencias profundas salvo que el topic o la tarea 
 - `topics/automation-workflows.md`
 - `topics/agentic-os-operations.md`
 - `topics/docs-knowledge-system.md`
-- `topics/pi-agentic-os.md`
+- `topics/agent-tool-routing.md`
+- `topics/portable-multiharness-contract.md`
 - `topics/os-quality.md`
 - `topics/minimal-implementation.md`
+- `topics/local-codex-skills.md`
 
 ## Features
 

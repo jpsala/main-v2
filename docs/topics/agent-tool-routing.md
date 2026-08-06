@@ -2,29 +2,32 @@
 id: agent-tool-routing
 status: active
 kind: how-to
-triggers: [tool routing, /flow, execution_route, advisor, ask_user]
+triggers: [tool routing, routing decision, Traycer, OMP standalone, intención, todos, subagentes]
 primary_refs:
   - docs/reference/tool-routing.yaml
-  - docs/topics/pi-agentic-os.md
+  - docs/OS_PLAYBOOK.md
 ---
 
 # Agent Tool Routing
 
-Main sigue la política global flow-first. `balanced` con Sol Medium es la ruta
-normal, incluso para trabajo multifile, cross-layer o nativo acotado cuando la
-decisión ya está tomada y hay checks razonables. `strong` con Sol High queda sólo
-para ambigüedad material, arquitectura abierta, seguridad/auth/privacidad,
-irreversibilidad, alto impacto productivo o fallos materiales difíciles de
-detectar. Prioridad, cantidad de archivos, stack nativo, contrato/review,
-planificación compleja o un efecto externo ya autorizado no bastan. `economical`
-con Luna requiere pedido explícito de JP por cuota y checks deterministas. Hacer
-aplica la ruta en la sesión nueva; modelo o auth ausentes bloquean sin fallback.
-`Ctrl+P` alterna Sol Medium/High y `Ctrl+L` conserva la selección manual.
+Traycer con harness nativo interpreta la intención conversacional:
 
-CodeMapper/FFF orientan; Lens/LSP diagnostican; Advisor aporta criterio; web
-investiga; Ask User controla gates. No son motores alternativos. Taskflow,
-Council, planner, until-done, dgoal y aliases lifecycle están retirados.
+- conversar o investigar no edita;
+- pedir un plan produce un brief proporcional, sin ejecutarlo;
+- pedir implementación actúa en la sesión actual y preserva cambios existentes;
+- pedir persistencia guarda sólo valor durable faltante.
+
+Usar las tools mínimas suficientes. Para trabajo multietapa usar todos; subagentes
+sólo por pedido explícito de JP y para slices independientes. El hilo principal
+integra y verifica. No abrir otra sesión, crear handoff ni autoenviar por rutina;
+el handoff sólo se genera bajo demanda para OMP standalone.
+
+`Sol Medium` es la ruta normal. High queda para ambigüedad material, arquitectura
+abierta, seguridad/privacidad, irreversibilidad, producción o alto impacto. No
+degradar modelo, provider o auth automáticamente.
 
 Automatización desktop, hotkeys, clipboard, procesos, cuentas y datos reales
-conservan los gates de `AGENTS.md`. La policy verificable vive en
-`docs/reference/tool-routing.yaml`.
+conservan los gates de `AGENTS.md`. El launcher Pi AHK es una integración de
+producto externa y sus presets no seleccionan el harness agentic del repo. La
+política verificable vive en `docs/reference/tool-routing.yaml` y el contrato
+portable en `docs/topics/portable-multiharness-contract.md`.

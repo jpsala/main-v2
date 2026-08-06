@@ -4,9 +4,8 @@ status: reference
 kind: guide
 triggers:
   - skills
-  - codex skills
+  - omp skills
   - .agents
-  - slash noise
   - discovery
 primary_refs:
   - docs/skills/
@@ -14,10 +13,10 @@ primary_refs:
   - scripts/toggle-skills-link.ps1
 ---
 
-# Local Codex Skills
+# Local Harness Skills
 
-`docs/skills/` es la fuente canonica local. `.agents/skills` es solo una ruta de
-compatibilidad para herramientas que descubren skills desde `.agents`.
+`docs/skills/` es la fuente canónica local. `.agents/skills` es la ruta estable
+de discovery del harness hacia ese canon; no es un package ni runtime del proyecto.
 
 ## Comandos
 
@@ -27,13 +26,13 @@ powershell -ExecutionPolicy Bypass -File scripts/toggle-skills-link.ps1 on
 powershell -ExecutionPolicy Bypass -File scripts/toggle-skills-link.ps1 off
 ```
 
-## Politica
+## Política
 
 - No duplicar skills como carpetas reales en `.agents/skills`.
 - Si existe, `.agents/skills` debe resolver por junction/symlink a `docs/skills`.
 - `off` y `toggle` son aliases legacy no destructivos: el link se conserva para
-  evitar paths cacheados rotos en Pi/Codex.
-- Si aparece una carpeta real, correr `scripts/ensure-skills-link.ps1`; el script
-  la mueve a backup, fusiona items faltantes al canon y recrea el junction.
-- Si Pi muestra demasiado ruido en slash, ajustar visibilidad/config del host; no
-  borrar el canon ni romper la ruta de compatibilidad.
+  evitar rutas cacheadas rotas.
+- Si aparece una carpeta real, `scripts/ensure-skills-link.ps1` la mueve a backup,
+  fusiona items faltantes al canon y recrea el junction.
+- Ajustar el canon o la discovery del harness, no crear prompts lifecycle,
+  manifests o extensiones locales.

@@ -26,7 +26,7 @@ Convertir Windows en un espacio keyboard-first con:
 - AutoHotkey v2.
 - WebView2 para ventanas HTML locales.
 - PowerShell/Bat/Inno Setup para build/instalador.
-- Scripts AOS con Bun/TypeScript solo para contexto agentico.
+- Scripts de contexto con Bun/TypeScript sólo para índice y audit de contexto agentic.
 
 ## Superficies importantes
 
@@ -42,6 +42,9 @@ Convertir Windows en un espacio keyboard-first con:
 | Settings/WebView | `settings-window.ahk`, `ui/settings.html`, `ui/shared.css`, `ui/ahk-bridge.js` |
 | Portable | `MainPortable/` |
 
-## Politica OS local
+## Política agentic local
 
-Este repo recibe AOS como capa local adaptada: docs, topics, tracks, skills, scripts de contexto y adapter Pi. No debe copiar gobierno manager-only de `C:\dev\os` como registry global o decisiones del kit.
+Este repo es un downstream sobre Traycer con harness nativo: conserva docs,
+topics, tracks, skills e índice/audit de contexto, sin runtime, manifest,
+package ni adapter agentic local. OMP queda standalone/manual y el launcher Pi
+AHK es una integración de producto externa que no forma parte de esa capa.

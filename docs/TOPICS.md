@@ -16,14 +16,13 @@ Router de conocimiento local. Abrir solo lo necesario.
 | [`project-architecture`](topics/project-architecture.md) | Include graph, runtime AHK, config, hot reload, estructura general. |
 | [`autohotkey-validation`](topics/autohotkey-validation.md) | Probes AHK sin dialogos, runner bloqueante, WebView/JS y smoke fisico. |
 | [`automation-workflows`](topics/automation-workflows.md) | Menus, ROA, bookmarks, browser profiles, VS Code/Cursor, chords y gestos. |
-| [`agentic-os-operations`](topics/agentic-os-operations.md) | Realinear/adoptar/actualizar/auditar la capa agentica local. |
+| [`agentic-os-operations`](topics/agentic-os-operations.md) | Realinear, actualizar o auditar la capa agentic local sobre Traycer/harness nativo. |
 | [`docs-knowledge-system`](topics/docs-knowledge-system.md) | Como guardar contexto durable sin convertir docs en transcript. |
-| [`pi-agentic-os`](topics/pi-agentic-os.md) | `/flow` global, `execution_route`, ask_user y computer use seguro. |
-| [`pi-extension-stack`](topics/pi-extension-stack.md) | Elegir apoyos Pi sin copiar inventario global; referencia `C:/dev/os`. |
-| [`agent-tool-routing`](topics/agent-tool-routing.md) | Ruta explícita del brief y gates de advisor/ask_user. |
-| [`os-quality`](topics/os-quality.md) | Checklist para dejar el OS local liviano y confiable. |
+| [`agent-tool-routing`](topics/agent-tool-routing.md) | Intención Traycer, tools, todos, subagentes y gates del escritorio. |
+| [`os-quality`](topics/os-quality.md) | Checklist para dejar la capa agentic liviana y confiable. |
 | [`minimal-implementation`](topics/minimal-implementation.md) | Politica de cambios chicos, YAGNI y evitar bloat. |
-| [`local-codex-skills`](topics/local-codex-skills.md) | Junction opcional `.agents/skills` y discovery de skills. |
+| [`local-codex-skills`](topics/local-codex-skills.md) | Junction opcional `.agents/skills` y discovery del harness. |
+| [`portable-multiharness-contract`](topics/portable-multiharness-contract.md) | Frontera portable Traycer/OMP/Pi y handoff bajo demanda. |
 
 ## Docs raiz y referencias
 

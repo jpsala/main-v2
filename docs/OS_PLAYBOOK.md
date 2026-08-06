@@ -1,13 +1,26 @@
-# AOS Playbook Main
+# Traycer Native Playbook Main
 
-Usar `/flow` como única entrada cotidiana. Planear declara `execution_route` y
-Hacer la aplica en una sesión nueva enlazada, sin Agent ni auto-send. `balanced`
-con Sol Medium es la ruta normal aun para trabajo multifile, cross-layer o nativo
-acotado. `strong` con Sol High queda sólo para ambigüedad material o fallos
-materiales difíciles de detectar; prioridad, cantidad de archivos o un efecto
-externo autorizado no bastan. `economical` con Luna requiere pedido explícito de
-JP por cuota y checks deterministas. `Ctrl+P` alterna Sol Medium/High y `Ctrl+L`
-conserva la selección manual. Modelo o auth ausentes bloquean sin fallback.
+Traycer con un harness nativo determina la acción cotidiana:
+
+- conversar o investigar no implementa;
+- pedir un plan produce un brief proporcional y no lo ejecuta;
+- pedir implementación actúa en la sesión actual y preserva cambios existentes;
+- pedir persistencia guarda sólo estado durable faltante.
+
+Usar tools nativas mínimas suficientes. Para trabajo multietapa usar todos;
+subagentes sólo por pedido explícito de JP y para slices independientes. No abrir
+sesiones, crear handoffs ni autoenviar por rutina, y no añadir package, extensión,
+prompt lifecycle, manifest o adapter ceremonial.
+
+`Sol Medium` es la ruta normal. Reservar High para ambigüedad material,
+arquitectura abierta, seguridad/privacidad, irreversibilidad, producción o alto
+impacto. No degradar modelo, provider o auth automáticamente.
+
+OMP queda disponible sólo como harness standalone/manual. El launcher Pi AHK
+conserva su integración de producto fuera de este control plane.
+
+El launcher Pi AHK es una integración de producto externa y conserva sus presets
+y etiquetas; no define el trabajo agentic del repo.
 
 ```powershell
 bun run context:index

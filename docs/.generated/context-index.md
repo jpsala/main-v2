@@ -2,20 +2,19 @@
 
 Generated cache. Do not edit by hand.
 
-Generated: 2026-08-01T23:15:04.982Z
+Generated: 2026-08-06T18:34:15.456Z
 
 ## Topics
 
 - active: [agent-tool-routing](../topics/agent-tool-routing.md)
-- active: [agentic-os-operations](../topics/agentic-os-operations.md) - aos, realinear os, auditar sistema agentico, reparar sistema agentico, actualizar os, adoptar os, contexto agentico
+- active: [agentic-os-operations](../topics/agentic-os-operations.md) - traycer, omp standalone, agentic os, realinear os, auditar sistema agentico, reparar sistema agentico, actualizar os, contexto agentico
 - active: [autohotkey-validation](../topics/autohotkey-validation.md) - autohotkey, ahk, probe, runtime error, webview
 - active: [automation-workflows](../topics/automation-workflows.md) - menus, roa, run or activate, bookmarks, perfiles, vivaldi, cursor, vscode
 - active: [docs-knowledge-system](../topics/docs-knowledge-system.md) - docs, documentacion, topics, memoria, context index, guardar sesion, tracks
-- reference: [local-codex-skills](../topics/local-codex-skills.md) - skills, codex skills, .agents, slash noise, discovery
+- reference: [local-codex-skills](../topics/local-codex-skills.md) - skills, omp skills, .agents, discovery
 - active: [minimal-implementation](../topics/minimal-implementation.md) - implementacion minima, minimal implementation, yagni, bloat, over-engineering, ponytail
-- active: [os-quality](../topics/os-quality.md) - perfect os, dejar en condiciones, calidad agentica, audit, contexto liviano
-- active: [pi-agentic-os](../topics/pi-agentic-os.md)
-- active: [pi-extension-stack](../topics/pi-extension-stack.md)
+- active: [os-quality](../topics/os-quality.md) - dejar en condiciones, calidad agentica, audit, contexto liviano, omp
+- active: [portable-multiharness-contract](../topics/portable-multiharness-contract.md) - contrato portable, multi-harness, Traycer, OMP standalone, handoff bajo demanda, worktree
 - active: [project-architecture](../topics/project-architecture.md) - arquitectura, include graph, main.ahk, init.ahk, hot reload, config.ini, webview
 
 ## Tracks
@@ -32,17 +31,27 @@ Generated: 2026-08-01T23:15:04.982Z
 
 ## Skills
 
-- Missing docs/skills/
+- No project-local skill directories found; `.agents/skills` remains valid OMP discovery.
+- Guidance: [local-codex-skills](../topics/local-codex-skills.md)
 
-## Pi Resources
+## Portable Harness
 
-- No project Pi resources found.
-- Guidance: [pi-agentic-os](../topics/pi-agentic-os.md)
+- Daily entry: Traycer with a supported native harness.
+- OMP remains a deliberate standalone/manual fallback; no automatic invocation.
+- Product Pi launcher and runtime remain outside the agentic control plane.
+- No project runtime, manifest or `.traycer` dependency is required.
+- Guidance: [portable-multiharness-contract](../topics/portable-multiharness-contract.md)
+
+## Product Pi Launcher
+
+- External desktop integration: `C:\tools\pi-menu.ps1`.
+- AHK entry points: `RunPiMenuPreset` and `ShowPiMenuHelp`.
+- This product launcher is independent from the repository agentic harness.
 
 ## Aliases
 
 | Termino | Significado |
-| AOS | Agentic OS local: docs, topics, scripts, skills y adapters para que agentes trabajen con contexto liviano. |
+| OMP standalone | Harness manual deliberado para continuidad puntual; no controla la sesión cotidiana ni es dependencia del repo. |
 | main-v2 | Este repo, command center personal Windows con AutoHotkey v2. |
 | Hot path | Archivos iniciales que un agente debe leer: context index, working memory, topics y topic puntual. |
 | ROA / Roa | Run-or-Activate: activar/minimizar ventana existente o lanzar si falta. |
@@ -50,8 +59,8 @@ Generated: 2026-08-01T23:15:04.982Z
 | Which-key / chord | Menu de prefijo con hints transitorios para comandos anidados. |
 | Bookmark | Binding persistente de una ventana viva a una tecla, guardado en `config.ini`. |
 | Runtime vivo | Automatizacion que puede afectar el escritorio real si se ejecuta/reinicia. |
-| Downstream AOS | Instalacion local adaptada de AOS en este repo; no incluye manager-only del upstream. |
-| Manager-only | Piezas que viven solo en `C:\dev\os`, como registry global y decisiones del kit. |
+| Capa agentic local | Docs, topics, scripts de contexto y skills adaptados a Main bajo Traycer/harness nativo; no incluye gobierno manager. |
+| Manager-only | Piezas de gobierno que viven fuera de este repo, como registry global y decisiones del kit. |
 | Track | Trabajo vivo retomable en `docs/tracks/`. |
 | Topic | Documento recuperable en `docs/topics/` con triggers y refs. |
-| Pi adapter | `.pi/` con prompts/extensiones para slash commands locales `/aos-*`. |
+| Pi launcher | Integración de producto AHK que abre `C:\tools\pi-menu.ps1`; es independiente del harness agentic del repo. |

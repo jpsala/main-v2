@@ -1,7 +1,5 @@
 # AGENTS.md
 
-Guia corta para agentes en este repo.
-
 ## Mision
 
 `main-v2` es una capa personal de automatizacion Windows con AutoHotkey v2 + WebView2. Sirve para lanzar/reusar ventanas, perfiles de navegador, menus keyboard-first, bookmarks, flujos de VS Code/Cursor, gestos de mouse y pequenas UIs locales.
@@ -20,22 +18,19 @@ Referencia profunda preservada del AGENTS anterior: `docs/reference/agent-guide-
 
 ## Mapa rapido
 
-- Entrada/include graph: `main.ahk`.
-- Startup, config, perfiles, hot reload: `init.ahk`.
-- Menus principales `Win+A`, `Win+W`, `Win+C`: `menus.ahk` y `menu-actions.ahk`.
-- Run-or-Activate: `roa.ahk`.
-- Which-key/chords: `menus-whichkey.ahk`, `lib/chord-hotkeys.ahk`, `ui/chord-hint.html`.
-- Bookmarks: `bookmarks.ahk`, `config.ini`.
-- VS Code/Cursor: `code.ahk`.
-- Gestos: `docs/features/gestures.md`, `mouse-gestures-conditions.ahk`, `mouse-gestures-wizard.ahk`, `mouse-gestures.ahk`.
-- WebView UIs: `settings-window.ahk`, `menu-webview.ahk`, `ui/*.html`.
-- Portable toolkit separado: `MainPortable/` y `MainPortable/AGENTS.md`.
+- Core: `main.ahk`; startup/config/hot reload: `init.ahk`; Run-or-Activate: `roa.ahk`.
+- Menús `Win+A/W/C`: `menus.ahk`, `menu-actions.ahk`; chords: `menus-whichkey.ahk`, `lib/chord-hotkeys.ahk`.
+- Bookmarks y editores: `bookmarks.ahk`, `config.ini`, `code.ahk`.
+- Gestos: `docs/features/gestures.md` y `mouse-gestures*.ahk`.
+- WebView: `settings-window.ahk`, `menu-webview.ahk`, `ui/*.html`.
+- Toolkit separado: `MainPortable/` y `MainPortable/AGENTS.md`.
 
 ## Web, Internet E Instalaciones
 
-- Usar web/internet libremente por defecto cuando conocimiento externo o cambiante evite adivinar: docs oficiales, releases, issues/source, metadata de paquetes, errores, APIs y comparativas. No enviar secretos, `.env`, codigo privado sensible, datos personales ni credenciales a servicios externos.
-- Si evidencia online contradice el repo local, docs del proyecto o comportamiento observado, consultar a JP antes de decidir; presentar ambas evidencias, fuentes e impacto practico.
-- Antes de instalar dependencias, CLIs globales, paquetes de sistema, herramientas de package-manager o binarios/scripts remotos, pedir autorizacion explicita con comando exacto, alcance, motivo, riesgos, alternativa, cambios esperados y rollback. Tratar `curl | sh`/scripts remotos como alto riesgo y preferir alternativas auditables.
+- Usar web cuando evite adivinar; no enviar secretos, `.env`, código privado, datos personales ni credenciales.
+- Browser visible/desatendido no requiere autorización para elegir, abrir, navegar o inspeccionar. Usar la capacidad nativa del harness activo; login nuevo y efectos externos sensibles conservan los gates locales. La frontera portable está en `docs/topics/portable-multiharness-contract.md`.
+- Si evidencia online contradice repo, docs o runtime, consultar a JP con fuentes e impacto.
+- Antes de instalar paquetes, CLIs o scripts/binarios remotos, pedir autorización con comando, alcance, riesgos, alternativa y rollback; evitar `curl | sh`.
 
 ## Reglas de cambio
 
@@ -66,15 +61,16 @@ Referencia profunda preservada del AGENTS anterior: `docs/reference/agent-guide-
 - Ejecutar probes solo con `scripts/run-ahk-probe.ps1`; nunca usar `main.ahk` como test ni confiar en el exit code directo del exe GUI.
 - Validar por capas: carga -> logica/JSON -> WebView/JS -> hot reload -> proceso/log -> smoke fisico. No reiniciar `main.ahk`.
 
-## Agentic OS Local
+## Capa Agentic Traycer + OMP standalone
 
-- `/flow` es la única entrada Pi cotidiana: Pensar, Planear, Hacer o Cerrar.
-- Planear usa `balanced` con Sol Medium como ruta normal, incluso para trabajo multifile/cross-layer/nativo acotado. `strong` con Sol High queda sólo para ambigüedad material, arquitectura abierta, seguridad/auth/privacidad, irreversibilidad, alto impacto productivo o fallos materiales difíciles de detectar. `economical` con Luna requiere pedido explícito de JP por cuota y checks deterministas. Hacer abre una sesión nueva enlazada y bloquea sin fallback si falta modelo o auth.
-- `Ctrl+P` alterna Sol Medium/High; `Ctrl+L` conserva la selección manual de modelo.
-- Hacer ejecuta directamente allí sin Agent ni auto-send; Cerrar guarda sólo valor durable faltante. No recrear slash lifecycle locales ni motores retirados.
-- `aos-realinear-os` abre `docs/topics/agentic-os-operations.md`; init/adopt/update/align/perfect son operaciones manager de `C:/dev/os`.
-- `docs/skills/` retiene sólo skills propias de main y `.agents/skills` sigue siendo su junction de compatibilidad.
-- `advisor` se usa para decisiones fuertes, arquitectura, seguridad o evidencia en conflicto; no como ceremonia.
+- Traycer con harness nativo interpreta la intención conversacional: conversar no implementa, pedir un plan no lo ejecuta y pedir implementación actúa en la sesión actual.
+- OMP queda como harness standalone/manual deliberado; no hay invocación automática ni fallback silencioso.
+- Usar las tools nativas mínimas suficientes; todos para trabajo multietapa y subagentes sólo por pedido explícito de JP, en slices independientes.
+- `Sol Medium` es la ruta normal. Reservar High para ambigüedad material, arquitectura abierta, seguridad/privacidad, irreversibilidad, producción o alto impacto; no degradar modelo, provider o auth automáticamente.
+- No abrir otra sesión, crear handoff ni autoenviar por rutina; handoff sólo bajo demanda para continuar desde OMP. Persistir una sola vez sólo el valor durable faltante.
+- No añadir runtime, manifest, package, prompts lifecycle ni extensiones OMP/Pi que dupliquen el harness.
+- `docs/skills/` contiene capacidades locales reales y `.agents/skills` mantiene discovery OMP estable.
+- El launcher Pi de `menu-actions.ahk`/`menus.ahk` es producto de escritorio externo (`C:\tools\pi-menu.ps1`), no la capa agentic del repo. Preservar sus presets, etiquetas y probes salvo pedido explícito.
 
 ## Validacion recomendada
 

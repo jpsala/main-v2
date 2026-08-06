@@ -3,11 +3,11 @@ id: os-quality
 status: active
 kind: checklist
 triggers:
-  - perfect os
   - dejar en condiciones
   - calidad agentica
   - audit
   - contexto liviano
+  - omp
 primary_refs:
   - AGENTS.md
   - docs/WORKING_MEMORY.md
@@ -15,9 +15,9 @@ primary_refs:
   - scripts/agent-context-audit.ts
 ---
 
-# OS Quality
+# Agentic Quality
 
-Checklist para dejar la capa agentica confiable.
+Checklist para dejar la capa agentic confiable.
 
 ## Ruta caliente
 
@@ -34,24 +34,25 @@ Checklist para dejar la capa agentica confiable.
 - Tracks para trabajos vivos, no transcripts.
 - Referencias profundas linkeadas, no obligatorias en lectura inicial.
 
-## Adapters
+## Traycer + harness nativo
 
-- `docs/skills/` es canon local.
-- `.agents/skills` es junction estable de compatibilidad; si existe debe resolver a `docs/skills`.
-- `.pi` debe tener prompts/extensiones `/aos-*` sincronizados.
+- `docs/skills/` es canon local y `.agents/skills` discovery estable.
+- No hay runtime, manifest, package, prompt lifecycle ni extensión agentic local.
+- La intención conversacional usa tools, todos y subagentes nativos del harness activo sólo cuando corresponde.
+- OMP queda standalone/manual y no gobierna la sesión cotidiana.
+- El audit rechaza superficies agentic legacy sin prohibir el launcher Pi de producto.
 
 ## Seguridad
 
 - No secretos ni estado local en git.
 - No ejecutar runtime vivo sin permiso.
-- No borrar memoria historica sin destino claro.
+- No borrar memoria histórica sin destino claro.
+- Preservar presets, etiquetas, tests y script externo del launcher Pi.
 
-## Validacion
+## Validación
 
 ```powershell
 bun run context:index
 bun run context:audit
 powershell -ExecutionPolicy Bypass -File scripts/toggle-skills-link.ps1 status
-bun -e "await import('./.pi/extensions/aos-tools.ts'); console.log('aos-tools import ok')"
-git diff --check
 ```

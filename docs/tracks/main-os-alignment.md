@@ -1,6 +1,6 @@
 ---
-status: active
-updated: 2026-06-30
+status: historical
+updated: 2026-08-04
 priority: medium
 ---
 
@@ -8,9 +8,12 @@ priority: medium
 
 ## Estado
 
-AOS local adoptado: AGENTS compacto, docs core, topics, skills, scripts de contexto y adapter Pi.
+Registro histórico de la adopción AOS del 2026-06-30, supersedida el 2026-08-04
+por la capa OMP nativa y, para la autoridad diaria, posteriormente supersedida
+el 2026-08-06 por Traycer con harness nativo. Los prompts/extensiones
+mencionados abajo ya no son superficies activas del repo.
 
-## Hecho
+## Hecho en 2026-06-30
 
 - Preservada la guia larga previa en `docs/reference/agent-guide-before-aos-2026-06-30.md`.
 - Instalados scripts `context-index`, `context-refresh`, `agent-context-audit` y skills toggle.
@@ -18,9 +21,17 @@ AOS local adoptado: AGENTS compacto, docs core, topics, skills, scripts de conte
 - Agregados topics locales para arquitectura, workflows y operaciones AOS.
 - Worker de alineacion 2026-06-30: prompts/skills Pi quedaron adaptados a repo downstream; `aos-align-os-project` ahora reporta nota de registry sin editar registry manager-only, e init/adopt redirigen al upstream manager.
 
-## Next Step
+## Estado posterior
 
-Revisar en un lote separado los documentos historicos de raiz y decidir si migrarlos a `docs/reference/` o dejarlos como artefactos raiz.
+Main conserva docs, topics, skills e índice/audit sobre OMP nativo como registro
+histórico, sin runtime, manifest ni adapter agentic local. El launcher Pi AHK
+continúa como integración de producto independiente.
+
+## Supersesión vigente (2026-08-06)
+
+Traycer con harness nativo es la autoridad de sesión cotidiana para esta capa.
+OMP queda standalone/manual y no gobierna la sesión; el launcher Pi de producto
+permanece independiente.
 
 ## Referencias
 

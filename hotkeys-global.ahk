@@ -366,12 +366,10 @@
 ;     }
 
 
-    ^!WheelUp:: brightness('up')
-    ^!WheelDown:: brightness('down')
 
     brightness(direction) {
       /*
-          Change brightness using ctrl+alt+wheel, direction is up or down
+          Change brightness on the monitor under the pointer.
 
           Adapter Name: "AMD Radeon(TM) Graphics"
           Short Monitor ID: "SAM707F"

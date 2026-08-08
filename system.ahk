@@ -9,15 +9,44 @@
 OnExit(SaveAppInstanceMap)
 LoadAppInstanceMap()
 
-#HotIf IsVolumeEdge()
+#HotIf IsMouseAtMonitorTopOrBottomEdge()
     WheelDown:: volChange(2)
     WheelUp:: volChange(-2)
+    ^WheelDown:: brightness("down")
+    ^WheelUp:: brightness("up")
 #HotIf
 
-IsVolumeEdge() {
+IsMouseAtMonitorTopOrBottomEdge() {
     static edgePx := 10
-    MouseGetPos(, &y)
-    return (y <= edgePx || y >= (A_ScreenHeight - edgePx))
+    mouseCoordMode := CoordMode("Mouse", "Screen")
+    MouseGetPos(&mouseX, &mouseY)
+    CoordMode("Mouse", mouseCoordMode)
+
+    loop MonitorGetCount() {
+        MonitorGet(A_Index, &left, &top, &right, &bottom)
+        if IsPointAtMonitorTopOrBottomEdge(
+            mouseX,
+            mouseY,
+            left,
+            top,
+            right,
+            bottom,
+            edgePx
+        )
+            return true
+    }
+
+    return false
+}
+
+IsPointAtMonitorTopOrBottomEdge(x, y, left, top, right, bottom, edgePx := 10) {
+    return (
+        x >= left
+        && x < right
+        && y >= top
+        && y < bottom
+        && (y < top + edgePx || y >= bottom - edgePx)
+    )
 }
 
 ; ===================================================================

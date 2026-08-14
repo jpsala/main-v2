@@ -135,18 +135,18 @@
 ;     #!r:: handleRename(true)
     #HotIf
 
-    SetTimer(() => checkSQArrowOverlay(), 2000)
+    ; SetTimer(() => checkSQArrowOverlay(), 2000)
 
-    checkSQArrowOverlay() {
-      global arrowGui
-      SQActive := (WinActive('ahk_class RustdeskMultiWindow') or WinActive('ahk_exe mstsc.exe') or WinActive('ahk_exe StrategyQuantX_nocheck.exe') or WinActive('ahk_exe StrategyQuantX_ui.exe'))
-      if (!arrowGui && SQActive) {
-        showSQArrowOverlay()
-      } else if (arrowGui && !SQActive) {
-        arrowGui.Destroy()
-        arrowGui := false
-      }
-    }
+    ; checkSQArrowOverlay() {
+    ;   global arrowGui
+    ;   SQActive := (WinActive('ahk_class RustdeskMultiWindow') or WinActive('ahk_exe mstsc.exe') or WinActive('ahk_exe StrategyQuantX_nocheck.exe') or WinActive('ahk_exe StrategyQuantX_ui.exe'))
+    ;   if (!arrowGui && SQActive) {
+    ;     showSQArrowOverlay()
+    ;   } else if (arrowGui && !SQActive) {
+    ;     arrowGui.Destroy()
+    ;     arrowGui := false
+    ;   }
+    ; }
     showSQArrowOverlay(x := 21, y := 645, text := "→", duration := 10000) {
       global arrowGui
       ; Minimal arrow overlay with true transparent background
@@ -193,13 +193,24 @@
 
 
     IsWindowsTerminalWheelScrollActive() {
-      try return IsWindowsTerminalWheelScrollProcess(WinGetProcessName("A"))
+      try return IsWindowsTerminalWheelScrollEnabledForProcess(WinGetProcessName("A"))
       catch
         return false
     }
 
+    IsWindowsTerminalWheelScrollEnabledForProcess(exe) {
+      global terminalWheelPagingEnabled
+      return (terminalWheelPagingEnabled = true || terminalWheelPagingEnabled = "1")
+        && IsWindowsTerminalWheelScrollProcess(exe)
+    }
+
     IsWindowsTerminalWheelScrollProcess(exe) {
       return exe = "WindowsTerminal.exe" || exe = "wezterm-gui.exe"
+    }
+
+    ToggleTerminalWheelPaging() {
+      global terminalWheelPagingEnabled := !(terminalWheelPagingEnabled = true || terminalWheelPagingEnabled = "1")
+      return terminalWheelPagingEnabled
     }
 
     IsTerminalShiftVPasteActive() {

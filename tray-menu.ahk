@@ -33,6 +33,11 @@ SetupTrayMenu() {
     if (cursorKeysEnabled)
         tray.Check("Cursor Keys")
 
+    tray.Add("Terminal Wheel Paging", TrayToggleTerminalWheelPaging)
+    tray.SetIcon("Terminal Wheel Paging", RawProjectIcon("terminal"),, 0)
+    if (terminalWheelPagingEnabled = true || terminalWheelPagingEnabled = "1")
+        tray.Check("Terminal Wheel Paging")
+
     tray.Add()  ; ─────────────
 
     ; --- Info & tools ---
@@ -140,6 +145,16 @@ TrayToggleCursorKeys(itemName, itemPos, menu) {
         menu.Uncheck("Cursor Keys")
     }
     msg("Cursor keys " . (cursorKeysEnabled ? "Enabled" : "Disabled"))
+}
+
+TrayToggleTerminalWheelPaging(itemName, itemPos, menu) {
+    enabled := ToggleTerminalWheelPaging()
+    if (enabled) {
+        menu.Check("Terminal Wheel Paging")
+    } else {
+        menu.Uncheck("Terminal Wheel Paging")
+    }
+    msg("Terminal wheel paging " . (enabled ? "Enabled" : "Disabled"))
 }
 
 TrayOpenRepoInVSCode() {

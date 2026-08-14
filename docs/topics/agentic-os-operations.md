@@ -3,8 +3,6 @@ id: agentic-os-operations
 status: active
 kind: how-to
 triggers:
-  - traycer
-  - omp standalone
   - agentic os
   - realinear os
   - auditar sistema agentico
@@ -22,18 +20,18 @@ primary_refs:
   - scripts/agent-context-audit.ts
 ---
 
-# Operaciones Agentic Traycer
+# Operaciones De La Capa AOS Local
 
 ## Alcance
 
-Este repo es un downstream sobre Traycer y un harness nativo: mantiene contexto local, docs,
-skills e índice/audit, sin copiar un runtime, manifest, package, prompts
-lifecycle ni gobierno manager externo.
+Este repo mantiene conocimiento durable y recuperable: contexto local, docs,
+índices, Working Memory, topics, tracks, specs, skills y gates propios. No
+prescribe modelos, effort, tools, browser, todos, agentes, planificación,
+paralelización, idioma, estilo ni modos runtime del harness OMP.
 
 Por defecto, realinear la capa agentic no cambia runtime AHK, configuración real,
 datos, shortcuts ni automatización viva. El launcher Pi AHK es producto externo
 y queda fuera de la limpieza agentic.
-- OMP queda standalone/manual; preservar la integración Pi y sus gates locales.
 
 ## Lectura mínima
 
@@ -49,10 +47,10 @@ y queda fuera de la limpieza agentic.
 - Topics con frontmatter, triggers y refs existentes.
 - Tracks activas con status, updated y próximo paso.
 - `docs/skills/` como canon local.
-- `.agents/skills` como discovery OMP estable.
-- Routing en `docs/topics/agent-tool-routing.md` y `docs/reference/tool-routing.yaml`.
+- `.agents/skills` como discovery estable.
+- Frontera AOS/OMP en `docs/topics/portable-multiharness-contract.md`.
 - Scripts `context-index.ts`, `agent-context-audit.ts` y `context-refresh.ts`.
-- Ausencia de runtime, manifests, packages o adapters agentic locales.
+- Ausencia de defaults runtime, manifests, packages o adapters agentic locales.
 - Preservación explícita del launcher Pi en `menu-actions.ahk`, `menus.ahk` y su probe.
 
 ## Corregir sin preguntar

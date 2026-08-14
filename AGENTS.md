@@ -27,8 +27,8 @@ Referencia profunda preservada del AGENTS anterior: `docs/reference/agent-guide-
 
 ## Web, Internet E Instalaciones
 
-- Usar web cuando evite adivinar; no enviar secretos, `.env`, código privado, datos personales ni credenciales.
-- Browser visible/desatendido no requiere autorización para elegir, abrir, navegar o inspeccionar. Usar la capacidad nativa del harness activo; login nuevo y efectos externos sensibles conservan los gates locales. La frontera portable está en `docs/topics/portable-multiharness-contract.md`.
+- Si una tarea consulta internet, no enviar secretos, `.env`, código privado, datos personales ni credenciales.
+- Login nuevo, cuentas/datos privados y efectos externos sensibles conservan los gates locales.
 - Si evidencia online contradice repo, docs o runtime, consultar a JP con fuentes e impacto.
 - Antes de instalar paquetes, CLIs o scripts/binarios remotos, pedir autorización con comando, alcance, riesgos, alternativa y rollback; evitar `curl | sh`.
 
@@ -61,15 +61,18 @@ Referencia profunda preservada del AGENTS anterior: `docs/reference/agent-guide-
 - Ejecutar probes solo con `scripts/run-ahk-probe.ps1`; nunca usar `main.ahk` como test ni confiar en el exit code directo del exe GUI.
 - Validar por capas: carga -> logica/JSON -> WebView/JS -> hot reload -> proceso/log -> smoke fisico. No reiniciar `main.ahk`.
 
-## Capa Agentic Traycer + OMP standalone
+## Frontera AOS/OMP
 
-- Traycer con harness nativo interpreta la intención conversacional: conversar no implementa, pedir un plan no lo ejecuta y pedir implementación actúa en la sesión actual.
-- OMP queda como harness standalone/manual deliberado; no hay invocación automática ni fallback silencioso.
-- Usar las tools nativas mínimas suficientes; todos para trabajo multietapa y subagentes sólo por pedido explícito de JP, en slices independientes.
-- `Sol Medium` es la ruta normal. Reservar High para ambigüedad material, arquitectura abierta, seguridad/privacidad, irreversibilidad, producción o alto impacto; no degradar modelo, provider o auth automáticamente.
-- No abrir otra sesión, crear handoff ni autoenviar por rutina; handoff sólo bajo demanda para continuar desde OMP. Persistir una sola vez sólo el valor durable faltante.
-- No añadir runtime, manifest, package, prompts lifecycle ni extensiones OMP/Pi que dupliquen el harness.
-- `docs/skills/` contiene capacidades locales reales y `.agents/skills` mantiene discovery OMP estable.
+<!-- aos-bootstrap: stable-bootstrap-v1 -->
+<!-- aos-runtime-authority: omp -->
+<!-- aos-local-authority: product, domain, data, security, external-effects -->
+
+- Bootstrap estable: OMP gobierna exclusivamente la ejecución de agentes y su runtime; Main conserva la autoridad sobre producto, dominio, datos, seguridad y gates de efectos externos. El runtime de producto de Pi Launcher en AHK/WebView2 sigue siendo comportamiento de producto, no gobernanza agentic.
+
+- La capa AOS local conserva conocimiento durable, continuidad, docs, índices, Working Memory, topics, tracks, specs, skills y gates propios de Main.
+- El harness OMP activo gobierna modelos, effort, tools, browser, todos, agentes, planificación, paralelización, idioma, estilo y modos runtime. Este repo no prescribe ni valida esas decisiones.
+- No añadir como default cotidiano un runtime, manifest, package, prompts lifecycle o adapter agentic que duplique el harness. Conservar skills, extensiones, wrappers y scripts locales opt-in que aporten una capacidad real.
+- `docs/skills/` contiene capacidades locales reales y `.agents/skills` mantiene discovery estable.
 - El launcher Pi de `menu-actions.ahk`/`menus.ahk` es producto de escritorio externo (`C:\tools\pi-menu.ps1`), no la capa agentic del repo. Preservar sus presets, etiquetas y probes salvo pedido explícito.
 
 ## Validacion recomendada

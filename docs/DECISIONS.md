@@ -1,27 +1,35 @@
 # Decisions
 
-## 2026-08-04 — Usar OMP nativo y preservar el launcher Pi de producto
-
-Estado: superseded el 2026-08-06 por Traycer con harness nativo como control
-de sesión cotidiana; OMP queda standalone/manual.
-
-Historia preservada: la capa agentic de Main usaba intención conversacional y
-capacidades nativas de OMP. La autoridad vigente usa Traycer con harness nativo;
-el repo conserva docs, skills e índice/audit de contexto, pero no runtime,
-manifest, package, prompts lifecycle ni adapter agentic local.
-
-Historia preservada: el launcher Pi de `menu-actions.ahk` y `menus.ahk` sigue siendo una integración
-de escritorio externa con presets y etiquetas propios; no es el harness agentic.
-Las decisiones AOS/Pi anteriores se preservan debajo como historia supersedida.
-
-### 2026-08-06 — Traycer con harness nativo controla la sesión; launcher Pi conserva autoridad de producto
+## 2026-08-07 — Separar conocimiento AOS de gobierno OMP
 
 Estado: accepted
 
-La intención, planificación y ejecución cotidiana de este repo usan Traycer con
-harness nativo. OMP permanece standalone/manual y no gobierna la sesión por
-defecto. El launcher Pi, sus presets, etiquetas, probes y runtime AHK siguen
-siendo una integración de producto externa y conservan su autoridad propia.
+La capa AOS de Main conserva conocimiento durable, continuidad, docs, índices,
+Working Memory, topics, tracks, specs, skills y gates locales. Modelos, effort,
+tools, browser, todos, agentes, planificación, paralelización, idioma, estilo y
+modos runtime pertenecen al harness OMP activo y no se prescriben ni validan
+desde este repo.
+
+El launcher Pi, sus presets, etiquetas, probes y runtime AHK siguen siendo una
+integración de producto externa y conservan su autoridad propia.
+
+## 2026-08-06 — Traycer con harness nativo controla la sesión
+
+Estado: superseded el 2026-08-07 por la frontera AOS/OMP.
+
+Historia preservada: esta decisión hacía de Traycer la autoridad cotidiana y
+dejaba OMP standalone/manual. Esa política de runtime ya no está activa.
+
+## 2026-08-04 — Usar OMP nativo y preservar el launcher Pi de producto
+
+Estado: superseded el 2026-08-06 y reemplazado el 2026-08-07 por la frontera
+AOS/OMP.
+
+Historia preservada: la capa agentic de Main usaba intención conversacional y
+capacidades nativas de OMP. El repo conserva docs, skills e índice/audit de
+contexto, pero no impone runtime, manifest, package, prompts lifecycle ni
+adapter agentic local. El launcher Pi de `menu-actions.ahk` y `menus.ahk` sigue
+siendo una integración de escritorio externa con presets y etiquetas propios.
 
 ## 2026-06-30 — Adoptar AOS local en main-v2
 
@@ -37,23 +45,26 @@ No se copia el metasistema manager-only del upstream: registry global, decisione
 
 No se ejecuta automaticamente `main.ahk` completo como prueba porque puede quedar residente y afectar el escritorio. Para runtime AHK, usar probes aislados o pedir permiso para pruebas manuales.
 
-### 2026-07-04 - Usar internet libremente y pedir permiso antes de instalar
+### 2026-07-04 - Preservar privacidad y gates al usar internet o instalar
 
 Estado: accepted
 
-Decision: los agentes deben usar web/internet libremente por defecto cuando conocimiento externo o cambiante evite adivinar, priorizando fuentes oficiales y sin enviar secretos, `.env`, codigo privado sensible, datos personales ni credenciales. Si evidencia online contradice el repo local, docs del proyecto o comportamiento observado, deben consultar a JP antes de decidir y presentar ambas evidencias con fuentes e impacto. Para instalar dependencias, CLIs, paquetes de sistema, herramientas auxiliares o binarios/scripts remotos, deben pedir autorizacion explicita con comando exacto, alcance, motivo, riesgos, alternativas, cambios esperados y rollback.
+Cuando una tarea consulte internet, no debe enviar secretos, `.env`, código
+privado sensible, datos personales ni credenciales. La evidencia online no
+reemplaza silenciosamente el repo, sus docs ni el comportamiento observado; si
+los contradice, se consulta a JP con fuentes e impacto. Instalar dependencias,
+CLIs, paquetes de sistema, herramientas auxiliares o binarios/scripts remotos
+requiere autorización explícita con comando, alcance, riesgos y rollback.
 
-Motivo: JP quiere recuperar poder agente usando conocimiento disponible en internet en vez de inferir de memoria, pero conservar control humano sobre cambios de entorno/instalaciones y sobre conflictos entre fuentes externas y realidad local.
-
-Estado histórico: la política anterior vivía en `AGENTS.md` y
-`docs/topics/agent-tool-routing.md`; el topic Pi anterior fue retirado.
+La guía anterior sobre cuándo usar herramientas web pertenecía al gobierno del
+harness y fue retirada el 2026-08-07; estos gates locales permanecen vigentes.
 
 ### 2026-07-04 - Simplificar continuidad Pi a `/aos-continuar` post-guardado
 
-Estado: accepted
+Estado: historical; superseded.
 
-Decision: AOS deja un unico comando Pi para abrir una sesion/thread nuevo: `/aos-continuar [objetivo]`. JP se hace cargo de correr `/aos-guardar-sesion` primero cuando haya valor durable. `/aos-continuar` no guarda, no compacta, no ejecuta `gol` y no duplica docs: crea una sesion nueva con `ctx.newSession()` y le pasa un prompt de continuidad que referencia `docs/.generated/context-index.md`, `docs/WORKING_MEMORY.md`, `docs/TOPICS.md`, topic/track/spec puntual y estado git. `--preview` abre la sesion nueva con el prompt en el editor sin enviarlo automaticamente.
-
-Motivo: los comandos previos (`/aos-nueva-sesion`, `/aos-continuar-sesion`, `/aos-nueva-sesion-con-gol`, `/aos-continuar-con-gol`, `/aos-siguiente`) mezclaban guardado, handoff y ejecucion, generando ambiguedad. JP quiere revisar/controlar el guardado por separado y tener una continuidad confiable basada en docs vivos.
-
-Estado posterior: OMP resuelve la continuidad agentic de la sesión; estos comandos y el adapter Pi local fueron retirados sin cambiar el launcher Pi de producto.
+Historia preservada: AOS dejó un único comando Pi para abrir una sesión/thread
+nuevo después de guardar valor durable. Los comandos previos mezclaban guardado,
+handoff y ejecución. Estos comandos y el adapter Pi local fueron retirados sin
+cambiar el launcher Pi de producto. La continuidad runtime ya no es política de
+este repo.

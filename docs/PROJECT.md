@@ -42,9 +42,10 @@ Convertir Windows en un espacio keyboard-first con:
 | Settings/WebView | `settings-window.ahk`, `ui/settings.html`, `ui/shared.css`, `ui/ahk-bridge.js` |
 | Portable | `MainPortable/` |
 
-## Política agentic local
+## Frontera agentic local
 
-Este repo es un downstream sobre Traycer con harness nativo: conserva docs,
-topics, tracks, skills e índice/audit de contexto, sin runtime, manifest,
-package ni adapter agentic local. OMP queda standalone/manual y el launcher Pi
-AHK es una integración de producto externa que no forma parte de esa capa.
+Este repo conserva la capa AOS durable: docs, índices, Working Memory, topics,
+tracks, specs, skills y gates locales. El harness OMP activo gobierna la
+ejecución agentic y sus decisiones runtime; Main no las prescribe ni valida.
+El launcher Pi AHK es una integración de producto externa y queda fuera de esa
+capa.

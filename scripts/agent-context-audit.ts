@@ -1,6 +1,5 @@
 import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
-import { validateToolRoutingPolicy } from "./tool-routing-contract.ts";
 
 type Finding = {
   level: "error" | "warn";
@@ -160,6 +159,22 @@ const docsReadme = exists("docs/README.md") ? read("docs/README.md") : "";
 const docsKnowledge = exists("docs/topics/docs-knowledge-system.md")
   ? read("docs/topics/docs-knowledge-system.md")
   : "";
+if (agents) {
+  for (const [marker, contract] of [
+    ["<!-- aos-bootstrap: stable-bootstrap-v1 -->", "stable bootstrap"],
+    ["<!-- aos-runtime-authority: omp -->", "OMP runtime authority"],
+    [
+      "<!-- aos-local-authority: product, domain, data, security, external-effects -->",
+      "local product and safety authority",
+    ],
+  ] as const) {
+    const markerCount = agents.split(marker).length - 1;
+    if (markerCount !== 1) {
+      add("error", `AGENTS.md must contain the ${contract} marker exactly once: ${marker}`);
+    }
+  }
+}
+
 
 
 if (docsReadme) {
@@ -291,21 +306,19 @@ const legacyRuntimeSurfaces = [
 ];
 for (const path of legacyRuntimeSurfaces) {
   if (exists(path)) {
-    add("error", `${path} is a legacy project agent runtime or manifest surface; OMP supplies the agentic harness`);
+    add("error", `${path} is a legacy project agent runtime or manifest surface; the AOS layer must remain durable context, not a harness runtime`);
   }
 }
 
 try {
   const pkg = JSON.parse(read("package.json"));
   if ("pi" in pkg || "omp" in pkg) {
-    add("error", "package.json must not publish Pi or OMP agent runtime extensions");
+    add("error", "package.json must not publish an agent runtime extension as a project default");
   }
 } catch {
   add("error", "package.json is invalid JSON");
 }
 
-const routing = exists("docs/reference/tool-routing.yaml") ? read("docs/reference/tool-routing.yaml") : "";
-for (const error of validateToolRoutingPolicy(routing)) add("error", error);
 if (!exists("docs/topics/portable-multiharness-contract.md")) add("error", "Missing docs/topics/portable-multiharness-contract.md");
 
 const agenticHotPaths = [
@@ -317,13 +330,11 @@ const agenticHotPaths = [
   "docs/GLOSSARY.md",
   "docs/.generated/context-index.md",
   "docs/OS_PLAYBOOK.md",
-  "docs/topics/agent-tool-routing.md",
   "docs/topics/agentic-os-operations.md",
   "docs/topics/portable-multiharness-contract.md",
   "docs/topics/local-codex-skills.md",
   "docs/topics/os-quality.md",
   "docs/skills/README.md",
-  "docs/reference/tool-routing.yaml",
 ];
 for (const path of agenticHotPaths.filter(exists)) {
   const content = read(path);
@@ -379,7 +390,7 @@ for (const contract of productPiLauncherContract) {
 }
 
 if (!exists(".agents/skills")) {
-  // Allowed when this repo does not expose local skills to OMP discovery.
+  // Allowed when this repo does not expose local skills through harness discovery.
 } else if (exists("docs/skills")) {
   const stats = lstatSync(join(root, ".agents/skills"));
   if (!(stats.isSymbolicLink() || stats.isDirectory())) {

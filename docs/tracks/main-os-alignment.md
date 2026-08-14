@@ -1,6 +1,6 @@
 ---
 status: historical
-updated: 2026-08-04
+updated: 2026-08-07
 priority: medium
 ---
 
@@ -8,10 +8,11 @@ priority: medium
 
 ## Estado
 
-Registro histórico de la adopción AOS del 2026-06-30, supersedida el 2026-08-04
-por la capa OMP nativa y, para la autoridad diaria, posteriormente supersedida
-el 2026-08-06 por Traycer con harness nativo. Los prompts/extensiones
-mencionados abajo ya no son superficies activas del repo.
+Registro histórico de la adopción AOS del 2026-06-30 y de sus sucesivas
+políticas de harness. Desde 2026-08-07 la frontera vigente deja el gobierno
+runtime a OMP y conserva en AOS sólo conocimiento durable y gates locales.
+Los prompts/extensiones históricos mencionados abajo ya no son superficies
+activas del repo.
 
 ## Hecho en 2026-06-30
 
@@ -23,15 +24,15 @@ mencionados abajo ya no son superficies activas del repo.
 
 ## Estado posterior
 
-Main conserva docs, topics, skills e índice/audit sobre OMP nativo como registro
-histórico, sin runtime, manifest ni adapter agentic local. El launcher Pi AHK
-continúa como integración de producto independiente.
+Main conserva docs, índices, Working Memory, topics, tracks, specs, skills y
+audit de contexto, sin defaults de runtime, manifest ni adapter agentic local.
+El launcher Pi AHK continúa como integración de producto independiente.
 
-## Supersesión vigente (2026-08-06)
+## Supersesión vigente (2026-08-07)
 
-Traycer con harness nativo es la autoridad de sesión cotidiana para esta capa.
-OMP queda standalone/manual y no gobierna la sesión; el launcher Pi de producto
-permanece independiente.
+AOS conserva conocimiento durable y gates locales. OMP gobierna modelos,
+effort, tools, browser, todos, agentes, planificación, paralelización, idioma,
+estilo y modos runtime sin una política impuesta por este repo.
 
 ## Referencias
 

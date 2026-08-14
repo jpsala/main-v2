@@ -7,7 +7,7 @@ triggers:
   - calidad agentica
   - audit
   - contexto liviano
-  - omp
+  - frontera AOS OMP
 primary_refs:
   - AGENTS.md
   - docs/WORKING_MEMORY.md
@@ -34,12 +34,12 @@ Checklist para dejar la capa agentic confiable.
 - Tracks para trabajos vivos, no transcripts.
 - Referencias profundas linkeadas, no obligatorias en lectura inicial.
 
-## Traycer + harness nativo
+## Frontera AOS/OMP
 
 - `docs/skills/` es canon local y `.agents/skills` discovery estable.
-- No hay runtime, manifest, package, prompt lifecycle ni extensión agentic local.
-- La intención conversacional usa tools, todos y subagentes nativos del harness activo sólo cuando corresponde.
-- OMP queda standalone/manual y no gobierna la sesión cotidiana.
+- No hay defaults de runtime, manifest, package ni prompt lifecycle agentic local.
+- El repo no prescribe ni valida modelos, effort, tools, browser, todos,
+  agentes, planificación, paralelización, idioma, estilo o modos OMP.
 - El audit rechaza superficies agentic legacy sin prohibir el launcher Pi de producto.
 
 ## Seguridad

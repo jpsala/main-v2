@@ -161,19 +161,18 @@ if (skillDirs.length) {
   if (operationalSkills.length) lines.push(`- Operational commands: ${operationalSkills.join(", ")}`);
   lines.push("- Guidance: [local-codex-skills](../topics/local-codex-skills.md)");
 } else if (exists("docs/skills")) {
-  lines.push("- No project-local skill directories found; `.agents/skills` remains valid OMP discovery.");
+  lines.push("- No project-local skill directories found; `.agents/skills` remains valid harness discovery.");
   lines.push("- Guidance: [local-codex-skills](../topics/local-codex-skills.md)");
 } else {
   lines.push("- Missing docs/skills/");
 }
 lines.push("");
 
-lines.push("## Portable Harness");
+lines.push("## AOS/OMP Boundary");
 lines.push("");
-lines.push("- Daily entry: Traycer with a supported native harness.");
-lines.push("- OMP remains a deliberate standalone/manual fallback; no automatic invocation.");
-lines.push("- Product Pi launcher and runtime remain outside the agentic control plane.");
-lines.push("- No project runtime, manifest or `.traycer` dependency is required.");
+lines.push("- AOS keeps durable context, docs, indices, Working Memory, topics, tracks, specs, skills and local gates.");
+lines.push("- The active OMP harness governs models, effort, tools, browser, todos, agents, planning, parallelism, language, style and runtime modes.");
+lines.push("- Product Pi launcher and runtime remain outside the agentic context layer.");
 lines.push("- Guidance: [portable-multiharness-contract](../topics/portable-multiharness-contract.md)");
 lines.push("");
 

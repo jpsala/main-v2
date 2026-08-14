@@ -3,69 +3,47 @@ id: portable-multiharness-contract
 status: active
 kind: policy
 triggers:
+  - frontera AOS OMP
   - contrato portable
   - multi-harness
-  - Traycer
-  - OMP standalone
-  - handoff bajo demanda
-  - worktree
+  - launcher Pi
 primary_refs:
-  - docs/topics/agent-tool-routing.md
+  - AGENTS.md
   - docs/topics/agentic-os-operations.md
-  - docs/reference/tool-routing.yaml
+  - docs/OS_PLAYBOOK.md
 ---
 
-# Contrato Portable Multi-Harness
+# Frontera Portable AOS/OMP
 
-Este repo puede continuar desde Traycer o desde OMP standalone usando únicamente
-el contexto versionado del repo. El contrato no exporta epics, artifacts,
-sesiones ni storage de Traycer y no convierte a OMP en un runtime del proyecto.
+El contexto versionado permite continuar trabajo sin convertir a Main en un
+runtime agentic ni exportar storage privado de un harness.
 
 ## Autoridad Y Límites
 
-- **Traycer:** ruta cotidiana para intención, planificación y ejecución con un
-  harness soportado nativamente. No se agrega un selector ni un adapter AOS
-  paralelo.
-- **OMP:** harness standalone, deliberado y manual. Puede continuar desde un
-  handoff corto y explícito sin leer `.traycer` ni depender de un epic.
-- **Pi:** se conserva sólo en la integración de producto existente; no es la
-  entrada cotidiana ni un harness anidado de Traycer.
-- **Producto/servicio/lab:** nombres, scripts, datos, perfiles, sesiones y gates
-  Pi/OMP existentes conservan su ownership y no se reinterpretan como AOS.
-- **`.traycer`:** no es dependencia del repo, fuente portable ni requisito de
-  sus checks.
+- **AOS local:** conserva conocimiento durable, continuidad, docs, índices,
+  Working Memory, topics, tracks, specs, skills y gates propios de Main.
+- **OMP:** gobierna modelos, effort, tools, browser, todos, agentes,
+  planificación, paralelización, idioma, estilo y modos runtime. AOS no fija ni
+  valida esas decisiones.
+- **Pi:** se conserva en la integración de producto existente; sus nombres,
+  presets, etiquetas, probes y runtime no se reinterpretan como control agentic.
+- **Producto/servicio/lab:** scripts, datos, perfiles, sesiones y gates
+  existentes conservan su ownership.
 
-## Gates Y Estado Durable
+## Estado Durable Y Gates
 
-| Superficie | Binding portable | Gate |
-| --- | --- | --- |
-| Intención y plan | Conversación del harness activo; artifacts sólo en el epic Traycer | Planear no ejecuta sin pedido explícito. |
-| Shell y checks | Comandos declarados por el repo | Preservar WIP y gates locales. |
-| Browser y tools | Capacidad nativa del harness activo | Login o efecto externo sensible conserva su gate. |
-| Estado durable | Docs versionados y Git | Promover sólo decisiones que deban sobrevivir al epic. |
-| Efectos | Ownership y política local | Installs, credenciales, destrucción, commit/push, deploy y producción requieren autorización. |
+| Superficie | Ownership |
+| --- | --- |
+| Contexto durable | Docs versionados, índices, Working Memory, topics, tracks y specs AOS. |
+| Ejecución agentic | Harness OMP activo. |
+| Skills y wrappers | Capacidades locales opt-in; no defaults cotidianos del harness. |
+| Datos y configuración | Ownership del producto; preservar WIP, privacidad y gates locales. |
+| Efectos externos | Installs, credenciales, destrucción, commit/push, deploy y producción requieren autorización. |
 
-La policy documenta compatibilidad, no autoriza mutaciones downstream ni efectos
-externos. La readiness registrada `product_pi_runtime`, cuando exista, se
-conserva y no se reemplaza por una inferencia narrativa de Traycer.
+La policy documenta la frontera; no autoriza mutaciones downstream ni efectos
+externos. La readiness `product_pi_runtime`, cuando exista, se conserva como
+estado de producto.
 
-## Ownership Y Handoff
-
-- Una tarea secuencial usa un único escritor en el workspace actual y un handoff
-  explícito sólo si otro harness necesita continuar.
-- Simultaneidad, revisión fría o riesgo de contaminación requieren ramas y
-  worktrees separados con ownership claro.
-- El handoff es un resumen corto, no un transcript ni una copia de artifacts:
-
-```text
-objetivo: <resultado observable>
-rama/worktree: <rama y workspace, o "actual">
-decisiones: <decisiones relevantes>
-cambios/estado observable: <archivos o estado verificable>
-checks: <checks y resultado>
-siguiente gate: <próximo gate o "ninguno">
-```
-
-El repo debe poder operar con este contrato sin leer `.traycer`. Los checks
-estructurados validan la policy, pero no lanzan Pi/OMP, servicios, browser ni
-efectos externos.
+Los checks estructurados pueden validar docs, links e invariantes locales, pero
+no deben imponer routing OMP ni lanzar Pi/OMP, servicios, browser o efectos
+externos.

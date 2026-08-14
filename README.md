@@ -21,13 +21,13 @@ If your day looks like this:
 | Area | What it does |
 | --- | --- |
 | **Run-or-Activate apps** | Reuse existing windows instead of spawning duplicates. If an app is active, toggle/minimize it; if missing, launch it. |
-| **Keyboard-first menus** | `Win+A`, `Win+W`, `Win+C` open app/browser/code menus with fast key selection and WebView fallback. |
-| **Which-key style chords** | Prefix keys show discoverable overlays for nested command trees. Great for complex workflows. |
+| **Searchable command palettes** | `Win+A`, `Win+W`, `Win+C` open numbered, hierarchical palettes with global fuzzy filtering. |
+| **Legacy Which-key toggle** | The previous chord renderer remains commented beside the active registrations for quick rollback. |
 | **Window bookmarks** | Pin any live window to a hotkey and jump back instantly, even across sessions. |
 | **Browser profile launcher** | Manage Vivaldi/Chrome profiles from config instead of hardcoding commands everywhere. |
-| **VS Code / Cursor control** | Editor-only chords for navigation, settings, folding, file actions, AI sidebars, and command execution. |
+| **VS Code / Cursor control** | Editor-only command palettes for navigation, settings, folding, file actions, AI sidebars, and command execution. |
 | **Mouse gestures** | Context-aware gesture engine with a wizard, learned shapes, sorting, debug state, and per-app actions. |
-| **WebView2 UIs** | Settings, searchable menus, chord hints, audio device picker, calendar/reminders, and clipboard surfaces. |
+| **WebView2 UIs** | Settings, searchable command palettes, the optional legacy chord hint, audio device picker, calendar/reminders, and clipboard surfaces. |
 | **Per-machine config** | `config.ini` selects machine-specific paths and profiles by computer name. |
 | **Hot reload for development** | Editing core `.ahk`/UI files reloads the script automatically during development. |
 
@@ -111,7 +111,7 @@ Typical entry shape:
 { key: "s", label: "Spotify", action: () => Roa("spotify", "spotify.exe") }
 ```
 
-Nested menus are supported, and the same menu tree can feed keyboard-first flows and which-key overlays.
+Nested menus are supported. With an empty query, the first ten rows use `1`–`9`/`0`; typing searches every action in that menu globally.
 
 ### 2. Window bookmarks
 
@@ -178,16 +178,17 @@ main.ahk                     Entry point and include graph root
 init.ahk                     Startup, path validation, profiles, hot reload
 menus.ahk                    Main user-facing menu definitions
 menu-actions.ahk             Actions called by menu items
-menus-whichkey.ahk           Bridge from menu trees to chord/which-key engine
-lib/chord-hotkeys.ahk        Generic chord engine and hint lifecycle
-ui/chord-hint.html           Which-key overlay UI
-menu-webview.ahk             Searchable WebView menu engine
-ui/menu.html                 Menu picker UI
+menus-whichkey.ahk           Menu-tree adapter for active palettes and legacy Which-key
+command-palette*.ahk         Shared catalog, lifecycle, fuzzy search, and frecency
+ui/command-palette.html      Numbered hierarchical Command Palette WebView
+lib/chord-hotkeys.ahk        Legacy chord engine retained for the source-level toggle
+ui/chord-hint.html           Legacy Which-key overlay UI
+menu-webview.ahk             Older searchable WebView menu engine
+ui/menu.html                 Older menu picker UI
 bookmarks.ahk                Persistent window bookmark system
 roa.ahk                      Run-or-Activate window reuse engine
 hotkeys-global.ahk           Global hotkeys and system controls
-hotstrings.ahk               Text expansions and local secret helpers
-code.ahk                     VS Code/Cursor automation and chords
+code.ahk                     VS Code/Cursor palettes and automation
 mouse-gestures*.ahk          Gesture engine, wizard, and conditions
 settings-window.ahk          Settings backend
 ui/settings.html             Settings frontend

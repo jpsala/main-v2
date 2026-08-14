@@ -37,6 +37,8 @@ onceADay()
 #Include ".\copy-q.ahk"
 #Include ".\menus.ahk"
 #Include ".\menus-whichkey.ahk"
+#Include ".\open-wezterm-command-palette.ahk"
+#Include ".\wezterm-command-palette.ahk"
 #Include ".\code.ahk"
 #Include ".\settings-window.ahk"
 #Include ".\web-clipboard-host.ahk"
@@ -57,8 +59,11 @@ onceADay()
 #Include ".\psmux-menu.ahk"
 #Include ".\command-palette.ahk"
 
-InitMenusWhichKey()
+; Main menu renderer toggle: keep exactly one of these initializers active.
+; InitMenusWhichKey() ; Legacy chord/Which-Key UI.
 CommandPaletteInit(1)
+InitMenusCommandPalette()
+InitWezTermCommandPalette()
 InitVSCodeControllerChords()
 InitMouseGestures()
 CalendarStartReminderTimer()

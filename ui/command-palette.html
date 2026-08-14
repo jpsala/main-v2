@@ -6,286 +6,66 @@
 <title>Command Palette</title>
 <link rel="stylesheet" href="shared.css">
 <style>
-  :root { color-scheme: dark; }
-  body { border: 1px solid #3f3f46; border-radius: 10px; background: #1e1e1e; }
-  .palette { display: flex; flex: 1; min-height: 0; flex-direction: column; }
-  .search-shell { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--border); background: #252526; }
-  .back-button { display: none; width: 28px; height: 28px; border: 0; border-radius: 4px; background: transparent; color: var(--text-primary); font-size: 18px; cursor: pointer; }
-  .back-button.visible { display: inline-flex; align-items: center; justify-content: center; }
-  .back-button:hover, .back-button:focus-visible { background: var(--bg-hover); outline: 1px solid var(--accent); }
-  .search-icon { color: #c8c8c8; font-size: 18px; line-height: 1; }
-  #query { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--text-primary); font: 16px var(--font-ui); }
-  #query::placeholder { color: #a8a8a8; }
-  .result-count { color: var(--text-secondary); font: 12px var(--font-ui); white-space: nowrap; }
-  .page-bar { display: none; padding: 6px 14px; border-bottom: 1px solid var(--border); color: var(--text-secondary); font-size: 11px; background: var(--bg-primary); }
-  .page-bar.visible { display: block; }
-  #results { flex: 1; overflow-y: auto; padding: 6px; }
-  .result { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; align-items: center; min-height: 52px; padding: 8px 10px; border-radius: 5px; cursor: pointer; }
-  .result:hover, .result.active { background: var(--bg-active); }
-  .result-main { min-width: 0; color: var(--text-primary); font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .result-meta { min-width: 0; color: var(--text-secondary); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .result-end { grid-row: 1 / span 2; grid-column: 2; white-space: nowrap; }
-  .result-shortcut { color: #d5e9ff; background: rgba(0, 122, 204, 0.22); border: 1px solid rgba(133, 194, 236, 0.32); border-radius: 4px; padding: 3px 6px; font: 11px var(--font-mono); }
-  .group-chevron { color: var(--text-secondary); font-size: 22px; padding: 0 6px; }
-  .empty { display: none; flex: 1; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 13px; }
-  .empty.visible { display: flex; }
-  .footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 14px; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 11px; background: #252526; }
-  .footer kbd { padding: 1px 4px; color: var(--text-primary); border: 1px solid #555; border-radius: 3px; font-family: var(--font-mono); }
-  @media (prefers-reduced-motion: no-preference) { .result { transition: background-color 120ms ease-out; } }
+:root{color-scheme:dark}body{border:1px solid #3f3f46;border-radius:10px;background:#1e1e1e;overflow:hidden}.palette{display:flex;flex:1;min-height:0;flex-direction:column}.search-shell,.overlay-header{display:flex;align-items:center;gap:9px;padding:10px 12px;border-bottom:1px solid var(--border);background:#252526}.icon{height:28px;padding:0 8px;border:1px solid transparent;border-radius:4px;background:transparent;color:var(--text-secondary);cursor:pointer}.icon:hover,.icon:focus-visible{color:var(--text-primary);background:var(--bg-hover);border-color:#555;outline:none}.back{display:none;font-size:18px}.back.visible{display:block}#query{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--text-primary);font:16px var(--font-ui)}.count{color:var(--text-secondary);font-size:11px}.page-bar{display:none;padding:6px 14px;border-bottom:1px solid var(--border);color:var(--text-secondary);font-size:11px}.page-bar.visible{display:block}#results{flex:1;overflow-y:auto;padding:5px 6px}.section{padding:8px 10px 4px 34px;color:#9cdcfe;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.result{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:2px 10px;align-items:center;min-height:44px;padding:5px 9px;border-radius:5px;cursor:pointer}.result:hover,.result.active{background:var(--bg-active)}.number{grid-row:1/span 2;display:flex;align-items:center;justify-content:center;width:22px;height:22px;color:var(--text-secondary);border:1px solid #555;border-radius:4px;font:11px var(--font-mono)}.number:empty{visibility:hidden}.main{min-width:0;color:var(--text-primary);font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pin{color:#f6c85f;margin-right:6px}.meta{min-width:0;color:var(--text-secondary);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.end{grid-row:1/span 2;grid-column:3;white-space:nowrap}.shortcut{color:#d5e9ff;background:rgba(0,122,204,.22);border:1px solid rgba(133,194,236,.32);border-radius:4px;padding:3px 6px;font:11px var(--font-mono)}.chevron{color:var(--text-secondary);font-size:22px;padding:0 6px}.empty{display:none;flex:1;align-items:center;justify-content:center;color:var(--text-secondary)}.empty.visible{display:flex}.footer{display:flex;justify-content:space-between;gap:12px;padding:7px 12px;border-top:1px solid var(--border);color:var(--text-secondary);font-size:10px;background:#252526}.footer kbd{padding:1px 4px;color:var(--text-primary);border:1px solid #555;border-radius:3px;font-family:var(--font-mono)}.overlay{position:absolute;inset:0;z-index:10;display:none;flex-direction:column;background:#1e1e1e}.overlay.visible{display:flex}.overlay-header strong{flex:1}.action-list{margin:auto;width:min(520px,calc(100% - 40px));padding:6px;border:1px solid #555;border-radius:8px;background:#252526}.action{display:block;width:100%;padding:10px 12px;border:0;border-radius:4px;background:transparent;color:var(--text-primary);text-align:left}.action:hover,.action.active{background:var(--bg-active)}.custom-body{flex:1;overflow-y:auto;padding:10px 12px}.settings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 12px;margin-bottom:10px;padding:10px;border:1px solid var(--border);border-radius:6px}.setting{display:flex;flex-direction:column;gap:4px;color:var(--text-secondary);font-size:11px}.setting.inline{flex-direction:row;align-items:center}.setting input,.setting select,.custom-row input,.custom-row select,#custom-query{min-width:0;padding:5px 7px;border:1px solid #555;border-radius:4px;background:#252526;color:var(--text-primary)}.custom-tools{display:flex;gap:8px;margin-bottom:8px}#custom-query{flex:1}.custom-list{display:flex;flex-direction:column;gap:5px}.custom-row{display:grid;grid-template-columns:24px minmax(120px,1.4fr) minmax(80px,.8fr) minmax(110px,1fr) 64px 24px;gap:6px;align-items:center;padding:6px;border:1px solid var(--border);border-radius:5px}.custom-row.hidden{opacity:.58}.error{display:none;padding:6px 12px;color:#fca5a5;background:#451a1a;font-size:11px}.error.visible{display:block}@media(prefers-reduced-motion:no-preference){.result,.action{transition:background-color 120ms ease-out}}
 </style>
 </head>
 <body>
-  <main class="palette">
-    <div class="search-shell">
-      <button id="back-button" class="back-button" type="button" aria-label="Back">‹</button>
-      <span class="search-icon" aria-hidden="true">⌕</span>
-      <input id="query" type="text" placeholder="Search commands" autocomplete="off" spellcheck="false" aria-label="Search commands">
-      <span id="result-count" class="result-count"></span>
-    </div>
-    <div id="page-bar" class="page-bar"></div>
-    <section id="results" aria-label="Commands"></section>
-    <div id="empty" class="empty">No commands found</div>
-    <footer class="footer"><span><kbd>↑↓</kbd> Navigate &nbsp; <kbd>Enter</kbd> Open &nbsp; <kbd>Esc</kbd> Close</span><span id="source-count"></span></footer>
-  </main>
+<main class="palette">
+<div class="search-shell"><button id="back" class="icon back" type="button">‹</button><span>⌕</span><input id="query" type="text" placeholder="Search commands" autocomplete="off" spellcheck="false"><span id="result-count" class="count"></span><button id="view" class="icon" type="button" title="Alt+N">Groups</button><button id="customize" class="icon" type="button" title="Ctrl+,">⚙</button></div>
+<div id="config-error" class="error"></div><div id="page-bar" class="page-bar"></div><section id="results"></section><div id="empty" class="empty">No commands found</div>
+<footer class="footer"><span><kbd>↑↓</kbd> Navigate &nbsp; <kbd>Enter</kbd> Open &nbsp; <span id="accelerator-hint"><kbd>1-9,0</kbd> Quick open &nbsp;</span><kbd>Ctrl+K</kbd> Actions &nbsp; <kbd>Esc</kbd> Close</span><span id="source-count"></span></footer>
+</main>
+<section id="actions" class="overlay"><div class="overlay-header"><button id="actions-close" class="icon">‹</button><strong id="actions-title">Actions</strong></div><div id="action-list" class="action-list"></div></section>
+<section id="custom-panel" class="overlay"><div class="overlay-header"><button id="custom-close" class="icon">‹</button><strong id="custom-title">Customize</strong><button id="reload" class="icon">Reload JSON</button></div><div class="custom-body"><div class="settings"><label class="setting">View<select id="set-view"><option value="flat">Flat</option><option value="groups">Groups</option><option value="mixed">Mixed</option></select></label><label class="setting">Chord delay<input id="set-delay" type="number" min="100" max="2000" step="50"></label><label class="setting">Pinned rows<input id="set-pinned" type="number" min="0" max="10"></label><label class="setting">Suggested rows<input id="set-suggested" type="number" min="0" max="10"></label><label class="setting inline"><input id="set-chords" type="checkbox">Invisible chords</label><label class="setting inline"><input id="set-groups" type="checkbox">Groups first</label></div><div class="custom-tools"><input id="custom-query" type="text" placeholder="Filter items"><span class="count">Visible · label · alias · group · order · pin</span></div><div id="custom-list" class="custom-list"></div></div></section>
 <script src="ahk-bridge.js"></script>
 <script>
-let catalog = [];
-let filtered = [];
-let activeIndex = 0;
-let levelsPerPage = 0;
-let groupsFirst = false;
-let frecency = {};
-let currentGroupId = null;
-
-function fold(value) {
-  return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
-}
-
-function scoreField(query, value, weight) {
-  const text = fold(value);
-  if (!text) return 0;
-  if (text === query) return weight * 10000;
-  if (text.startsWith(query)) return weight * 8000 - text.length;
-  const wordIndex = text.search(new RegExp(`(^|[\\s›:._/-])${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
-  if (wordIndex >= 0) return weight * 6000 - wordIndex;
-  let cursor = 0;
-  let previous = -2;
-  let score = 0;
-  for (const character of query) {
-    const index = text.indexOf(character, cursor);
-    if (index < 0) return 0;
-    score += weight * 10;
-    if (index === previous + 1) score += weight * 8;
-    if (index === 0 || /[\s›:._/-]/.test(text[index - 1])) score += weight * 12;
-    previous = index;
-    cursor = index + 1;
-  }
-  return score;
-}
-
-function scoreCommand(query, command) {
-  if (!query) return 1;
-  return Math.max(
-    scoreField(query, command.label, 5),
-    scoreField(query, command.breadcrumb, 3),
-    scoreField(query, command.source, 2),
-    scoreField(query, command.shortcut, 2),
-    scoreField(query, command.detail, 1)
-  );
-}
-
-function commandById(id) {
-  return catalog.find(command => command.id === id);
-}
-
-function isInsideCurrentPage(command) {
-  if (!currentGroupId) return true;
-  let parentId = command.parentId;
-  while (parentId) {
-    if (parentId === currentGroupId) return true;
-    parentId = commandById(parentId)?.parentId;
-  }
-  return false;
-}
-
-function kindPriority(command) {
-  if (command.kind === 'group') return groupsFirst ? 0 : 1;
-  return groupsFirst ? 1 : 0;
-}
-
-function frecencyScore(command) {
-  const score = Number(frecency[command.id]);
-  return Number.isFinite(score) && score > 0 ? score : 0;
-}
-
-function orderByKind(commands) {
-  return commands
-    .map((command, order) => ({ command, order }))
-    .sort((a, b) => kindPriority(a.command) - kindPriority(b.command) || frecencyScore(b.command) - frecencyScore(a.command) || a.order - b.order)
-    .map(item => item.command);
-}
-
-function visiblePageItems() {
-  const descendants = catalog.filter(isInsideCurrentPage);
-  if (levelsPerPage === 0) return descendants.filter(command => command.kind === 'action');
-
-  const baseDepth = currentGroupId ? commandById(currentGroupId).depth : 0;
-  const boundaryDepth = baseDepth + levelsPerPage;
-  return orderByKind(descendants.filter(command =>
-    (command.kind === 'action' && command.depth <= boundaryDepth) ||
-    (command.kind === 'group' && command.depth === boundaryDepth)
-  ));
-}
-
-function pageItems(query) {
-  const normalized = fold(query.trim());
-  const visible = visiblePageItems();
-  if (!normalized) return orderByKind(visible);
-  return visible
-    .map((command, order) => ({ command, order, score: scoreCommand(normalized, command) }))
-    .filter(item => item.score > 0)
-    .sort((a, b) => kindPriority(a.command) - kindPriority(b.command) || b.score - a.score || frecencyScore(b.command) - frecencyScore(a.command) || a.order - b.order)
-    .map(item => item.command);
-}
-
-function filterCommands(query) {
-  filtered = pageItems(query);
-  activeIndex = 0;
-  render();
-}
-
-function descendantActionCount(groupId) {
-  const previousGroupId = currentGroupId;
-  currentGroupId = groupId;
-  const count = catalog.filter(command => command.kind === 'action' && isInsideCurrentPage(command)).length;
-  currentGroupId = previousGroupId;
-  return count;
-}
-
-function resultMeta(command) {
-  const path = [command.source, command.breadcrumb].filter(Boolean).join(' › ');
-  if (command.kind === 'group') return `${path}${path ? ' · ' : ''}${descendantActionCount(command.id)} commands`;
-  if (!command.detail) return path;
-  return path ? `${path} · ${command.detail}` : command.detail;
-}
-
-function renderPageContext() {
-  const group = currentGroupId ? commandById(currentGroupId) : null;
-  const backButton = document.querySelector('#back-button');
-  const pageBar = document.querySelector('#page-bar');
-  backButton.classList.toggle('visible', Boolean(group));
-  pageBar.classList.toggle('visible', Boolean(group));
-  pageBar.textContent = group ? [group.source, group.breadcrumb, group.label].filter(Boolean).join(' › ') : '';
-}
-
-function render() {
-  const list = document.querySelector('#results');
-  const empty = document.querySelector('#empty');
-  const count = document.querySelector('#result-count');
-  list.replaceChildren();
-  count.textContent = filtered.length ? `${filtered.length} results` : '';
-  empty.classList.toggle('visible', filtered.length === 0);
-  list.style.display = filtered.length ? 'block' : 'none';
-  renderPageContext();
-
-  filtered.forEach((command, index) => {
-    const row = document.createElement('div');
-    row.className = `result${index === activeIndex ? ' active' : ''}`;
-    row.addEventListener('click', () => activate(command));
-    const main = document.createElement('div');
-    main.className = 'result-main';
-    main.textContent = command.label;
-    const meta = document.createElement('div');
-    meta.className = 'result-meta';
-    meta.textContent = resultMeta(command);
-    const end = document.createElement('span');
-    end.className = `result-end ${command.kind === 'group' ? 'group-chevron' : 'result-shortcut'}`;
-    end.textContent = command.kind === 'group' ? '›' : command.shortcut;
-    row.append(main, meta, end);
-    list.append(row);
-  });
-  list.querySelector('.active')?.scrollIntoView({ block: 'nearest' });
-}
-
-function execute(command) {
-  if (command?.kind === 'action') postToAHK({ action: 'execute', id: command.id });
-}
-
-function enterGroup(command) {
-  if (command?.kind !== 'group') return;
-  currentGroupId = command.id;
-  const input = document.querySelector('#query');
-  input.value = '';
-  filterCommands('');
-  input.focus();
-}
-
-function goBack() {
-  if (!currentGroupId) return false;
-  currentGroupId = commandById(currentGroupId)?.parentId || null;
-  const input = document.querySelector('#query');
-  input.value = '';
-  filterCommands('');
-  input.focus();
-  return true;
-}
-
-function activate(command) {
-  if (command?.kind === 'group') enterGroup(command);
-  else execute(command);
-}
-
-function moveActive(delta) {
-  if (!filtered.length) return;
-  activeIndex = (activeIndex + delta + filtered.length) % filtered.length;
-  render();
-}
-
-function cycleLevelsPerPage() {
-  levelsPerPage = (levelsPerPage + 1) % 3;
-  postToAHK({ action: 'setLevel', level: levelsPerPage });
-  focusPalette();
-}
-
-function focusPalette() {
-  currentGroupId = null;
-  const input = document.querySelector('#query');
-  input.value = '';
-  filterCommands('');
-  input.focus();
-}
-
-const input = document.querySelector('#query');
-input.addEventListener('input', event => filterCommands(event.target.value));
-input.addEventListener('keydown', event => {
-  if (event.key.toLowerCase() === 'n' && event.altKey) { event.preventDefault(); cycleLevelsPerPage(); }
-  else if (event.key === 'ArrowDown') { event.preventDefault(); moveActive(1); }
-  else if (event.key === 'ArrowUp') { event.preventDefault(); moveActive(-1); }
-  else if (event.key === 'ArrowLeft' && event.altKey) { event.preventDefault(); goBack(); }
-  else if (event.key === 'Backspace' && !input.value && currentGroupId) { event.preventDefault(); goBack(); }
-  else if (event.key === 'Enter') { event.preventDefault(); activate(filtered[activeIndex]); }
-  else if (event.key === 'Escape') { event.preventDefault(); postToAHK({ action: 'cancel' }); }
-});
-document.querySelector('#back-button').addEventListener('click', goBack);
-
-function setPaletteState(state) {
-  catalog = Array.isArray(state?.catalog) ? state.catalog : [];
-  levelsPerPage = Math.max(0, Number(state?.levelsPerPage) || 0);
-  groupsFirst = Boolean(state?.groupsFirst);
-  frecency = state?.frecency && typeof state.frecency === 'object' ? state.frecency : {};
-  document.querySelector('#source-count').textContent = `${catalog.filter(command => command.kind === 'action').length} commands`;
-  focusPalette();
-}
-
-window.chrome.webview.addEventListener('message', event => {
-  let state = event.data;
-  if (typeof state === 'string') {
-    try { state = JSON.parse(state); } catch { state = {}; }
-  }
-  setPaletteState(state);
-});
-window.setPaletteState = setPaletteState;
-window.focusPalette = focusPalette;
+let catalog=[],customizationCatalog=[],filtered=[],sections=new Map(),activeIndex=0,levelsPerPage=0,viewMode='flat',groupsFirst=false,allowLevelCycle=true,frecency={},currentGroupId=null,maxPinned=3,maxSuggested=3,menuSource='Global',menuPreferences={},actionEntries=[],activeActionIndex=0;
+const $=selector=>document.querySelector(selector);
+function fold(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase()}
+function scoreField(query,value,weight){const text=fold(value);if(!text)return 0;if(text===query)return weight*10000;if(text.startsWith(query))return weight*8000-text.length;let cursor=0,previous=-2,score=0;for(const character of query){const index=text.indexOf(character,cursor);if(index<0)return 0;score+=weight*10;if(index===previous+1)score+=weight*8;if(index===0||/[\s›:._/-]/.test(text[index-1]))score+=weight*12;previous=index;cursor=index+1}return score}
+function scoreCommand(query,command){return Math.max(scoreField(query,command.alias,8),scoreField(query,command.label,5),scoreField(query,command.breadcrumb,3),scoreField(query,command.source,2),scoreField(query,command.shortcut,2),scoreField(query,command.detail,1))}
+function commandById(id){return catalog.find(command=>command.id===id)}
+function insidePage(command){if(!currentGroupId)return true;let parent=command.parentId;while(parent){if(parent===currentGroupId)return true;parent=commandById(parent)?.parentId}return false}
+function kindPriority(command){return command.kind==='group'?(groupsFirst?0:1):(groupsFirst?1:0)}
+function useScore(command){const score=Number(frecency[command.id]);return Number.isFinite(score)&&score>0?score:0}
+function userOrder(command,fallback){const order=Number(command.userOrder);return Number.isFinite(order)?order:fallback}
+function orderByKind(commands){return commands.map((command,order)=>({command,order})).sort((a,b)=>kindPriority(a.command)-kindPriority(b.command)||userOrder(a.command,a.order)-userOrder(b.command,b.order)||a.order-b.order).map(item=>item.command)}
+function visiblePageItems(){const descendants=catalog.filter(insidePage);if(levelsPerPage===0)return descendants.filter(command=>command.kind==='action');const base=currentGroupId?commandById(currentGroupId).depth:0,boundary=base+levelsPerPage;return orderByKind(descendants.filter(command=>(command.kind==='action'&&command.depth<=boundary)||(command.kind==='group'&&command.depth===boundary)))}
+function homeItems(){sections=new Map();const pinned=catalog.filter(command=>command.pinned).sort((a,b)=>Number(a.pinOrder)-Number(b.pinOrder)).slice(0,maxPinned),used=new Set(pinned.map(command=>command.id)),suggested=catalog.filter(command=>command.kind==='action'&&!used.has(command.id)&&useScore(command)>0).sort((a,b)=>useScore(b)-useScore(a)).slice(0,maxSuggested);suggested.forEach(command=>used.add(command.id));const explore=visiblePageItems().filter(command=>!used.has(command.id)),result=[];if(pinned.length){sections.set(result.length,'Pinned');result.push(...pinned)}if(suggested.length){sections.set(result.length,'Suggested');result.push(...suggested)}if(explore.length){sections.set(result.length,'Explore');result.push(...explore)}return result}
+function pageItems(query){const normalized=fold(query.trim());sections=new Map();if(!normalized)return currentGroupId?orderByKind(visiblePageItems()):homeItems();return catalog.filter(command=>command.kind==='action').map((command,order)=>({command,order,score:scoreCommand(normalized,command)})).filter(item=>item.score>0).sort((a,b)=>b.score-a.score||useScore(b.command)-useScore(a.command)||a.order-b.order).map(item=>item.command)}
+function filterCommands(query){filtered=pageItems(query);activeIndex=0;render()}
+function descendantCount(groupId){const previous=currentGroupId;currentGroupId=groupId;const count=catalog.filter(command=>command.kind==='action'&&insidePage(command)).length;currentGroupId=previous;return count}
+function resultMeta(command){const path=[command.source,command.breadcrumb].filter(Boolean).join(' › ');if(command.kind==='group')return `${path}${path?' · ':''}${descendantCount(command.id)} commands`;const detail=[command.alias?`alias: ${command.alias}`:'',command.detail].filter(Boolean).join(' · ');return path&&detail?`${path} · ${detail}`:path||detail}
+function acceleratorForIndex(index){if(index<9)return String(index+1);return index===9?'0':''}
+function overlayOpen(){return $('#actions').classList.contains('visible')||$('#custom-panel').classList.contains('visible')}
+function activateAccelerator(key){if($('#query').value||!/^[0-9]$/.test(key)||overlayOpen())return false;const index=key==='0'?9:Number(key)-1;if(!filtered[index])return false;activate(filtered[index]);return true}
+function render(){const list=$('#results'),hasQuery=Boolean($('#query').value);list.replaceChildren();$('#result-count').textContent=filtered.length?`${filtered.length} results`:'';$('#empty').classList.toggle('visible',!filtered.length);list.style.display=filtered.length?'block':'none';const group=currentGroupId?commandById(currentGroupId):null;$('#back').classList.toggle('visible',Boolean(group));$('#page-bar').classList.toggle('visible',Boolean(group));$('#page-bar').textContent=group?[group.source,group.breadcrumb,group.label].filter(Boolean).join(' › '):'';$('#accelerator-hint').hidden=hasQuery;$('#view').textContent=viewMode[0].toUpperCase()+viewMode.slice(1);$('#view').hidden=!allowLevelCycle;filtered.forEach((command,index)=>{if(sections.has(index)){const heading=document.createElement('div');heading.className='section';heading.textContent=sections.get(index);list.append(heading)}const row=document.createElement('div');row.className=`result${index===activeIndex?' active':''}`;row.addEventListener('click',()=>activate(command));row.addEventListener('contextmenu',event=>{event.preventDefault();openActions(command)});const number=document.createElement('span');number.className='number';number.textContent=hasQuery?'':acceleratorForIndex(index);const main=document.createElement('div');main.className='main';main.textContent=`${command.pinned?'★ ':''}${command.label}`;const meta=document.createElement('div');meta.className='meta';meta.textContent=resultMeta(command);const end=document.createElement('span');end.className=`end ${command.kind==='group'?'chevron':'shortcut'}`;end.textContent=command.kind==='group'?'›':command.shortcut;row.append(number,main,meta,end);list.append(row)});list.querySelector('.active')?.scrollIntoView({block:'nearest'})}
+function execute(command){if(command?.kind==='action')postToAHK({action:'execute',id:command.id})}
+function enterGroup(command){if(command?.kind!=='group')return;currentGroupId=command.id;$('#query').value='';filterCommands('');$('#query').focus()}
+function goBack(){if(!currentGroupId)return false;currentGroupId=commandById(currentGroupId)?.parentId||null;$('#query').value='';filterCommands('');$('#query').focus();return true}
+function activate(command){command?.kind==='group'?enterGroup(command):execute(command)}
+function moveActive(delta){if(!filtered.length)return;activeIndex=(activeIndex+delta+filtered.length)%filtered.length;render()}
+function cycleLevelsPerPage(){if(!allowLevelCycle)return;levelsPerPage=(levelsPerPage+1)%3;viewMode=['flat','groups','mixed'][levelsPerPage];postToAHK({action:'setLevel',level:levelsPerPage});focusPalette()}
+function actionSpecs(command){const specs=[{label:command.pinned?'Unpin':'Pin to top',run:()=>postToAHK({action:'togglePin',id:command.id})}];if(command.pinned)specs.push({label:'Move pin up',run:()=>postToAHK({action:'movePin',id:command.id,direction:-1})},{label:'Move pin down',run:()=>postToAHK({action:'movePin',id:command.id,direction:1})});specs.push({label:'Reset ranking',run:()=>postToAHK({action:'resetRanking',id:command.id})},{label:'Hide item',run:()=>postToAHK({action:'setItemPreference',id:command.id,field:'hidden',value:true})},{label:'Customize menu…',run:openCustom});return specs}
+function openActions(command=filtered[activeIndex]){if(!command)return;activeActionIndex=0;$('#actions-title').textContent=command.label;$('#action-list').replaceChildren();actionEntries=actionSpecs(command).map((spec,index)=>{const button=document.createElement('button');button.className=`action${index===0?' active':''}`;button.textContent=spec.label;button.addEventListener('click',()=>{spec.run();closeActions()});$('#action-list').append(button);return{button,run:spec.run}});$('#actions').classList.add('visible')}
+function closeActions(){$('#actions').classList.remove('visible');$('#query').focus()}
+function moveAction(delta){activeActionIndex=(activeActionIndex+delta+actionEntries.length)%actionEntries.length;actionEntries.forEach((entry,index)=>entry.button.classList.toggle('active',index===activeActionIndex))}
+function setMenu(field,value){postToAHK({action:'setMenuPreference',field,value})}
+function renderCustom(){const prefs=menuPreferences;$('#custom-title').textContent=`Customize ${menuSource}`;$('#set-view').value=prefs.viewMode||viewMode;$('#set-chords').checked=Boolean(prefs.chordMode);$('#set-delay').value=Number(prefs.chordDelayMs||450);$('#set-pinned').value=Number(prefs.maxPinned??maxPinned);$('#set-suggested').value=Number(prefs.maxSuggested??maxSuggested);$('#set-groups').checked=Boolean(prefs.groupsFirst);renderCustomItems($('#custom-query').value)}
+function renderCustomItems(query=''){const normalized=fold(query),list=$('#custom-list'),groups=customizationCatalog.filter(item=>item.kind==='group');list.replaceChildren();customizationCatalog.filter(item=>!normalized||fold(`${item.label} ${item.alias} ${item.id}`).includes(normalized)).forEach(item=>{const row=document.createElement('div');row.className=`custom-row${item.hidden?' hidden':''}`;const visible=document.createElement('input');visible.type='checkbox';visible.checked=!item.hidden;visible.addEventListener('change',()=>postToAHK({action:'setItemPreference',id:item.id,field:'hidden',value:!visible.checked}));const label=document.createElement('input');label.value=item.label;label.addEventListener('change',()=>postToAHK({action:'setItemPreference',id:item.id,field:'label',value:label.value}));const alias=document.createElement('input');alias.value=item.alias||'';alias.placeholder='Alias';alias.addEventListener('change',()=>postToAHK({action:'setItemPreference',id:item.id,field:'alias',value:alias.value}));const parent=document.createElement('select'),root=document.createElement('option');root.value='';root.textContent='Root';parent.append(root);groups.filter(group=>group.id!==item.id&&group.source===item.source).forEach(group=>{const option=document.createElement('option');option.value=group.id;option.textContent=group.label;parent.append(option)});parent.value=item.parentId||'';parent.addEventListener('change',()=>postToAHK({action:'setItemPreference',id:item.id,field:'parentId',value:parent.value}));const order=document.createElement('input');order.type='number';order.value=Number(item.order||0);order.addEventListener('change',()=>postToAHK({action:'setItemPreference',id:item.id,field:'order',value:Number(order.value)}));const pin=document.createElement('input');pin.type='checkbox';pin.checked=Boolean(item.pinned);pin.addEventListener('change',()=>postToAHK({action:'setItemPreference',id:item.id,field:'pinned',value:pin.checked}));row.append(visible,label,alias,parent,order,pin);list.append(row)})}
+const renderCustomItemsBase=renderCustomItems;
+renderCustomItems=function(query=''){renderCustomItemsBase(query);const normalized=fold(query),visibleItems=customizationCatalog.filter(item=>!normalized||fold(`${item.label} ${item.alias} ${item.id}`).includes(normalized)),rows=[...$('#custom-list').children];rows.forEach((row,index)=>{const item=visibleItems[index];if(!item)return;row.style.gridTemplateColumns='24px minmax(120px,1.4fr) minmax(80px,.8fr) minmax(110px,1fr) 64px 24px 66px';const button=document.createElement('button');button.type='button';button.className='icon';button.textContent='Delete';button.title=item.kind==='group'?'Delete this group and all descendants':'Delete this item';button.addEventListener('click',event=>showDeleteConfirmation(event,item));row.append(button)})};
+let deleteConfirmation=null;
+function closeDeleteConfirmation(){if(deleteConfirmation){deleteConfirmation.remove();deleteConfirmation=null}}
+function showDeleteConfirmation(event,item){closeDeleteConfirmation();const descendants=customizationCatalog.filter(candidate=>{let parentId=candidate.parentId;while(parentId){if(parentId===item.id)return true;parentId=customizationCatalog.find(parent=>parent.id===parentId)?.parentId||''}return false}),bubble=document.createElement('div'),label=document.createElement('span'),cancel=document.createElement('button'),accept=document.createElement('button');deleteConfirmation=bubble;label.textContent=descendants.length?`Delete +${descendants.length}?`:'Delete?';cancel.type='button';cancel.textContent='×';cancel.title='Cancel';accept.type='button';accept.textContent='✓';accept.title='Delete';Object.assign(bubble.style,{position:'fixed',zIndex:'30',display:'flex',alignItems:'center',gap:'6px',padding:'5px 6px 5px 9px',border:'1px solid #666',borderRadius:'7px',background:'#252526',color:'var(--text-primary)',boxShadow:'0 6px 20px rgba(0,0,0,.45)',left:`${Math.max(6,Math.min(Number(event.clientX||0)+8,window.innerWidth-170))}px`,top:`${Math.max(6,Math.min(Number(event.clientY||0)+8,window.innerHeight-44))}px`});for(const button of [cancel,accept]){button.className='icon';button.style.minWidth='28px';button.style.padding='0'}cancel.addEventListener('click',closeDeleteConfirmation);accept.addEventListener('click',()=>{closeDeleteConfirmation();postToAHK({action:'deleteItem',id:item.id})});bubble.append(label,cancel,accept);document.body.append(bubble);cancel.focus()}
+function openCustom(){closeActions();$('#custom-panel').classList.add('visible');renderCustom();$('#custom-query').focus()}
+function closeCustom(){$('#custom-panel').classList.remove('visible');$('#query').focus()}
+function focusPalette(){currentGroupId=null;$('#query').value='';filterCommands('');$('#query').focus()}
+$('#query').addEventListener('input',event=>filterCommands(event.target.value));$('#query').addEventListener('keydown',event=>{if($('#actions').classList.contains('visible')){if(event.key==='ArrowDown'){event.preventDefault();moveAction(1)}else if(event.key==='ArrowUp'){event.preventDefault();moveAction(-1)}else if(event.key==='Enter'){event.preventDefault();actionEntries[activeActionIndex]?.run();closeActions()}else if(event.key==='Escape'){event.preventDefault();closeActions()}return}if(event.key.toLowerCase()==='k'&&event.ctrlKey){event.preventDefault();openActions()}else if(event.key===','&&event.ctrlKey){event.preventDefault();openCustom()}else if(event.key.toLowerCase()==='n'&&event.altKey){event.preventDefault();cycleLevelsPerPage()}else if(activateAccelerator(event.key))event.preventDefault();else if(event.key==='ArrowDown'){event.preventDefault();moveActive(1)}else if(event.key==='ArrowUp'){event.preventDefault();moveActive(-1)}else if(event.key==='ArrowLeft'&&event.altKey){event.preventDefault();goBack()}else if(event.key==='Backspace'&&!event.target.value&&currentGroupId){event.preventDefault();goBack()}else if(event.key==='Enter'){event.preventDefault();activate(filtered[activeIndex])}else if(event.key==='Escape'){event.preventDefault();postToAHK({action:'cancel'})}});
+$('#back').addEventListener('click',goBack);$('#view').addEventListener('click',cycleLevelsPerPage);$('#customize').addEventListener('click',openCustom);$('#actions-close').addEventListener('click',closeActions);$('#custom-close').addEventListener('click',closeCustom);$('#reload').addEventListener('click',()=>postToAHK({action:'reloadPreferences'}));$('#custom-query').addEventListener('input',event=>renderCustomItems(event.target.value));$('#set-view').addEventListener('change',event=>setMenu('viewMode',event.target.value));$('#set-chords').addEventListener('change',event=>setMenu('chordMode',event.target.checked));$('#set-delay').addEventListener('change',event=>setMenu('chordDelayMs',Number(event.target.value)));$('#set-pinned').addEventListener('change',event=>setMenu('maxPinned',Number(event.target.value)));$('#set-suggested').addEventListener('change',event=>setMenu('maxSuggested',Number(event.target.value)));$('#set-groups').addEventListener('change',event=>setMenu('groupsFirst',event.target.checked));document.addEventListener('keydown',event=>{if($('#custom-panel').classList.contains('visible')&&event.key==='Escape'){event.preventDefault();closeCustom()}});
+document.addEventListener('keydown',event=>{if(event.key!=='Escape')return;event.preventDefault();event.stopImmediatePropagation();if(deleteConfirmation)closeDeleteConfirmation();else postToAHK({action:'cancel'})},true);
+function setPaletteState(state){const keepCustom=$('#custom-panel').classList.contains('visible');catalog=Array.isArray(state?.catalog)?state.catalog:[];customizationCatalog=Array.isArray(state?.customizationCatalog)?state.customizationCatalog:[];levelsPerPage=Math.max(0,Math.min(2,Number(state?.levelsPerPage)||0));viewMode=state?.viewMode||['flat','groups','mixed'][levelsPerPage];groupsFirst=Boolean(state?.groupsFirst);frecency=state?.frecency&&typeof state.frecency==='object'?state.frecency:{};allowLevelCycle=state?.allowLevelCycle===undefined?true:Boolean(state.allowLevelCycle);maxPinned=Math.max(0,Number(state?.maxPinned??3));maxSuggested=Math.max(0,Number(state?.maxSuggested??3));menuSource=state?.source||'Global';menuPreferences=state?.menuPreferences||{};$('#source-count').textContent=`${catalog.filter(command=>command.kind==='action').length} commands`;const error=String(state?.configError||'');$('#config-error').textContent=error;$('#config-error').classList.toggle('visible',Boolean(error));currentGroupId=null;$('#actions').classList.remove('visible');$('#query').value=String(state?.initialQuery||'');filterCommands($('#query').value);renderCustom();if(keepCustom){$('#custom-panel').classList.add('visible');$('#custom-query').focus()}else{$('#custom-panel').classList.remove('visible');$('#query').focus()}}
+window.chrome.webview.addEventListener('message',event=>{let state=event.data;if(typeof state==='string'){try{state=JSON.parse(state)}catch{state={}}}setPaletteState(state)});window.setPaletteState=setPaletteState;window.focusPalette=focusPalette;
 </script>
 </body>
 </html>

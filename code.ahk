@@ -254,6 +254,7 @@ toggleLog(hk)
 
 global VSCode_BaseUrl := 'http://127.0.0.1:7777'
 global VSCode_ControllerChordsInitialized := false
+global VSCode_ControllerPaletteLaunchers := Map()
 
 VSCode_Cmd(command, args := '[]') {
   if (Type(args) != 'String') {
@@ -432,6 +433,14 @@ VSCode_RunCommand(command, args := '[]') {
 }
 
 VSCode_StartChord(prefixHotkey) {
+  global VSCode_ControllerPaletteLaunchers
+
+  if VSCode_ControllerPaletteLaunchers.Has(prefixHotkey) {
+    log('[vscode-palette] open | ' . prefixHotkey)
+    VSCode_ControllerPaletteLaunchers[prefixHotkey].Call()
+    return
+  }
+
   log('[vscode-chord] start prefix | ' . prefixHotkey)
   ChordHandlePrefix(prefixHotkey)
   log('[vscode-chord] end prefix | ' . prefixHotkey)
@@ -633,26 +642,50 @@ GetVSCodeSettingsChordOptions() {
 }
 
 InitVSCodeControllerChords() {
-  global VSCode_ControllerChordsInitialized
+  global VSCode_ControllerChordsInitialized, VSCode_ControllerPaletteLaunchers
 
   if (VSCode_ControllerChordsInitialized) {
     log('[vscode-chord] init skipped')
     return
   }
 
-  ChordSetDebugLogger(VSCodeChordDebugLogger)
   HotIf(VSCodeChordHotIf)
-  MenuWhichKeyRegisterWithActions('^!g', GetVSCodeGoChordOptions())
-  MenuWhichKeyRegisterWithActions('^!b', GetVSCodeBookmarksChordOptions())
-  MenuWhichKeyRegisterWithActions('^!c', GetVSCodeReferencesChordOptions())
-  MenuWhichKeyRegisterWithActions('^!t', GetVSCodeToggleChordOptions())
-  MenuWhichKeyRegisterWithActions('!f', GetVSCodeFileChordOptions())
-  MenuWhichKeyRegisterWithActions('^!z', GetVSCodeFoldingChordOptions())
-  MenuWhichKeyRegisterWithActions('^!s', GetVSCodeSettingsChordOptions())
+
+  ; Renderer toggle: legacy Which-Key registrations are retained for rollback.
+  ; ChordSetDebugLogger(VSCodeChordDebugLogger)
+  ; MenuWhichKeyRegisterWithActions('^!g', GetVSCodeGoChordOptions())
+  ; MenuWhichKeyRegisterWithActions('^!b', GetVSCodeBookmarksChordOptions())
+  ; MenuWhichKeyRegisterWithActions('^!c', GetVSCodeReferencesChordOptions())
+  ; MenuWhichKeyRegisterWithActions('^!t', GetVSCodeToggleChordOptions())
+  ; MenuWhichKeyRegisterWithActions('!f', GetVSCodeFileChordOptions())
+  ; MenuWhichKeyRegisterWithActions('^!z', GetVSCodeFoldingChordOptions())
+  ; MenuWhichKeyRegisterWithActions('^!s', GetVSCodeSettingsChordOptions())
+
+  VSCode_ControllerPaletteLaunchers['^!g'] := MenuCommandPaletteRegisterWithActions(
+    '^!g', 'VS Code · Go', 'Alt+G', GetVSCodeGoChordOptions()
+  )
+  VSCode_ControllerPaletteLaunchers['^!b'] := MenuCommandPaletteRegisterWithActions(
+    '^!b', 'VS Code · Bookmarks', 'Alt+B', GetVSCodeBookmarksChordOptions()
+  )
+  VSCode_ControllerPaletteLaunchers['^!c'] := MenuCommandPaletteRegisterWithActions(
+    '^!c', 'VS Code · References', 'Ctrl+Alt+C', GetVSCodeReferencesChordOptions()
+  )
+  VSCode_ControllerPaletteLaunchers['^!t'] := MenuCommandPaletteRegisterWithActions(
+    '^!t', 'VS Code · Toggle', 'Alt+T', GetVSCodeToggleChordOptions()
+  )
+  VSCode_ControllerPaletteLaunchers['!f'] := MenuCommandPaletteRegisterWithActions(
+    '!f', 'VS Code · File', 'Alt+F', GetVSCodeFileChordOptions()
+  )
+  VSCode_ControllerPaletteLaunchers['^!z'] := MenuCommandPaletteRegisterWithActions(
+    '^!z', 'VS Code · Folding', 'Alt+Z', GetVSCodeFoldingChordOptions()
+  )
+  VSCode_ControllerPaletteLaunchers['^!s'] := MenuCommandPaletteRegisterWithActions(
+    '^!s', 'VS Code · Settings', 'Alt+S', GetVSCodeSettingsChordOptions()
+  )
   HotIf()
 
   VSCode_ControllerChordsInitialized := true
-  log('[vscode-chord] init complete | prefixes=^!g,^!b,^!c,^!t,!f,^!z,^!s')
+  log('[vscode-palette] init complete | prefixes=^!g,^!b,^!c,^!t,!f,^!z,^!s')
 }
 
 

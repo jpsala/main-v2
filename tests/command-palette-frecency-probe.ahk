@@ -16,7 +16,7 @@ try {
 }
 
 CommandPaletteFrecencyProbeRun() {
-    global COMMAND_PALETTE_BY_ID, COMMAND_PALETTE_FRECENCY, COMMAND_PALETTE_FRECENCY_STATE_PATH, COMMAND_PALETTE_LEVELS_PER_PAGE
+    global COMMAND_PALETTE_BY_ID, COMMAND_PALETTE_FRECENCY, COMMAND_PALETTE_FRECENCY_STATE_PATH
 
     stateDir := A_Temp . "\main-command-palette-frecency-probe-" . A_TickCount
     COMMAND_PALETTE_FRECENCY_STATE_PATH := stateDir . "\state.json"
@@ -29,8 +29,6 @@ CommandPaletteFrecencyProbeRun() {
 
     firstUse := "20260701000000"
     halfLifeLater := "20260715000000"
-    CommandPaletteSetLevelsPerPage(5)
-    CommandPaletteFrecencyProbeAssert(COMMAND_PALETTE_LEVELS_PER_PAGE = 2, "level clamp")
     CommandPaletteFrecencyRecordUse("Apps:g.a", firstUse)
     CommandPaletteFrecencyProbeNear(COMMAND_PALETTE_FRECENCY["Apps:g.a"]["score"], 1, "first action use")
     CommandPaletteFrecencyProbeNear(COMMAND_PALETTE_FRECENCY["Apps:g"]["score"], 1, "parent propagation")
@@ -41,16 +39,14 @@ CommandPaletteFrecencyProbeRun() {
     CommandPaletteFrecencyProbeNear(CommandPaletteFrecencyGetSnapshot(halfLifeLater)["Apps:g"], 1.5, "snapshot score")
 
     COMMAND_PALETTE_FRECENCY := Map()
-    COMMAND_PALETTE_LEVELS_PER_PAGE := 0
     CommandPaletteFrecencyLoad()
     CommandPaletteFrecencyProbeNear(COMMAND_PALETTE_FRECENCY["Apps:g.a"]["score"], 1.5, "persistence round-trip")
-    CommandPaletteFrecencyProbeAssert(COMMAND_PALETTE_LEVELS_PER_PAGE = 2, "level persistence round-trip")
-
-    FileDelete(COMMAND_PALETTE_FRECENCY_STATE_PATH)
-    FileAppend(JsonDump(Map("version", 1, "entries", COMMAND_PALETTE_FRECENCY)), COMMAND_PALETTE_FRECENCY_STATE_PATH, "UTF-8")
-    COMMAND_PALETTE_LEVELS_PER_PAGE := 1
+    CommandPaletteFrecencyProbeAssert(CommandPaletteFrecencyReset("Apps:g.a"), "individual ranking reset")
+    CommandPaletteFrecencyProbeAssert(!COMMAND_PALETTE_FRECENCY.Has("Apps:g.a"), "reset removes action score")
+    CommandPaletteFrecencyProbeAssert(COMMAND_PALETTE_FRECENCY.Has("Apps:g"), "reset preserves parent score")
+    COMMAND_PALETTE_FRECENCY := Map()
     CommandPaletteFrecencyLoad()
-    CommandPaletteFrecencyProbeAssert(COMMAND_PALETTE_LEVELS_PER_PAGE = 1, "version 1 preserves default level")
+    CommandPaletteFrecencyProbeAssert(!COMMAND_PALETTE_FRECENCY.Has("Apps:g.a"), "reset persistence")
 
     FileDelete(COMMAND_PALETTE_FRECENCY_STATE_PATH)
     FileAppend("not-json", COMMAND_PALETTE_FRECENCY_STATE_PATH, "UTF-8")

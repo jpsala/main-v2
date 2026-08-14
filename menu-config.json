@@ -1,0 +1,2392 @@
+﻿{
+  "itemOverrides": {
+    "WezTerm:tr": {
+      "pinned": 1
+    }
+  },
+  "menuOrder": [
+    "Apps",
+    "Web",
+    "Code"
+  ],
+  "menuOverrides": {},
+  "menus": {
+    "Apps": {
+      "chordDelayMs": 1000,
+      "chordMode": 1,
+      "groupsFirst": 1,
+      "items": [
+        {
+          "actionId": "Apps:b",
+          "alias": null,
+          "chordPath": [
+            "b"
+          ],
+          "id": "Apps:b",
+          "kind": "action",
+          "label": "Show Bookmarks",
+          "order": 1,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:c",
+          "alias": null,
+          "chordPath": [
+            "c"
+          ],
+          "id": "Apps:c",
+          "kind": "action",
+          "label": "SpeedCrunch",
+          "order": 2,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:C",
+          "alias": null,
+          "chordPath": [
+            "C"
+          ],
+          "id": "Apps:C",
+          "kind": "action",
+          "label": "LibreOffice Calc",
+          "order": 3,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "alias": null,
+          "chordPath": [
+            "e"
+          ],
+          "id": "Apps:e",
+          "kind": "group",
+          "label": "Fixvox Deploy / Release",
+          "order": 5,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:e.r",
+          "alias": null,
+          "chordPath": [
+            "r"
+          ],
+          "detail": "Restarts the Fixvox dev runtime in background. Use after code changes or when the local app/server is stale.",
+          "id": "Apps:e.r",
+          "kind": "action",
+          "label": "Restart server/dev runtime",
+          "order": 1,
+          "parentId": "Apps:e",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:e.u",
+          "alias": null,
+          "chordPath": [
+            "u"
+          ],
+          "detail": "Full handoff release for another computer: runs focused control-plane tests, deploys proxy/admin secrets, creates Fixvox-Installer.exe, uploads the installer/update artifacts to GitHub, then prints the release and installer URLs.",
+          "id": "Apps:e.u",
+          "kind": "action",
+          "label": "Other PC: create + upload installer",
+          "order": 2,
+          "parentId": "Apps:e",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:e.p",
+          "alias": null,
+          "chordPath": [
+            "p"
+          ],
+          "detail": "Builds the Windows installer, uploads GitHub release artifacts, and deploys production backend so other PCs can update. Uses the production release flow with SkipProductionSecret.",
+          "id": "Apps:e.p",
+          "kind": "action",
+          "label": "Publish installer + update artifacts",
+          "order": 3,
+          "parentId": "Apps:e",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:e.b",
+          "alias": null,
+          "chordPath": [
+            "b"
+          ],
+          "detail": "Builds the stable Windows installer locally with -SkipPublish and opens the output folder. Does not upload artifacts or deploy production.",
+          "id": "Apps:e.b",
+          "kind": "action",
+          "label": "Build installer locally",
+          "order": 4,
+          "parentId": "Apps:e",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:e.o",
+          "alias": null,
+          "chordPath": [
+            "o"
+          ],
+          "detail": "Opens Explorer selecting the newest generated installer if present, otherwise opens the output folder.",
+          "id": "Apps:e.o",
+          "kind": "action",
+          "label": "Open latest installer",
+          "order": 5,
+          "parentId": "Apps:e",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:e.d",
+          "alias": null,
+          "chordPath": [
+            "d"
+          ],
+          "detail": "Prints the production deploy/build/upload commands without executing them.",
+          "id": "Apps:e.d",
+          "kind": "action",
+          "label": "Dry-run production release",
+          "order": 6,
+          "parentId": "Apps:e",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:e.g",
+          "alias": null,
+          "chordPath": [
+            "g"
+          ],
+          "detail": "Runs gh auth status to confirm GitHub CLI can create/upload releases. Does not change release state.",
+          "id": "Apps:e.g",
+          "kind": "action",
+          "label": "Check GitHub auth",
+          "order": 7,
+          "parentId": "Apps:e",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:e.t",
+          "alias": null,
+          "chordPath": [
+            "t"
+          ],
+          "detail": "Runs bun test from C:\\dev\\fixvox. Does not build, deploy, or upload anything.",
+          "id": "Apps:e.t",
+          "kind": "action",
+          "label": "Run tests",
+          "order": 8,
+          "parentId": "Apps:e",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:e.v",
+          "alias": null,
+          "chordPath": [
+            "v"
+          ],
+          "detail": "Runs bun run build:views. Useful before packaging when only frontend/screens changed.",
+          "id": "Apps:e.v",
+          "kind": "action",
+          "label": "Build views",
+          "order": 9,
+          "parentId": "Apps:e",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:e.h",
+          "alias": null,
+          "chordPath": [
+            "h"
+          ],
+          "detail": "Opens a generated local documentation window for current menu entries. Does not run build, deploy, install, or release commands.",
+          "id": "Apps:e.h",
+          "kind": "action",
+          "label": "Help: explain this menu",
+          "order": 10,
+          "parentId": "Apps:e",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "alias": null,
+          "chordPath": [
+            "p"
+          ],
+          "id": "Apps:p",
+          "kind": "group",
+          "label": "Copicu clipboard app",
+          "order": 6,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:p.r",
+          "alias": null,
+          "chordPath": [
+            "r"
+          ],
+          "detail": "Runs Copicu's dev restart script. Stops repo-owned Copicu/Vite/Tauri processes, starts dev mode, waits for readiness, and writes logs under .codex-run/dev-restart.",
+          "id": "Apps:p.r",
+          "kind": "action",
+          "label": "Restart dev app",
+          "order": 1,
+          "parentId": "Apps:p",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:p.k",
+          "alias": null,
+          "chordPath": [
+            "k"
+          ],
+          "detail": "Stops Copicu dev/runtime processes associated with this repo, including the Vite port owner when present.",
+          "id": "Apps:p.k",
+          "kind": "action",
+          "label": "Kill dev app",
+          "order": 2,
+          "parentId": "Apps:p",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:p.o",
+          "alias": null,
+          "chordPath": [
+            "o"
+          ],
+          "detail": "Opens C:\\dev\\chat\\copyq-tauri in Explorer. Does not open VS Code or another editor.",
+          "id": "Apps:p.o",
+          "kind": "action",
+          "label": "Open repo folder",
+          "order": 3,
+          "parentId": "Apps:p",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:p.t",
+          "alias": null,
+          "chordPath": [
+            "t"
+          ],
+          "detail": "Opens Windows Terminal in C:\\dev\\chat\\copyq-tauri.",
+          "id": "Apps:p.t",
+          "kind": "action",
+          "label": "Terminal in repo",
+          "order": 4,
+          "parentId": "Apps:p",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:p.i",
+          "alias": null,
+          "chordPath": [
+            "i"
+          ],
+          "detail": "Builds the Tauri NSIS installer, finds the newest *-setup.exe under src-tauri\\target\\release\\bundle\\nsis, and launches it so you can continue the installer manually.",
+          "id": "Apps:p.i",
+          "kind": "action",
+          "label": "Build installer and run",
+          "order": 5,
+          "parentId": "Apps:p",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:p.b",
+          "alias": null,
+          "chordPath": [
+            "b"
+          ],
+          "detail": "Runs npm run build from the Copicu repo.",
+          "id": "Apps:p.b",
+          "kind": "action",
+          "label": "Build frontend",
+          "order": 6,
+          "parentId": "Apps:p",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:p.c",
+          "alias": null,
+          "chordPath": [
+            "c"
+          ],
+          "detail": "Runs cargo check from src-tauri using a separate target dir for quick validation.",
+          "id": "Apps:p.c",
+          "kind": "action",
+          "label": "Cargo check",
+          "order": 7,
+          "parentId": "Apps:p",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:p.v",
+          "alias": null,
+          "chordPath": [
+            "v"
+          ],
+          "detail": "Runs npm run visual:check from the Copicu repo.",
+          "id": "Apps:p.v",
+          "kind": "action",
+          "label": "Visual checks",
+          "order": 8,
+          "parentId": "Apps:p",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "alias": null,
+          "chordPath": [
+            "i"
+          ],
+          "id": "Apps:i",
+          "kind": "group",
+          "label": "Pi launcher",
+          "order": 7,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:i.p",
+          "alias": null,
+          "chordPath": [
+            "p"
+          ],
+          "detail": "Sol medium + plan-mode local; pensar y aprobar antes de editar.",
+          "id": "Apps:i.p",
+          "kind": "action",
+          "label": "Plan compacto",
+          "order": 1,
+          "parentId": "Apps:i",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:i.a",
+          "alias": null,
+          "chordPath": [
+            "a"
+          ],
+          "detail": "Sol high; ambiguedad, tradeoffs y trabajo de alto valor.",
+          "id": "Apps:i.a",
+          "kind": "action",
+          "label": "Arquitectura / decision",
+          "order": 2,
+          "parentId": "Apps:i",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:i.c",
+          "alias": null,
+          "chordPath": [
+            "c"
+          ],
+          "detail": "Terra medium; codigo cotidiano con tools y contexto mixto.",
+          "id": "Apps:i.c",
+          "kind": "action",
+          "label": "Implementar normal",
+          "order": 3,
+          "parentId": "Apps:i",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:i.b",
+          "alias": null,
+          "chordPath": [
+            "b"
+          ],
+          "detail": "Luna max; contrato claro, checks definidos y bajo costo por tarea.",
+          "id": "Apps:i.b",
+          "kind": "action",
+          "label": "Ejecutar tarea cerrada",
+          "order": 4,
+          "parentId": "Apps:i",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:i.m",
+          "alias": null,
+          "chordPath": [
+            "m"
+          ],
+          "detail": "Luna high; cambio repetible de uno o dos archivos.",
+          "id": "Apps:i.m",
+          "kind": "action",
+          "label": "Cambio mecanico",
+          "order": 5,
+          "parentId": "Apps:i",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:i.r",
+          "alias": null,
+          "chordPath": [
+            "r"
+          ],
+          "detail": "Sol high; juicio independiente y herramientas read-only.",
+          "id": "Apps:i.r",
+          "kind": "action",
+          "label": "Revisar sin editar",
+          "order": 6,
+          "parentId": "Apps:i",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:i.q",
+          "alias": null,
+          "chordPath": [
+            "q"
+          ],
+          "detail": "Luna medium; contexto minimo y sin extensiones costosas.",
+          "id": "Apps:i.q",
+          "kind": "action",
+          "label": "Consulta clara",
+          "order": 7,
+          "parentId": "Apps:i",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:i.d",
+          "alias": null,
+          "chordPath": [
+            "d"
+          ],
+          "detail": "Sol medium; subagentes acotados bajo pedido.",
+          "id": "Apps:i.d",
+          "kind": "action",
+          "label": "Delegar investigacion",
+          "order": 8,
+          "parentId": "Apps:i",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:i.o",
+          "alias": null,
+          "chordPath": [
+            "o"
+          ],
+          "detail": "Sol medium + Taskflow bajo pedido.",
+          "id": "Apps:i.o",
+          "kind": "action",
+          "label": "Orquestar trabajo",
+          "order": 9,
+          "parentId": "Apps:i",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:i.s",
+          "alias": null,
+          "chordPath": [
+            "s"
+          ],
+          "detail": "Sol medium + core AOS, advisor, Lens, busqueda y browser.",
+          "id": "Apps:i.s",
+          "kind": "action",
+          "label": "AOS normal",
+          "order": 10,
+          "parentId": "Apps:i",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:i.x",
+          "alias": null,
+          "chordPath": [
+            "x"
+          ],
+          "detail": "Alias compatible de architecture.",
+          "id": "Apps:i.x",
+          "kind": "action",
+          "label": "Complex (alias Arquitectura)",
+          "order": 11,
+          "parentId": "Apps:i",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:i.h",
+          "alias": null,
+          "chordPath": [
+            "h"
+          ],
+          "detail": "Explica los presets y la seleccion de sesion sin ejecutar Pi.",
+          "id": "Apps:i.h",
+          "kind": "action",
+          "label": "Ayuda",
+          "order": 12,
+          "parentId": "Apps:i",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:m",
+          "alias": null,
+          "chordPath": [
+            "m"
+          ],
+          "detail": "Opens the main psmux session in a new Windows Terminal window with a draggable title bar and no outer tab row while only one tab is open.",
+          "id": "Apps:m",
+          "kind": "action",
+          "label": "psmux main",
+          "order": 8,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:f",
+          "alias": null,
+          "chordPath": [
+            "f"
+          ],
+          "id": "Apps:f",
+          "kind": "action",
+          "label": "File Explorer",
+          "order": 9,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:M",
+          "alias": null,
+          "chordPath": [
+            "M"
+          ],
+          "id": "Apps:M",
+          "kind": "action",
+          "label": "Mixer",
+          "order": 10,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "alias": null,
+          "chordPath": [
+            "r"
+          ],
+          "id": "Apps:r",
+          "kind": "group",
+          "label": "Resolution",
+          "order": 11,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:r.t",
+          "alias": null,
+          "chordPath": [
+            "t"
+          ],
+          "id": "Apps:r.t",
+          "kind": "action",
+          "label": "Toggle 1280x720 / saved current",
+          "order": 1,
+          "parentId": "Apps:r",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:r.m",
+          "alias": null,
+          "chordPath": [
+            "m"
+          ],
+          "id": "Apps:r.m",
+          "kind": "action",
+          "label": "Toggle monitor 2 only / both",
+          "order": 2,
+          "parentId": "Apps:r",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:r.7",
+          "alias": null,
+          "chordPath": [
+            7
+          ],
+          "id": "Apps:r.7",
+          "kind": "action",
+          "label": "Set 1280x720",
+          "order": 3,
+          "parentId": "Apps:r",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:r.r",
+          "alias": null,
+          "chordPath": [
+            "r"
+          ],
+          "id": "Apps:r.r",
+          "kind": "action",
+          "label": "Restore saved current",
+          "order": 4,
+          "parentId": "Apps:r",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:r.c",
+          "alias": null,
+          "chordPath": [
+            "c"
+          ],
+          "id": "Apps:r.c",
+          "kind": "action",
+          "label": "Show current",
+          "order": 5,
+          "parentId": "Apps:r",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:s",
+          "alias": null,
+          "chordPath": [
+            "s"
+          ],
+          "id": "Apps:s",
+          "kind": "action",
+          "label": "Spotify",
+          "order": 12,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "alias": null,
+          "chordPath": [
+            "z"
+          ],
+          "id": "Apps:z",
+          "kind": "group",
+          "label": "WezTerm themes",
+          "order": 13,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "alias": null,
+          "chordPath": [
+            "p"
+          ],
+          "id": "Apps:z.p",
+          "kind": "group",
+          "label": "Popular dark",
+          "order": 1,
+          "parentId": "Apps:z",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.p.t",
+          "alias": null,
+          "chordPath": [
+            "t"
+          ],
+          "id": "Apps:z.p.t",
+          "kind": "action",
+          "label": "Tokyo Night",
+          "order": 1,
+          "parentId": "Apps:z.p",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.p.c",
+          "alias": null,
+          "chordPath": [
+            "c"
+          ],
+          "id": "Apps:z.p.c",
+          "kind": "action",
+          "label": "Catppuccin Mocha",
+          "order": 2,
+          "parentId": "Apps:z.p",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.p.d",
+          "alias": null,
+          "chordPath": [
+            "d"
+          ],
+          "id": "Apps:z.p.d",
+          "kind": "action",
+          "label": "Dracula",
+          "order": 3,
+          "parentId": "Apps:z.p",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.p.n",
+          "alias": null,
+          "chordPath": [
+            "n"
+          ],
+          "id": "Apps:z.p.n",
+          "kind": "action",
+          "label": "Nord",
+          "order": 4,
+          "parentId": "Apps:z.p",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.p.g",
+          "alias": null,
+          "chordPath": [
+            "g"
+          ],
+          "id": "Apps:z.p.g",
+          "kind": "action",
+          "label": "GitHub Dark",
+          "order": 5,
+          "parentId": "Apps:z.p",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.p.r",
+          "alias": null,
+          "chordPath": [
+            "r"
+          ],
+          "id": "Apps:z.p.r",
+          "kind": "action",
+          "label": "Gruvbox Dark",
+          "order": 6,
+          "parentId": "Apps:z.p",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.p.o",
+          "alias": null,
+          "chordPath": [
+            "o"
+          ],
+          "id": "Apps:z.p.o",
+          "kind": "action",
+          "label": "OneDark",
+          "order": 7,
+          "parentId": "Apps:z.p",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.p.m",
+          "alias": null,
+          "chordPath": [
+            "m"
+          ],
+          "id": "Apps:z.p.m",
+          "kind": "action",
+          "label": "Monokai Pro",
+          "order": 8,
+          "parentId": "Apps:z.p",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "alias": null,
+          "chordPath": [
+            "c"
+          ],
+          "id": "Apps:z.c",
+          "kind": "group",
+          "label": "Catppuccin",
+          "order": 2,
+          "parentId": "Apps:z",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.c.m",
+          "alias": null,
+          "chordPath": [
+            "m"
+          ],
+          "id": "Apps:z.c.m",
+          "kind": "action",
+          "label": "Mocha",
+          "order": 1,
+          "parentId": "Apps:z.c",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.c.a",
+          "alias": null,
+          "chordPath": [
+            "a"
+          ],
+          "id": "Apps:z.c.a",
+          "kind": "action",
+          "label": "Macchiato",
+          "order": 2,
+          "parentId": "Apps:z.c",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.c.f",
+          "alias": null,
+          "chordPath": [
+            "f"
+          ],
+          "id": "Apps:z.c.f",
+          "kind": "action",
+          "label": "Frappe",
+          "order": 3,
+          "parentId": "Apps:z.c",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "alias": null,
+          "chordPath": [
+            "t"
+          ],
+          "id": "Apps:z.t",
+          "kind": "group",
+          "label": "Tokyo Night",
+          "order": 3,
+          "parentId": "Apps:z",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.t.n",
+          "alias": null,
+          "chordPath": [
+            "n"
+          ],
+          "id": "Apps:z.t.n",
+          "kind": "action",
+          "label": "Night",
+          "order": 1,
+          "parentId": "Apps:z.t",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.t.s",
+          "alias": null,
+          "chordPath": [
+            "s"
+          ],
+          "id": "Apps:z.t.s",
+          "kind": "action",
+          "label": "Storm",
+          "order": 2,
+          "parentId": "Apps:z.t",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.t.m",
+          "alias": null,
+          "chordPath": [
+            "m"
+          ],
+          "id": "Apps:z.t.m",
+          "kind": "action",
+          "label": "Moon",
+          "order": 3,
+          "parentId": "Apps:z.t",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "alias": null,
+          "chordPath": [
+            "g"
+          ],
+          "id": "Apps:z.g",
+          "kind": "group",
+          "label": "Gruvbox / Ayu",
+          "order": 4,
+          "parentId": "Apps:z",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.g.g",
+          "alias": null,
+          "chordPath": [
+            "g"
+          ],
+          "id": "Apps:z.g.g",
+          "kind": "action",
+          "label": "Gruvbox Dark",
+          "order": 1,
+          "parentId": "Apps:z.g",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.g.m",
+          "alias": null,
+          "chordPath": [
+            "m"
+          ],
+          "id": "Apps:z.g.m",
+          "kind": "action",
+          "label": "Gruvbox Dark Medium",
+          "order": 2,
+          "parentId": "Apps:z.g",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.g.a",
+          "alias": null,
+          "chordPath": [
+            "a"
+          ],
+          "id": "Apps:z.g.a",
+          "kind": "action",
+          "label": "Ayu Dark",
+          "order": 3,
+          "parentId": "Apps:z.g",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.g.A",
+          "alias": null,
+          "chordPath": [
+            "A"
+          ],
+          "id": "Apps:z.g.A",
+          "kind": "action",
+          "label": "Ayu Mirage",
+          "order": 4,
+          "parentId": "Apps:z.g",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.g.e",
+          "alias": null,
+          "chordPath": [
+            "e"
+          ],
+          "id": "Apps:z.g.e",
+          "kind": "action",
+          "label": "Everforest Dark",
+          "order": 5,
+          "parentId": "Apps:z.g",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "alias": null,
+          "chordPath": [
+            "k"
+          ],
+          "id": "Apps:z.k",
+          "kind": "group",
+          "label": "Kanagawa / Fox",
+          "order": 5,
+          "parentId": "Apps:z",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.k.d",
+          "alias": null,
+          "chordPath": [
+            "d"
+          ],
+          "id": "Apps:z.k.d",
+          "kind": "action",
+          "label": "Kanagawa Dragon",
+          "order": 1,
+          "parentId": "Apps:z.k",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.k.w",
+          "alias": null,
+          "chordPath": [
+            "w"
+          ],
+          "id": "Apps:z.k.w",
+          "kind": "action",
+          "label": "Kanagawa Wave",
+          "order": 2,
+          "parentId": "Apps:z.k",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.k.o",
+          "alias": null,
+          "chordPath": [
+            "o"
+          ],
+          "id": "Apps:z.k.o",
+          "kind": "action",
+          "label": "Night Owl",
+          "order": 3,
+          "parentId": "Apps:z.k",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.k.f",
+          "alias": null,
+          "chordPath": [
+            "f"
+          ],
+          "id": "Apps:z.k.f",
+          "kind": "action",
+          "label": "Nightfox",
+          "order": 4,
+          "parentId": "Apps:z.k",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.k.c",
+          "alias": null,
+          "chordPath": [
+            "c"
+          ],
+          "id": "Apps:z.k.c",
+          "kind": "action",
+          "label": "Carbonfox",
+          "order": 5,
+          "parentId": "Apps:z.k",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.k.n",
+          "alias": null,
+          "chordPath": [
+            "n"
+          ],
+          "id": "Apps:z.k.n",
+          "kind": "action",
+          "label": "Nordfox",
+          "order": 6,
+          "parentId": "Apps:z.k",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "alias": null,
+          "chordPath": [
+            "o"
+          ],
+          "id": "Apps:z.o",
+          "kind": "group",
+          "label": "Other dark",
+          "order": 6,
+          "parentId": "Apps:z",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.o.s",
+          "alias": null,
+          "chordPath": [
+            "s"
+          ],
+          "id": "Apps:z.o.s",
+          "kind": "action",
+          "label": "Solarized Dark",
+          "order": 1,
+          "parentId": "Apps:z.o",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.o.t",
+          "alias": null,
+          "chordPath": [
+            "t"
+          ],
+          "id": "Apps:z.o.t",
+          "kind": "action",
+          "label": "Tango Dark",
+          "order": 2,
+          "parentId": "Apps:z.o",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.o.u",
+          "alias": null,
+          "chordPath": [
+            "u"
+          ],
+          "id": "Apps:z.o.u",
+          "kind": "action",
+          "label": "Ubuntu",
+          "order": 3,
+          "parentId": "Apps:z.o",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.o.y",
+          "alias": null,
+          "chordPath": [
+            "y"
+          ],
+          "id": "Apps:z.o.y",
+          "kind": "action",
+          "label": "Moonfly",
+          "order": 4,
+          "parentId": "Apps:z.o",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.o.n",
+          "alias": null,
+          "chordPath": [
+            "n"
+          ],
+          "id": "Apps:z.o.n",
+          "kind": "action",
+          "label": "Nightfly",
+          "order": 5,
+          "parentId": "Apps:z.o",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.o.h",
+          "alias": null,
+          "chordPath": [
+            "h"
+          ],
+          "id": "Apps:z.o.h",
+          "kind": "action",
+          "label": "OneHalfDark",
+          "order": 6,
+          "parentId": "Apps:z.o",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.o.d",
+          "alias": null,
+          "chordPath": [
+            "d"
+          ],
+          "id": "Apps:z.o.d",
+          "kind": "action",
+          "label": "Doom One",
+          "order": 7,
+          "parentId": "Apps:z.o",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.o.m",
+          "alias": null,
+          "chordPath": [
+            "m"
+          ],
+          "id": "Apps:z.o.m",
+          "kind": "action",
+          "label": "Material Dark",
+          "order": 8,
+          "parentId": "Apps:z.o",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:z.o.r",
+          "alias": null,
+          "chordPath": [
+            "r"
+          ],
+          "id": "Apps:z.o.r",
+          "kind": "action",
+          "label": "Rose Pine Moon",
+          "order": 9,
+          "parentId": "Apps:z.o",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "alias": null,
+          "chordPath": [
+            "t"
+          ],
+          "id": "Apps:t",
+          "kind": "group",
+          "label": "Tabby",
+          "order": 14,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:t.o",
+          "alias": null,
+          "chordPath": [
+            "o"
+          ],
+          "detail": "Opens Tabby with a new default PowerShell terminal in C:\\dev.",
+          "id": "Apps:t.o",
+          "kind": "action",
+          "label": "Open Tabby in C:/dev",
+          "order": 1,
+          "parentId": "Apps:t",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:t.r",
+          "alias": null,
+          "chordPath": [
+            "r"
+          ],
+          "detail": "Opens Windows Terminal in C:\\dev\\tabby for workspace maintenance.",
+          "id": "Apps:t.r",
+          "kind": "action",
+          "label": "Terminal in workspace",
+          "order": 2,
+          "parentId": "Apps:t",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:t.w",
+          "alias": null,
+          "chordPath": [
+            "w"
+          ],
+          "detail": "Opens the local Tabby knowledge/config workspace folder.",
+          "id": "Apps:t.w",
+          "kind": "action",
+          "label": "Open workspace folder",
+          "order": 3,
+          "parentId": "Apps:t",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:t.v",
+          "alias": null,
+          "chordPath": [
+            "v"
+          ],
+          "detail": "Opens C:\\dev\\tabby in VS Code.",
+          "id": "Apps:t.v",
+          "kind": "action",
+          "label": "Open workspace in VS Code",
+          "order": 4,
+          "parentId": "Apps:t",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:t.c",
+          "alias": null,
+          "chordPath": [
+            "c"
+          ],
+          "detail": "Opens configs\\tabby.config.yaml from the workspace.",
+          "id": "Apps:t.c",
+          "kind": "action",
+          "label": "Edit source config",
+          "order": 5,
+          "parentId": "Apps:t",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:t.l",
+          "alias": null,
+          "chordPath": [
+            "l"
+          ],
+          "detail": "Opens %APPDATA%\\tabby\\config.yaml.",
+          "id": "Apps:t.l",
+          "kind": "action",
+          "label": "Edit live config",
+          "order": 6,
+          "parentId": "Apps:t",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:t.f",
+          "alias": null,
+          "chordPath": [
+            "f"
+          ],
+          "detail": "Opens %APPDATA%\\tabby in Explorer.",
+          "id": "Apps:t.f",
+          "kind": "action",
+          "label": "Open live config folder",
+          "order": 7,
+          "parentId": "Apps:t",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:t.s",
+          "alias": null,
+          "chordPath": [
+            "s"
+          ],
+          "detail": "Copies configs\\tabby.config.yaml to %APPDATA%\\tabby\\config.yaml using bun run sync:config.",
+          "id": "Apps:t.s",
+          "kind": "action",
+          "label": "Sync config",
+          "order": 8,
+          "parentId": "Apps:t",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:t.k",
+          "alias": null,
+          "chordPath": [
+            "k"
+          ],
+          "detail": "Runs the workspace Tabby verification script.",
+          "id": "Apps:t.k",
+          "kind": "action",
+          "label": "Verify config",
+          "order": 9,
+          "parentId": "Apps:t",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "alias": null,
+          "chordPath": [
+            "T"
+          ],
+          "id": "Apps:T",
+          "kind": "group",
+          "label": "tablet/telegram/terminal",
+          "order": 15,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:T.t",
+          "alias": null,
+          "chordPath": [
+            "t"
+          ],
+          "id": "Apps:T.t",
+          "kind": "action",
+          "label": "Windows Terminal",
+          "order": 1,
+          "parentId": "Apps:T",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:T.T",
+          "alias": null,
+          "chordPath": [
+            "T"
+          ],
+          "id": "Apps:T.T",
+          "kind": "action",
+          "label": "Telegram",
+          "order": 2,
+          "parentId": "Apps:T",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:T.a",
+          "alias": null,
+          "chordPath": [
+            "a"
+          ],
+          "id": "Apps:T.a",
+          "kind": "action",
+          "label": "Tablet",
+          "order": 3,
+          "parentId": "Apps:T",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:T.p3",
+          "alias": null,
+          "chordPath": [
+            "p",
+            3
+          ],
+          "id": "Apps:T.p3",
+          "kind": "action",
+          "label": "Phone 700px",
+          "order": 4,
+          "parentId": "Apps:T",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Apps:T.p4",
+          "alias": null,
+          "chordPath": [
+            "p",
+            4
+          ],
+          "id": "Apps:T.p4",
+          "kind": "action",
+          "label": "Phone 900px",
+          "order": 5,
+          "parentId": "Apps:T",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        }
+      ],
+      "maxPinned": 3,
+      "maxSuggested": 3,
+      "shortcut": "Win+A",
+      "viewMode": "flat"
+    },
+    "Code": {
+      "chordDelayMs": 1000,
+      "chordMode": 1,
+      "groupsFirst": 1,
+      "items": [
+        {
+          "actionId": "Code:C",
+          "alias": null,
+          "chordPath": [
+            "C"
+          ],
+          "id": "Code:C",
+          "kind": "action",
+          "label": "Code",
+          "order": 1,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Code:c",
+          "alias": null,
+          "chordPath": [
+            "c"
+          ],
+          "id": "Code:c",
+          "kind": "action",
+          "label": "Cursor",
+          "order": 2,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Code:l",
+          "alias": null,
+          "chordPath": [
+            "l"
+          ],
+          "id": "Code:l",
+          "kind": "action",
+          "label": "Claude Code",
+          "order": 3,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Code:q",
+          "alias": null,
+          "chordPath": [
+            "q"
+          ],
+          "id": "Code:q",
+          "kind": "action",
+          "label": "copyQ data",
+          "order": 4,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Code:p",
+          "alias": null,
+          "chordPath": [
+            "p"
+          ],
+          "id": "Code:p",
+          "kind": "action",
+          "label": "Passwords",
+          "order": 5,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        }
+      ],
+      "maxPinned": 3,
+      "maxSuggested": 3,
+      "shortcut": "Win+C",
+      "viewMode": "groups"
+    },
+    "Web": {
+      "chordDelayMs": 1000,
+      "chordMode": 1,
+      "groupsFirst": 1,
+      "items": [
+        {
+          "alias": null,
+          "chordPath": [
+            "C"
+          ],
+          "id": "Web:C",
+          "kind": "group",
+          "label": "Constelaciones",
+          "order": 1,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.d",
+          "alias": null,
+          "chordPath": [
+            "d"
+          ],
+          "detail": "Runs the local full-stack dev server from C:\\dev\\chat\\constelaciones in a visible terminal.",
+          "id": "Web:C.d",
+          "kind": "action",
+          "label": "Dev server: bun run dev",
+          "order": 1,
+          "parentId": "Web:C",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.p",
+          "alias": null,
+          "chordPath": [
+            "p"
+          ],
+          "detail": "Starts the local dev server and the Cloudflare tunnel for https://turnos.jpsala.dev in separate terminal tabs.",
+          "id": "Web:C.p",
+          "kind": "action",
+          "label": "Publish controlled URL: dev + tunnel",
+          "order": 2,
+          "parentId": "Web:C",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.t",
+          "alias": null,
+          "chordPath": [
+            "t"
+          ],
+          "detail": "Runs only the Cloudflare tunnel used by the controlled public URL.",
+          "id": "Web:C.t",
+          "kind": "action",
+          "label": "Tunnel only: turnos.jpsala.dev",
+          "order": 3,
+          "parentId": "Web:C",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.l",
+          "alias": null,
+          "chordPath": [
+            "l"
+          ],
+          "detail": "Opens http://localhost:3000 in the main browser.",
+          "id": "Web:C.l",
+          "kind": "action",
+          "label": "Open local app",
+          "order": 4,
+          "parentId": "Web:C",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.u",
+          "alias": null,
+          "chordPath": [
+            "u"
+          ],
+          "detail": "Opens https://turnos.jpsala.dev in the main browser.",
+          "id": "Web:C.u",
+          "kind": "action",
+          "label": "Open public URL",
+          "order": 5,
+          "parentId": "Web:C",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.r",
+          "alias": null,
+          "chordPath": [
+            "r"
+          ],
+          "detail": "Opens Windows Terminal in C:\\dev\\chat\\constelaciones.",
+          "id": "Web:C.r",
+          "kind": "action",
+          "label": "Terminal in repo",
+          "order": 6,
+          "parentId": "Web:C",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.o",
+          "alias": null,
+          "chordPath": [
+            "o"
+          ],
+          "detail": "Opens C:\\dev\\chat\\constelaciones in Explorer.",
+          "id": "Web:C.o",
+          "kind": "action",
+          "label": "Open repo folder",
+          "order": 7,
+          "parentId": "Web:C",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.v",
+          "alias": null,
+          "chordPath": [
+            "v"
+          ],
+          "detail": "Opens C:\\dev\\chat\\constelaciones in VS Code.",
+          "id": "Web:C.v",
+          "kind": "action",
+          "label": "Open repo in VS Code",
+          "order": 8,
+          "parentId": "Web:C",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "alias": null,
+          "chordPath": [
+            "c"
+          ],
+          "id": "Web:C.c",
+          "kind": "group",
+          "label": "Checks / build",
+          "order": 9,
+          "parentId": "Web:C",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.c.k",
+          "alias": null,
+          "chordPath": [
+            "k"
+          ],
+          "detail": "Runs the root check script, currently format:check then typecheck through apps/web.",
+          "id": "Web:C.c.k",
+          "kind": "action",
+          "label": "Check: bun run check",
+          "order": 1,
+          "parentId": "Web:C.c",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.c.b",
+          "alias": null,
+          "chordPath": [
+            "b"
+          ],
+          "detail": "Builds apps/web through the root package script.",
+          "id": "Web:C.c.b",
+          "kind": "action",
+          "label": "Build: bun run build",
+          "order": 2,
+          "parentId": "Web:C.c",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.c.l",
+          "alias": null,
+          "chordPath": [
+            "l"
+          ],
+          "detail": "Runs apps/web lint through the root package script.",
+          "id": "Web:C.c.l",
+          "kind": "action",
+          "label": "Lint: bun run lint",
+          "order": 3,
+          "parentId": "Web:C.c",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.c.f",
+          "alias": null,
+          "chordPath": [
+            "f"
+          ],
+          "detail": "Runs Prettier check through apps/web.",
+          "id": "Web:C.c.f",
+          "kind": "action",
+          "label": "Format check",
+          "order": 4,
+          "parentId": "Web:C.c",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.c.t",
+          "alias": null,
+          "chordPath": [
+            "t"
+          ],
+          "detail": "Runs TypeScript typecheck through apps/web.",
+          "id": "Web:C.c.t",
+          "kind": "action",
+          "label": "Typecheck",
+          "order": 5,
+          "parentId": "Web:C.c",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "alias": null,
+          "chordPath": [
+            "w"
+          ],
+          "id": "Web:C.w",
+          "kind": "group",
+          "label": "WhatsApp / CRM scripts",
+          "order": 10,
+          "parentId": "Web:C",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.w.i",
+          "alias": null,
+          "chordPath": [
+            "i"
+          ],
+          "detail": "Imports Rocio WhatsApp data through the project script.",
+          "id": "Web:C.w.i",
+          "kind": "action",
+          "label": "Import Ro WhatsApp",
+          "order": 1,
+          "parentId": "Web:C.w",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.w.s",
+          "alias": null,
+          "chordPath": [
+            "s"
+          ],
+          "detail": "Syncs the local WhatsApp mirror for Rocio.",
+          "id": "Web:C.w.s",
+          "kind": "action",
+          "label": "Sync Ro WhatsApp mirror",
+          "order": 2,
+          "parentId": "Web:C.w",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.w.j",
+          "alias": null,
+          "chordPath": [
+            "j"
+          ],
+          "detail": "Runs the WhatsApp CRM sync job once in a visible terminal.",
+          "id": "Web:C.w.j",
+          "kind": "action",
+          "label": "CRM sync job once",
+          "order": 3,
+          "parentId": "Web:C.w",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.w.T",
+          "alias": null,
+          "chordPath": [
+            "T"
+          ],
+          "detail": "Installs the periodic Windows task for WhatsApp CRM sync.",
+          "id": "Web:C.w.T",
+          "kind": "action",
+          "label": "Install CRM sync task",
+          "order": 4,
+          "parentId": "Web:C.w",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.w.n",
+          "alias": null,
+          "chordPath": [
+            "n"
+          ],
+          "detail": "Runs the OpenRouter contact-name resolver.",
+          "id": "Web:C.w.n",
+          "kind": "action",
+          "label": "Resolve names Ro",
+          "order": 5,
+          "parentId": "Web:C.w",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.w.p",
+          "alias": null,
+          "chordPath": [
+            "p"
+          ],
+          "detail": "Runs the payment proof checker with sync enabled.",
+          "id": "Web:C.w.p",
+          "kind": "action",
+          "label": "Check payment proofs Ro",
+          "order": 6,
+          "parentId": "Web:C.w",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.w.r",
+          "alias": null,
+          "chordPath": [
+            "r"
+          ],
+          "detail": "Rebuilds CRM records from the WhatsApp mirror.",
+          "id": "Web:C.w.r",
+          "kind": "action",
+          "label": "Rebuild CRM Ro",
+          "order": 7,
+          "parentId": "Web:C.w",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.w.a",
+          "alias": null,
+          "chordPath": [
+            "a"
+          ],
+          "detail": "Runs the OpenRouter AI review script.",
+          "id": "Web:C.w.a",
+          "kind": "action",
+          "label": "AI review Ro",
+          "order": 8,
+          "parentId": "Web:C.w",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "alias": null,
+          "chordPath": [
+            "x"
+          ],
+          "id": "Web:C.x",
+          "kind": "group",
+          "label": "Data / cleanup scripts",
+          "order": 11,
+          "parentId": "Web:C",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.x.c",
+          "alias": null,
+          "chordPath": [
+            "c"
+          ],
+          "detail": "Runs the safe pre-production cleanup script as declared in package.json, without adding --confirm. It preserves CRM/WhatsApp, places, encounters, templates and webhook events.",
+          "id": "Web:C.x.c",
+          "kind": "action",
+          "label": "Clean test bookings/payments (no confirm)",
+          "order": 1,
+          "parentId": "Web:C.x",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "alias": null,
+          "chordPath": [
+            "i"
+          ],
+          "id": "Web:C.i",
+          "kind": "group",
+          "label": "Context index scripts",
+          "order": 12,
+          "parentId": "Web:C",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.i.i",
+          "alias": null,
+          "chordPath": [
+            "i"
+          ],
+          "detail": "Regenerates docs/.generated/context-index.md.",
+          "id": "Web:C.i.i",
+          "kind": "action",
+          "label": "Context index",
+          "order": 1,
+          "parentId": "Web:C.i",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.i.a",
+          "alias": null,
+          "chordPath": [
+            "a"
+          ],
+          "detail": "Audits project docs/topics/tasks context coherence.",
+          "id": "Web:C.i.a",
+          "kind": "action",
+          "label": "Context audit",
+          "order": 2,
+          "parentId": "Web:C.i",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:C.i.r",
+          "alias": null,
+          "chordPath": [
+            "r"
+          ],
+          "detail": "Runs the context refresh script.",
+          "id": "Web:C.i.r",
+          "kind": "action",
+          "label": "Context refresh",
+          "order": 3,
+          "parentId": "Web:C.i",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:m",
+          "alias": null,
+          "chordPath": [
+            "m"
+          ],
+          "id": "Web:m",
+          "kind": "action",
+          "label": "chrome-main",
+          "order": 2,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:D",
+          "alias": null,
+          "chordPath": [
+            "D"
+          ],
+          "id": "Web:D",
+          "kind": "action",
+          "label": "Debug with vivaldi",
+          "order": 4,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:f",
+          "alias": null,
+          "chordPath": [
+            "f"
+          ],
+          "id": "Web:f",
+          "kind": "action",
+          "label": "Browser Main",
+          "order": 5,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:d",
+          "alias": null,
+          "chordPath": [
+            "d"
+          ],
+          "id": "Web:d",
+          "kind": "action",
+          "label": "Vivaldi debug",
+          "order": 6,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "alias": null,
+          "chordPath": [
+            "s"
+          ],
+          "id": "Web:s",
+          "kind": "group",
+          "label": "Sites",
+          "order": 7,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "alias": null,
+          "chordPath": [
+            "g"
+          ],
+          "id": "Web:s.g",
+          "kind": "group",
+          "label": "Google",
+          "order": 1,
+          "parentId": "Web:s",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:s.g.a",
+          "alias": null,
+          "chordPath": [
+            "a"
+          ],
+          "id": "Web:s.g.a",
+          "kind": "action",
+          "label": "jpsala.ai",
+          "order": 1,
+          "parentId": "Web:s.g",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:s.g.w",
+          "alias": null,
+          "chordPath": [
+            "w"
+          ],
+          "id": "Web:s.g.w",
+          "kind": "action",
+          "label": "jpsala.work",
+          "order": 2,
+          "parentId": "Web:s.g",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:s.g.v",
+          "alias": null,
+          "chordPath": [
+            "v"
+          ],
+          "id": "Web:s.g.v",
+          "kind": "action",
+          "label": "jpsala.dev",
+          "order": 3,
+          "parentId": "Web:s.g",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:s.g.A",
+          "alias": null,
+          "chordPath": [
+            "A"
+          ],
+          "id": "Web:s.g.A",
+          "kind": "action",
+          "label": "jpsala.alt",
+          "order": 4,
+          "parentId": "Web:s.g",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:s.g.c",
+          "alias": null,
+          "chordPath": [
+            "c"
+          ],
+          "id": "Web:s.g.c",
+          "kind": "action",
+          "label": "Google Calendar",
+          "order": 5,
+          "parentId": "Web:s.g",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:s.g.d",
+          "alias": null,
+          "chordPath": [
+            "d"
+          ],
+          "id": "Web:s.g.d",
+          "kind": "action",
+          "label": "Google Drive",
+          "order": 6,
+          "parentId": "Web:s.g",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:s.g.e",
+          "alias": null,
+          "chordPath": [
+            "e"
+          ],
+          "id": "Web:s.g.e",
+          "kind": "action",
+          "label": "Google Keep",
+          "order": 7,
+          "parentId": "Web:s.g",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:s.e",
+          "alias": null,
+          "chordPath": [
+            "e"
+          ],
+          "id": "Web:s.e",
+          "kind": "action",
+          "label": "Opencode Proxy",
+          "order": 2,
+          "parentId": "Web:s",
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        },
+        {
+          "actionId": "Web:v",
+          "alias": null,
+          "chordPath": [
+            "v"
+          ],
+          "id": "Web:v",
+          "kind": "action",
+          "label": "Youtube",
+          "order": 8,
+          "parentId": null,
+          "pinOrder": 0,
+          "pinned": 0,
+          "visible": 1
+        }
+      ],
+      "maxPinned": 3,
+      "maxSuggested": 3,
+      "shortcut": "Win+W",
+      "viewMode": "groups"
+    }
+  },
+  "revision": 6,
+  "version": 1
+}

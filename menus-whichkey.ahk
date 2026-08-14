@@ -37,6 +37,117 @@ MenuWebViewRunWithActions(options, *) {
 MenuWebViewRegisterWithActions(prefixHotkey, options) {
     Hotkey(ChordEnsureHookHotkey(prefixHotkey), MenuWebViewRunWithActions.Bind(options))
 }
+; Hybrid keyboard-first Command Palette. Known chords execute without showing a
+; window; timeout, Space, or an invalid first key falls through to WebView.
+InitMenusCommandPalette() {
+    MenuCommandPaletteRefreshMainMenus()
+}
+
+MenuCommandPaletteRefreshMainMenus() {
+    MenuCommandPaletteRegisterWithActions("#a", "Apps", "Win+A", GetMainSeqAOptions())
+    MenuCommandPaletteRegisterWithActions("#w", "Web", "Win+W", GetMainSeqWOptions())
+    MenuCommandPaletteRegisterWithActions("#c", "Code", "Win+C", GetMainSeqCOptions())
+}
+
+MenuCommandPaletteDefaults() {
+    return {
+        viewMode: "groups",
+        groupsFirst: true,
+        chordMode: true,
+        chordDelayMs: 1000,
+        maxPinned: 3,
+        maxSuggested: 3
+    }
+}
+
+MenuCommandPaletteRegisterWithActions(prefixHotkey, source, shortcut, options) {
+    menu := CommandPaletteBuildMenuCatalog(source, shortcut, options)
+    defaults := MenuCommandPaletteDefaults()
+    if !(source = "Apps" || source = "Web" || source = "Code")
+        defaults.chordMode := false
+    launcher := MenuCommandPaletteHybridRun.Bind(
+        source,
+        menu.catalog,
+        menu.actions,
+        defaults
+    )
+    Hotkey(ChordEnsureHookHotkey(prefixHotkey), launcher)
+    return launcher
+}
+
+MenuCommandPaletteOpen(source, catalog, actions, codeDefaults, initialQuery := "") {
+    CommandPaletteOpenWith(
+        {
+            source: source,
+            catalog: catalog,
+            settings: codeDefaults,
+            allowLevelCycle: true,
+            recordUse: true,
+            initialQuery: initialQuery
+        },
+        actions
+    )
+}
+
+MenuCommandPaletteHybridRun(source, catalog, actions, codeDefaults, *) {
+    CommandPaletteConfigLoad()
+    menuPreferences := CommandPaletteConfigGetMenu(source, codeDefaults)
+    if !menuPreferences["chordMode"] {
+        MenuCommandPaletteOpen(source, catalog, actions, codeDefaults)
+        return
+    }
+
+    chordItems := CommandPaletteConfigBuildChordItems(source)
+    key := ChordCaptureInput(menuPreferences["chordDelayMs"])
+    if (key = "" || key = "space" || key = "enter") {
+        MenuCommandPaletteOpen(source, catalog, actions, codeDefaults)
+        return
+    }
+
+    currentItems := chordItems
+    while true {
+        if !currentItems.Has(key) {
+            MenuCommandPaletteOpen(
+                source,
+                catalog,
+                actions,
+                codeDefaults,
+                MenuCommandPaletteQuerySeed(key)
+            )
+            return
+        }
+
+        entry := currentItems[key]
+        childItems := ChordEntryGetItems(entry)
+        if IsObject(childItems) && childItems.Count > 0 {
+            currentItems := childItems
+            key := ChordCaptureInput(1800)
+            if (key = "" || key = "space" || key = "enter") {
+                MenuCommandPaletteOpen(source, catalog, actions, codeDefaults)
+                return
+            }
+            continue
+        }
+
+        actionId := ChordEntryGetCommand(entry)
+        if !actions.Has(actionId)
+            return
+        CommandPaletteFrecencyRecordUse(actionId)
+        SetTimer(actions[actionId], -1)
+        return
+    }
+}
+
+
+MenuCommandPaletteQuerySeed(key) {
+    if StrLen(key) = 1
+        return key
+    if (StrLen(key) = 2 && SubStr(key, 1, 1) = "+")
+        return StrUpper(SubStr(key, 2, 1))
+    symbol := ChordShiftedKeyToSymbol(key)
+    return symbol != "" ? symbol : ""
+}
+
 
 InitMenusWhichKey() {
     MenuWhichKeyRefreshMainMenus()

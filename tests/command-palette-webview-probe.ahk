@@ -28,6 +28,12 @@ CommandPaletteWebViewProbeRun() {
     CommandPaletteBuildCatalog()
     defaultStateJson := JsonDump(Map("catalog", COMMAND_PALETTE_CATALOG, "levelsPerPage", 0, "groupsFirst", false))
     drilldownStateJson := JsonDump(Map("catalog", COMMAND_PALETTE_CATALOG, "levelsPerPage", 1, "groupsFirst", false))
+    fixedFlatStateJson := JsonDump(Map(
+        "catalog", COMMAND_PALETTE_CATALOG,
+        "levelsPerPage", 0,
+        "groupsFirst", false,
+        "allowLevelCycle", false
+    ))
     dllPath := A_WorkingDir . "\lib\" . (A_PtrSize * 8) . "bit\WebView2Loader.dll"
     paletteGui := WebViewGui("-Caption +ToolWindow", "Command Palette Probe",, {DllPath: dllPath, DefaultWidth: 760, DefaultHeight: 540})
     try {
@@ -54,8 +60,13 @@ CommandPaletteWebViewProbeRun() {
         CommandPaletteWebViewProbeAssert(InStr(sourceText, "commands"), "catalog count footer")
 
         paletteGui.Control.ExecuteScript("window.setPaletteState(" . drilldownStateJson . ");")
-        groupCount := paletteGui.Control.ExecuteScript("document.querySelectorAll('.group-chevron').length")
+        groupCount := paletteGui.Control.ExecuteScript("document.querySelectorAll('.chevron').length")
         CommandPaletteWebViewProbeAssert(groupCount != "0", "drill-down group rows")
+
+        paletteGui.Control.ExecuteScript("window.setPaletteState(" . fixedFlatStateJson . ");")
+        paletteGui.Control.ExecuteScript("cycleLevelsPerPage();")
+        fixedLevel := paletteGui.Control.ExecuteScript("levelsPerPage")
+        CommandPaletteWebViewProbeAssert(fixedLevel = "0", "custom flat palette disables level cycling, got " . fixedLevel)
 
         paletteGui.Control.ExecuteScript("postToAHK({ action: 'cancel' });")
         start := A_TickCount

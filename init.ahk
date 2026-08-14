@@ -88,6 +88,8 @@ if (!A_IsCompiled) {
     {path: './copy-q.ahk', lastModVar: FileGetTime('./copy-q.ahk', "M")},
     {path: './menus.ahk', lastModVar: FileGetTime('./menus.ahk', "M")},
     {path: './menus-whichkey.ahk', lastModVar: FileGetTime('./menus-whichkey.ahk', "M")},
+    {path: './wezterm-command-palette.ahk', lastModVar: FileGetTime('./wezterm-command-palette.ahk', "M")},
+    {path: './open-wezterm-command-palette.ahk', lastModVar: FileGetTime('./open-wezterm-command-palette.ahk', "M")},
     {path: './code.ahk', lastModVar: FileGetTime('./code.ahk', "M")},
     {path: './settings-window.ahk', lastModVar: FileGetTime('./settings-window.ahk', "M")},
     {path: './web-clipboard-host.ahk', lastModVar: FileGetTime('./web-clipboard-host.ahk', "M")},
@@ -114,6 +116,7 @@ if (!A_IsCompiled) {
     {path: './psmux-menu.ahk', lastModVar: FileGetTime('./psmux-menu.ahk', "M")},
     {path: './command-palette.ahk', lastModVar: FileGetTime('./command-palette.ahk', "M")},
     {path: './command-palette-catalog.ahk', lastModVar: FileGetTime('./command-palette-catalog.ahk', "M")},
+    {path: './command-palette-config.ahk', lastModVar: FileGetTime('./command-palette-config.ahk', "M")},
     {path: './command-palette-frecency.ahk', lastModVar: FileGetTime('./command-palette-frecency.ahk', "M")},
     {path: './tray-menu.ahk', lastModVar: FileGetTime('./tray-menu.ahk', "M")},
   ]
@@ -133,7 +136,8 @@ if (ProcessExist('StrokesPlus.net.exe') == 0 and !isWork and !isCarnival) {
 ; ***********************************************
 global cursorKeysEnabled := false
 global terminalShiftVPasteEnabled := false
-variablesToPersist := ['cursorKeysEnabled', 'logVisibility', 'terminalShiftVPasteEnabled']
+global terminalWheelPagingEnabled := true
+variablesToPersist := ['cursorKeysEnabled', 'logVisibility', 'terminalShiftVPasteEnabled', 'terminalWheelPagingEnabled']
 for variable in variablesToPersist {
    try {
       if (InStr(variable, ".")) {

@@ -67,6 +67,28 @@ CommandPaletteProbeRun() {
     CommandPaletteProbeAssert(COMMAND_PALETTE_BY_ID.Has("Apps:a") && COMMAND_PALETTE_BY_ID.Has("Apps:g.p3"), "ids survive insertion and metadata changes")
 
     CommandPaletteBuildCatalog()
+    globalCatalogCount := COMMAND_PALETTE_CATALOG.Length
+    globalActionCount := COMMAND_PALETTE_ACTIONS.Count
+    appsMenu := CommandPaletteBuildMenuCatalog("Apps", "Win+A", GetMainSeqAOptions())
+    CommandPaletteProbeAssert(appsMenu.catalog.Length > 0, "isolated Apps catalog")
+    CommandPaletteProbeAssert(appsMenu.actions.Count > 0, "isolated Apps actions")
+    CommandPaletteProbeAssert(appsMenu.byId.Count = appsMenu.catalog.Length, "isolated Apps ids")
+    for _, command in appsMenu.catalog
+        CommandPaletteProbeAssert(command["source"] = "Apps", "isolated Apps source")
+    CommandPaletteProbeAssert(
+        COMMAND_PALETTE_CATALOG.Length = globalCatalogCount
+            && COMMAND_PALETTE_ACTIONS.Count = globalActionCount,
+        "isolated menu leaves global palette unchanged"
+    )
+
+    for _, menuSpec in [
+        ["Web", "Win+W", GetMainSeqWOptions()],
+        ["Code", "Win+C", GetMainSeqCOptions()]
+    ] {
+        menu := CommandPaletteBuildMenuCatalog(menuSpec[1], menuSpec[2], menuSpec[3])
+        CommandPaletteProbeAssert(menu.catalog.Length > 0, "isolated " . menuSpec[1] . " catalog")
+        CommandPaletteProbeAssert(menu.actions.Count > 0, "isolated " . menuSpec[1] . " actions")
+    }
     CommandPaletteProbeAssert(COMMAND_PALETTE_CATALOG.Length > 0, "real menu catalog")
     sources := Map()
     ids := Map()

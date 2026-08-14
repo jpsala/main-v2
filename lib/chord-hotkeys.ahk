@@ -270,27 +270,41 @@ ChordRegister(prefixMap, executeFn, registerOptions?) {
     }
 
     for prefixKey, suffixMap in prefixMap {
-        if !CHORD_PREFIX_MAP.Has(prefixKey)
-            CHORD_PREFIX_MAP[prefixKey] := Map()
-
+        normalizedMap := Map()
         for suffixKey, entry in suffixMap
-            CHORD_PREFIX_MAP[prefixKey][suffixKey] := ChordNormalizeEntry(entry, executeFn)
-
-        CHORD_PREFIX_SETTINGS[prefixKey] := ChordNormalizeRegisterOptions(registerOptions)
-
+            normalizedMap[suffixKey] := ChordNormalizeEntry(entry, executeFn)
+        normalizedSettings := ChordNormalizeRegisterOptions(registerOptions)
         registeredPrefix := ChordEnsureHookHotkey(prefixKey)
-        if !CHORD_PREFIX_HOTKEY_MAP.Has(registeredPrefix) {
-            ChordDebug("Registering prefix: " . prefixKey . " -> " . registeredPrefix)
-            try {
+        needsHotkey := !CHORD_PREFIX_HOTKEY_MAP.Has(registeredPrefix)
+        registeredNow := false
+
+        try {
+            if needsHotkey {
+                ChordDebug("Registering prefix: " . prefixKey . " -> " . registeredPrefix)
                 Hotkey(registeredPrefix, ChordHandlePrefix.Bind(prefixKey))
-                CHORD_PREFIX_HOTKEY_MAP[registeredPrefix] := true
-                ChordDebug("  -> SUCCESS registered prefix")
-            } catch as err {
-                ChordDebug("  -> ERROR registering prefix: " . err.Message)
+                registeredNow := true
             }
+
+            CHORD_PREFIX_MAP[prefixKey] := normalizedMap
+            CHORD_PREFIX_SETTINGS[prefixKey] := normalizedSettings
+            if needsHotkey
+                CHORD_PREFIX_HOTKEY_MAP[registeredPrefix] := true
+            ChordDebug("  -> SUCCESS registered prefix")
+        } catch as err {
+            if registeredNow
+                try Hotkey(registeredPrefix, "Off")
+            if CHORD_PREFIX_MAP.Has(prefixKey)
+                CHORD_PREFIX_MAP.Delete(prefixKey)
+            if CHORD_PREFIX_SETTINGS.Has(prefixKey)
+                CHORD_PREFIX_SETTINGS.Delete(prefixKey)
+            if CHORD_PREFIX_HOTKEY_MAP.Has(registeredPrefix)
+                CHORD_PREFIX_HOTKEY_MAP.Delete(registeredPrefix)
+            ChordDebug("  -> ERROR registering prefix: " . err.Message)
+            throw Error("Unable to register chord prefix " . prefixKey . ": " . err.Message)
         }
     }
 
+    return true
 }
 
 ChordNormalizeRegisterOptions(registerOptions?) {

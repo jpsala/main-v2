@@ -18,9 +18,27 @@ CommandPaletteBuildCatalog() {
         CommandPaletteFlattenItems(root, root.options.items, [], [], [], "", 1)
     }
 }
+CommandPaletteBuildMenuCatalog(source, shortcut, options) {
+    if !IsObject(options) || !options.HasOwnProp("items") || !IsObject(options.items)
+        throw Error("Command palette menu requires options.items")
 
-CommandPaletteFlattenItems(root, items, breadcrumbs, keyPath, stableKeyPath, parentId, depth) {
+    result := { catalog: [], actions: Map(), byId: Map() }
+    root := { source: source, shortcut: shortcut }
+    CommandPaletteFlattenItems(root, options.items, [], [], [], "", 1, result)
+    return result
+}
+
+
+CommandPaletteFlattenItems(root, items, breadcrumbs, keyPath, stableKeyPath, parentId, depth, result?) {
     global COMMAND_PALETTE_CATALOG, COMMAND_PALETTE_ACTIONS, COMMAND_PALETTE_BY_ID
+
+    if !IsSet(result) {
+        result := {
+            catalog: COMMAND_PALETTE_CATALOG,
+            actions: COMMAND_PALETTE_ACTIONS,
+            byId: COMMAND_PALETTE_BY_ID
+        }
+    }
 
     for _, item in items {
         if !IsObject(item) || !item.HasOwnProp("key")
@@ -38,7 +56,7 @@ CommandPaletteFlattenItems(root, items, breadcrumbs, keyPath, stableKeyPath, par
             continue
 
         id := root.source . ":" . CommandPaletteJoin(itemStableKeyPath, ".")
-        if COMMAND_PALETTE_BY_ID.Has(id)
+        if result.byId.Has(id)
             throw Error("Duplicate command palette id: " . id)
         breadcrumb := itemBreadcrumbs.Length ? CommandPaletteJoin(itemBreadcrumbs, " › ") : ""
         detail := item.HasOwnProp("doc") ? item.doc : (item.HasOwnProp("command") ? item.command : "")
@@ -54,14 +72,23 @@ CommandPaletteFlattenItems(root, items, breadcrumbs, keyPath, stableKeyPath, par
             "shortcut", shortcut,
             "detail", detail
         )
-        COMMAND_PALETTE_CATALOG.Push(record)
-        COMMAND_PALETTE_BY_ID[id] := record
+        result.catalog.Push(record)
+        result.byId[id] := record
 
         if hasChildren {
             itemBreadcrumbs.Push(CommandPaletteGetItemLabel(item))
-            CommandPaletteFlattenItems(root, item.items, itemBreadcrumbs, itemKeyPath, itemStableKeyPath, id, depth + 1)
+            CommandPaletteFlattenItems(
+                root,
+                item.items,
+                itemBreadcrumbs,
+                itemKeyPath,
+                itemStableKeyPath,
+                id,
+                depth + 1,
+                result
+            )
         } else {
-            COMMAND_PALETTE_ACTIONS[id] := item.action
+            result.actions[id] := item.action
         }
     }
 }

@@ -1,12 +1,12 @@
-# VS Code Whichkeys
+# VS Code Command Palettes
 
 ## Qué resuelve
 
-Esta feature organiza acciones frecuentes de VS Code y Cursor en chords con prefijo. La idea es evitar recordar demasiados shortcuts sueltos y, al mismo tiempo, no depender de un menú visual permanente: disparás un prefijo, aparece el hint, elegís una tecla y se ejecuta un comando del editor.
+Esta feature organiza acciones frecuentes de VS Code y Cursor en palettes contextuales por área. Cada launcher abre una lista jerárquica con aceleradores `1`–`9`/`0`; al escribir, la búsqueda abarca globalmente todas las acciones de esa palette.
 
-En tu forma de trabajo, esta es la zona correcta cuando digas algo como:
+Usar esta guía para pedidos como:
 
-- "Quiero refactorizar los whichkeys de VS Code"
+- "Quiero refactorizar las palettes de VS Code"
 - "Tengo demasiadas opciones y no uso todas"
 - "Quiero agrupar mejor los comandos"
 - "Quiero que el árbol sea más claro"
@@ -15,12 +15,14 @@ En tu forma de trabajo, esta es la zona correcta cuando digas algo como:
 
 Los launchers visibles están definidos al principio de [code.ahk](../../code.ahk):
 
-- `Alt+G` inicia el chord de navegación/go
-- `Alt+B` inicia el chord de bookmarks
-- `Alt+T` inicia el chord de toggles
-- `Alt+S` inicia el chord de settings
-- `Alt+Z` inicia el chord de folding
-- `Alt+F` inicia el chord de file actions
+- `Alt+G` abre navegación/go
+- `Alt+B` abre bookmarks
+- `Alt+T` abre toggles
+- `Alt+S` abre settings
+- `Alt+Z` abre folding
+- `Alt+F` abre file actions
+
+`Ctrl+Alt+C` abre References directamente.
 
 Además hay algunos accesos directos relacionados:
 
@@ -31,29 +33,27 @@ Además hay algunos accesos directos relacionados:
 ## Archivos clave
 
 - [code.ahk](../../code.ahk)
-  Acá viven los launchers `Alt+...`, los helpers HTTP al controlador de VS Code, los builders de opciones de cada chord y `InitVSCodeControllerChords()`.
-- [lib/chord-hotkeys.ahk](../../lib/chord-hotkeys.ahk)
-  Engine genérico de chords, timeouts, hints, submenús y ejecución.
+  Contiene launchers `Alt+...`, helpers HTTP, builders de opciones, registros activos de palettes y el bloque Which-Key comentado para rollback.
 - [menus-whichkey.ahk](../../menus-whichkey.ahk)
-  Bridge reutilizable que convierte estructuras de opciones en registros para el engine de chords.
-- [ui/chord-hint.html](../../ui/chord-hint.html)
-  UI del hint overlay.
+  Adapta cualquier `options.items` a un catálogo aislado y registra la Command Palette compartida.
+- [command-palette-catalog.ahk](../../command-palette-catalog.ahk)
+  Materializa grupos, acciones, IDs, breadcrumbs y closures sin mezclar catálogos.
+- [ui/command-palette.html](../../ui/command-palette.html)
+  UI jerárquica numerada y búsqueda fuzzy global.
 
 ## Cómo está armado
 
-El flujo general es este:
-
 1. Un hotkey como `Alt+G` llama a `VSCode_StartGoChord()`.
-2. Ese helper libera `Alt`, registra logging y deriva en `VSCode_StartChord(...)`.
-3. `VSCode_StartChord(...)` dispara un prefijo real del engine, por ejemplo `^!g`.
-4. `InitVSCodeControllerChords()` registra cada prefijo mediante `MenuWhichKeyRegisterWithActions(...)`.
-5. Las opciones de cada chord salen de funciones tipo `GetVSCodeGoChordOptions()`.
-6. Cada item ejecuta `VSCode_RunCommand(...)` o `VSCode_RunCommandSequence(...)`.
+2. El helper libera `Alt` y deriva en `VSCode_StartChord(...)`.
+3. Si existe un launcher activo en `VSCode_ControllerPaletteLaunchers`, abre su palette preconstruida.
+4. `InitVSCodeControllerChords()` registra los siete catálogos mediante `MenuCommandPaletteRegisterWithActions(...)`.
+5. Las opciones siguen saliendo de funciones tipo `GetVSCodeGoChordOptions()`.
+6. Cada hoja ejecuta `VSCode_RunCommand(...)` o `VSCode_RunCommandSequence(...)`.
 7. El controlador HTTP de VS Code/Cursor recibe el comando y lo ejecuta.
 
-## Prefijos actuales
+## Prefijos internos
 
-Los prefijos reales registrados hoy en [code.ahk](../../code.ahk) son:
+Los registros internos conservados son:
 
 - `^!g` para navegación y foco
 - `^!b` para bookmarks
@@ -63,7 +63,7 @@ Los prefijos reales registrados hoy en [code.ahk](../../code.ahk) son:
 - `^!z` para folding
 - `^!s` para settings
 
-Los launchers más amigables para vos son los `Alt+...`, pero internamente el engine trabaja con esos prefijos reales.
+Los launchers amigables siguen siendo `Alt+...`; el mapa interno permite que esos wrappers abran la misma palette que el hotkey registrado.
 
 ## Árbol actual por áreas
 
@@ -79,7 +79,7 @@ Orientado a navegación, foco y accesos rápidos a chats/herramientas:
 - subgrupo `Copilot`
 - accesos rápidos `1`, `2`, `3`
 
-Hoy es el chord más cargado y probablemente el mejor candidato a simplificación.
+Hoy es la palette más cargada y probablemente la mejor candidata a simplificación.
 
 ### `Alt+B`
 
@@ -135,7 +135,7 @@ Orientado a settings:
 
 ## Qué conviene tocar cuando querés refactorizar
 
-Si querés reorganizar el árbol, casi todo el trabajo debería pasar por [code.ahk](../../code.ahk), especialmente por estas funciones:
+La estructura vive en [code.ahk](../../code.ahk), especialmente en:
 
 - `GetVSCodeGoChordOptions()`
 - `GetVSCodeBookmarksChordOptions()`
@@ -146,17 +146,13 @@ Si querés reorganizar el árbol, casi todo el trabajo debería pasar por [code.
 - `GetVSCodeSettingsChordOptions()`
 - `InitVSCodeControllerChords()`
 
-Normalmente no haría falta tocar el engine en [lib/chord-hotkeys.ahk](../../lib/chord-hotkeys.ahk) para una limpieza de opciones. Ese archivo entra en juego solo si querés cambiar comportamiento general del sistema de chords:
+Para cambiar navegación, búsqueda o aceleradores, tocar la Command Palette compartida, no los builders.
 
-- timeouts
-- hint delay
-- navegación entre submenús
-- render del overlay
-- manejo de teclas inválidas o `Esc`
+Para rollback visual, comentar el bloque `VSCode_ControllerPaletteLaunchers[...]` y descomentar el bloque `MenuWhichKeyRegisterWithActions(...)` inmediatamente anterior. Mantener exactamente un renderer activo.
 
 ## Estrategias de refactor posibles
 
-Cuando quieras ordenar estos whichkeys, hay varias direcciones razonables:
+Cuando quieras ordenar estas palettes, hay varias direcciones razonables:
 
 - `podar`
   Sacar opciones que ya no usás.
@@ -190,7 +186,7 @@ Una opción es candidata a salir o mudarse si:
 - solo existe "por si acaso"
 - duplica otra ruta
 - obliga a memorizar una letra poco intuitiva
-- mete ruido en un chord que ya está saturado
+- mete ruido en una palette que ya está saturada
 
 ## Cómo me podés pedir cambios
 
@@ -204,7 +200,7 @@ Estos pedidos ya alcanzan para arrancar:
 
 ## Gotchas
 
-- Los launchers amigables `Alt+...` no son los mismos prefijos que registra el engine.
+- Los launchers amigables `Alt+...` usan prefijos internos para compartir el mismo callback registrado.
 - Algunas opciones dependen del controlador HTTP de VS Code en `http://127.0.0.1:7777`.
 - Varias acciones son personales o históricas, así que no conviene asumir que todas siguen teniendo valor.
-- Antes de tocar el engine general, conviene intentar resolver el problema solo reorganizando opciones en [code.ahk](../../code.ahk).
+- Antes de tocar la UI compartida, conviene intentar resolver el problema reorganizando opciones en [code.ahk](../../code.ahk).

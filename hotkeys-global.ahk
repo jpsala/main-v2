@@ -205,7 +205,7 @@
     }
 
     IsWindowsTerminalWheelScrollProcess(exe) {
-      return exe = "WindowsTerminal.exe" || exe = "wezterm-gui.exe"
+      return exe = "WindowsTerminal.exe"
     }
 
     ToggleTerminalWheelPaging() {

@@ -32,6 +32,7 @@
 /gesture-rules-debug.txt
 /raw-project.log
 /calendar-window.log
+/log.txt
 /tmp-*.stderr
 
 nul

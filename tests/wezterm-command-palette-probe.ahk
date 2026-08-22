@@ -64,7 +64,7 @@ WezTermCommandPaletteProbeRun() {
         WEZTERM_COMMAND_PALETTE_PROJECTS_PATH
     )
     WezTermCommandPaletteProbeAssert(
-        snapshot.fingerprint = "aa9697bb",
+        snapshot.fingerprint = "6c108c5a",
         "snapshot fingerprint"
     )
     WezTermCommandPaletteProbeAssert(
@@ -94,8 +94,8 @@ WezTermCommandPaletteProbeRun() {
         WezTermCommandPaletteProbeAssert(projects[index] = expectedProject, "project " . index)
 
     palette := WezTermCommandPaletteBuildPalette(catalog["items"], catalog, projects)
-    WezTermCommandPaletteProbeAssert(palette.catalog.Length = 84, "palette record count")
-    WezTermCommandPaletteProbeAssert(palette.paths.Count = 76, "palette dispatch count")
+    WezTermCommandPaletteProbeAssert(palette.catalog.Length = 85, "palette record count")
+    WezTermCommandPaletteProbeAssert(palette.paths.Count = 77, "palette dispatch count")
     records := Map()
     for _, record in palette.catalog
         records[record["id"]] := record
@@ -149,6 +149,7 @@ WezTermCommandPaletteProbeRun() {
     )
     WezTermCommandPaletteProbeAssert(palette.paths["WezTerm:nr"] = "nr", "pane action path")
     WezTermCommandPaletteProbeAssert(palette.paths["WezTerm:zr"] = "zr", "reload action path")
+    WezTermCommandPaletteProbeAssert(palette.paths["WezTerm:nm"] = "nm", "move pane path")
     groupCount := 0
     actionCount := 0
     for _, record in palette.catalog {
@@ -164,7 +165,7 @@ WezTermCommandPaletteProbeRun() {
         )
     }
     WezTermCommandPaletteProbeAssert(groupCount = 8, "palette group count")
-    WezTermCommandPaletteProbeAssert(actionCount = 76, "palette action count")
+    WezTermCommandPaletteProbeAssert(actionCount = 77, "palette action count")
 
     WezTermCommandPaletteProbeAssert(InitWezTermCommandPalette(), "InitWezTermCommandPalette registration")
     WezTermCommandPaletteProbeAssert(

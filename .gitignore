@@ -23,6 +23,8 @@
 *.rar
 *.log
 *.stackdump
+*.bak
+/tests/log.txt
 
 # Local agent/runtime state
 /.workspace/

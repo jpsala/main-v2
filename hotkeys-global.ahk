@@ -181,10 +181,10 @@
     ; Remap Ctrl+Alt+R to prevent ® character
     ^!r:: Send('^!r')
 
-    ; OMP owns Ctrl+Shift+M inside WezTerm. Main must pass it through without
-    ; activating or minimizing the terminal window.
+    ; Consume the physical chord so Windows/Main cannot interpret it as a
+    ; minimize action, then route OMP's private Ctrl+Alt+O chord to WezTerm.
     #HotIf WinActive("ahk_exe wezterm-gui.exe")
-    ~^+m::Return
+    $^+m::Send("^!o")
     #HotIf
 
     #HotIf IsTerminalShiftVPasteActive()

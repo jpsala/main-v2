@@ -5,9 +5,8 @@
 OnError(OmpHotkeyProbeUnhandledError)
 
 #HotIf WinActive("ahk_exe wezterm-gui.exe")
-~^+m::Return
+$^+m::Send("^!o")
 #HotIf
-
 FileAppend("PASS`n", "*")
 ExitApp(0)
 

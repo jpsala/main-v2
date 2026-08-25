@@ -69,11 +69,11 @@ handoff y ejecución. Estos comandos y el adapter Pi local fueron retirados sin
 cambiar el launcher Pi de producto. La continuidad runtime ya no es política de
 este repo.
 
-## 2026-08-25 — Reservar Ctrl+Shift+M para OMP en WezTerm
+## 2026-08-25 — Rerutear Ctrl+Shift+M de OMP en WezTerm
 
 Estado: accepted
 
-Dentro de `wezterm-gui.exe`, Main no debe activar ni minimizar la ventana al
-recibir `Ctrl+Shift+M`: OMP usa ese chord para su vista filtrada de transcript.
-`hotkeys-global.ahk` registra una variante contextual passthrough (`~^+m`).
-Fuera de WezTerm no cambia ningún binding.
+Un passthrough `~^+m` no evitó la minimización observada. Dentro de
+`wezterm-gui.exe`, Main consume ahora el chord físico con `$^+m` y envía el
+chord privado `Ctrl+Alt+O`, que OMP registra para su vista filtrada. Fuera de
+WezTerm no cambia ningún binding.

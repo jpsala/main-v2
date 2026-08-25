@@ -181,6 +181,12 @@
     ; Remap Ctrl+Alt+R to prevent ® character
     ^!r:: Send('^!r')
 
+    ; OMP owns Ctrl+Shift+M inside WezTerm. Main must pass it through without
+    ; activating or minimizing the terminal window.
+    #HotIf WinActive("ahk_exe wezterm-gui.exe")
+    ~^+m::Return
+    #HotIf
+
     #HotIf IsTerminalShiftVPasteActive()
     +Insert:: PasteIntoTerminalWithShiftInsert()
     #HotIf

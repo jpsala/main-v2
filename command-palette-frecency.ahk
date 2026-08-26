@@ -54,16 +54,14 @@ CommandPaletteFrecencyLoad() {
     }
 }
 
-CommandPaletteFrecencyRecordUse(actionId, now := "") {
-    global COMMAND_PALETTE_BY_ID
-
-    if !COMMAND_PALETTE_BY_ID.Has(actionId)
+CommandPaletteFrecencyRecordUse(actionId, catalogById, now := "") {
+    if !catalogById.Has(actionId)
         return
     now := now != "" ? now : A_NowUTC
     id := actionId
     while (id != "") {
         CommandPaletteFrecencyApply(id, now)
-        id := COMMAND_PALETTE_BY_ID[id]["parentId"]
+        id := catalogById[id]["parentId"]
     }
     CommandPaletteFrecencySave()
 }
@@ -85,13 +83,13 @@ CommandPaletteFrecencyScore(entry, now := "") {
     return entry["score"] * (0.5 ** (elapsedSeconds / COMMAND_PALETTE_FRECENCY_HALF_LIFE_SECONDS))
 }
 
-CommandPaletteFrecencyGetSnapshot(now := "") {
-    global COMMAND_PALETTE_BY_ID, COMMAND_PALETTE_FRECENCY
+CommandPaletteFrecencyGetSnapshot(catalogById, now := "") {
+    global COMMAND_PALETTE_FRECENCY
 
     now := now != "" ? now : A_NowUTC
     snapshot := Map()
     for id, entry in COMMAND_PALETTE_FRECENCY {
-        if COMMAND_PALETTE_BY_ID.Has(id)
+        if catalogById.Has(id)
             snapshot[id] := CommandPaletteFrecencyScore(entry, now)
     }
     return snapshot

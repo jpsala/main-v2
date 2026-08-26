@@ -16,6 +16,7 @@ global COMMAND_PALETTE_SESSION_SOURCE := "Global"
 global COMMAND_PALETTE_SESSION_BASE_CATALOG := []
 global COMMAND_PALETTE_SESSION_CODE_DEFAULTS := {}
 global COMMAND_PALETTE_SESSION_ALLOW_LEVEL_CYCLE := true
+global COMMAND_PALETTE_SESSION_BY_ID := Map()
 global COMMAND_PALETTE_ALLOW_LEVEL_CYCLE := true
 global COMMAND_PALETTE_NATIVE_GUARD_HWND := 0
 global COMMAND_PALETTE_RESTORE_PREV_WIN := true
@@ -89,7 +90,7 @@ CommandPaletteOpenCore(config?, actions?) {
     global COMMAND_PALETTE_CATALOG, COMMAND_PALETTE_GROUPS_FIRST, COMMAND_PALETTE_GUI
     global COMMAND_PALETTE_LEVELS_PER_PAGE, COMMAND_PALETTE_PREV_WIN, COMMAND_PALETTE_RESULT
     global COMMAND_PALETTE_SESSION_ALLOW_LEVEL_CYCLE, COMMAND_PALETTE_SESSION_BASE_CATALOG
-    global COMMAND_PALETTE_SESSION_CODE_DEFAULTS, COMMAND_PALETTE_SESSION_SOURCE
+    global COMMAND_PALETTE_SESSION_BY_ID, COMMAND_PALETTE_SESSION_CODE_DEFAULTS, COMMAND_PALETTE_SESSION_SOURCE
 
     if COMMAND_PALETTE_ACTIVE {
         COMMAND_PALETTE_GUI.Control.ExecuteScript("window.focusPalette && window.focusPalette();")
@@ -176,7 +177,7 @@ CommandPaletteOpenCore(config?, actions?) {
     CommandPaletteClose()
     if (result != "" && sessionActions.Has(result)) {
         if sessionRecordUse
-            CommandPaletteFrecencyRecordUse(result)
+            CommandPaletteFrecencyRecordUse(result, COMMAND_PALETTE_SESSION_BY_ID)
         SetTimer(sessionActions[result], -1)
         return true
     }
@@ -191,8 +192,8 @@ CommandPaletteCatalogSource(catalog) {
 
 CommandPaletteBuildSessionState(initialQuery := "", reloadConfig := true) {
     global COMMAND_PALETTE_SESSION_ALLOW_LEVEL_CYCLE, COMMAND_PALETTE_SESSION_BASE_CATALOG
-    global COMMAND_PALETTE_SESSION_CODE_DEFAULTS, COMMAND_PALETTE_SESSION_SOURCE
-    global COMMAND_PALETTE_CONFIG_LAST_ERROR
+    global COMMAND_PALETTE_SESSION_BY_ID, COMMAND_PALETTE_SESSION_CODE_DEFAULTS
+    global COMMAND_PALETTE_SESSION_SOURCE, COMMAND_PALETTE_CONFIG_LAST_ERROR
 
     if reloadConfig
         CommandPaletteConfigLoad()
@@ -208,7 +209,8 @@ CommandPaletteBuildSessionState(initialQuery := "", reloadConfig := true) {
         COMMAND_PALETTE_SESSION_SOURCE,
         COMMAND_PALETTE_SESSION_BASE_CATALOG
     )
-    frecency := CommandPaletteFrecencyGetSnapshot()
+    COMMAND_PALETTE_SESSION_BY_ID := CommandPaletteIndexCatalog(catalog)
+    frecency := CommandPaletteFrecencyGetSnapshot(COMMAND_PALETTE_SESSION_BY_ID)
     levelsPerPage := CommandPaletteConfigViewModeToLevel(menuPreferences["viewMode"])
     return Map(
         "catalog", catalog,

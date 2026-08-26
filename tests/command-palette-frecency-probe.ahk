@@ -16,37 +16,38 @@ try {
 }
 
 CommandPaletteFrecencyProbeRun() {
-    global COMMAND_PALETTE_BY_ID, COMMAND_PALETTE_FRECENCY, COMMAND_PALETTE_FRECENCY_STATE_PATH
+    global COMMAND_PALETTE_FRECENCY, COMMAND_PALETTE_FRECENCY_STATE_PATH
 
     stateDir := A_Temp . "\main-command-palette-frecency-probe-" . A_TickCount
     COMMAND_PALETTE_FRECENCY_STATE_PATH := stateDir . "\state.json"
     COMMAND_PALETTE_FRECENCY := Map()
-    COMMAND_PALETTE_BY_ID := Map(
-        "Apps:g", Map("id", "Apps:g", "parentId", ""),
-        "Apps:g.a", Map("id", "Apps:g.a", "parentId", "Apps:g"),
-        "Apps:sibling", Map("id", "Apps:sibling", "parentId", "")
+    catalogById := Map(
+        "WezTerm:g", Map("id", "WezTerm:g", "parentId", ""),
+        "WezTerm:g.a", Map("id", "WezTerm:g.a", "parentId", "WezTerm:g"),
+        "WezTerm:sibling", Map("id", "WezTerm:sibling", "parentId", "")
     )
 
     firstUse := "20260701000000"
     halfLifeLater := "20260715000000"
-    CommandPaletteFrecencyRecordUse("Apps:g.a", firstUse)
-    CommandPaletteFrecencyProbeNear(COMMAND_PALETTE_FRECENCY["Apps:g.a"]["score"], 1, "first action use")
-    CommandPaletteFrecencyProbeNear(COMMAND_PALETTE_FRECENCY["Apps:g"]["score"], 1, "parent propagation")
-    CommandPaletteFrecencyProbeAssert(!COMMAND_PALETTE_FRECENCY.Has("Apps:sibling"), "sibling unchanged")
+    CommandPaletteFrecencyRecordUse("WezTerm:g.a", catalogById, firstUse)
+    CommandPaletteFrecencyProbeNear(COMMAND_PALETTE_FRECENCY["WezTerm:g.a"]["score"], 1, "custom action first use")
+    CommandPaletteFrecencyProbeNear(COMMAND_PALETTE_FRECENCY["WezTerm:g"]["score"], 1, "custom parent propagation")
+    CommandPaletteFrecencyProbeAssert(!COMMAND_PALETTE_FRECENCY.Has("WezTerm:sibling"), "custom sibling unchanged")
 
-    CommandPaletteFrecencyRecordUse("Apps:g.a", halfLifeLater)
-    CommandPaletteFrecencyProbeNear(COMMAND_PALETTE_FRECENCY["Apps:g.a"]["score"], 1.5, "decay before increment")
-    CommandPaletteFrecencyProbeNear(CommandPaletteFrecencyGetSnapshot(halfLifeLater)["Apps:g"], 1.5, "snapshot score")
+    CommandPaletteFrecencyRecordUse("WezTerm:g.a", catalogById, halfLifeLater)
+    CommandPaletteFrecencyProbeNear(COMMAND_PALETTE_FRECENCY["WezTerm:g.a"]["score"], 1.5, "custom decay before increment")
+    snapshot := CommandPaletteFrecencyGetSnapshot(catalogById, halfLifeLater)
+    CommandPaletteFrecencyProbeNear(snapshot["WezTerm:g"], 1.5, "custom snapshot score")
 
     COMMAND_PALETTE_FRECENCY := Map()
     CommandPaletteFrecencyLoad()
-    CommandPaletteFrecencyProbeNear(COMMAND_PALETTE_FRECENCY["Apps:g.a"]["score"], 1.5, "persistence round-trip")
-    CommandPaletteFrecencyProbeAssert(CommandPaletteFrecencyReset("Apps:g.a"), "individual ranking reset")
-    CommandPaletteFrecencyProbeAssert(!COMMAND_PALETTE_FRECENCY.Has("Apps:g.a"), "reset removes action score")
-    CommandPaletteFrecencyProbeAssert(COMMAND_PALETTE_FRECENCY.Has("Apps:g"), "reset preserves parent score")
+    CommandPaletteFrecencyProbeNear(COMMAND_PALETTE_FRECENCY["WezTerm:g.a"]["score"], 1.5, "persistence round-trip")
+    CommandPaletteFrecencyProbeAssert(CommandPaletteFrecencyReset("WezTerm:g.a"), "individual ranking reset")
+    CommandPaletteFrecencyProbeAssert(!COMMAND_PALETTE_FRECENCY.Has("WezTerm:g.a"), "reset removes action score")
+    CommandPaletteFrecencyProbeAssert(COMMAND_PALETTE_FRECENCY.Has("WezTerm:g"), "reset preserves parent score")
     COMMAND_PALETTE_FRECENCY := Map()
     CommandPaletteFrecencyLoad()
-    CommandPaletteFrecencyProbeAssert(!COMMAND_PALETTE_FRECENCY.Has("Apps:g.a"), "reset persistence")
+    CommandPaletteFrecencyProbeAssert(!COMMAND_PALETTE_FRECENCY.Has("WezTerm:g.a"), "reset persistence")
 
     FileDelete(COMMAND_PALETTE_FRECENCY_STATE_PATH)
     FileAppend("not-json", COMMAND_PALETTE_FRECENCY_STATE_PATH, "UTF-8")

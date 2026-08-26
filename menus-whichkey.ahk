@@ -132,7 +132,9 @@ MenuCommandPaletteHybridRun(source, catalog, actions, codeDefaults, *) {
         actionId := ChordEntryGetCommand(entry)
         if !actions.Has(actionId)
             return
-        CommandPaletteFrecencyRecordUse(actionId)
+        effectiveCatalog := CommandPaletteConfigBuildCatalog(source, catalog)
+        catalogById := CommandPaletteIndexCatalog(effectiveCatalog)
+        CommandPaletteFrecencyRecordUse(actionId, catalogById)
         SetTimer(actions[actionId], -1)
         return
     }

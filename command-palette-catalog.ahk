@@ -27,6 +27,13 @@ CommandPaletteBuildMenuCatalog(source, shortcut, options) {
     CommandPaletteFlattenItems(root, options.items, [], [], [], "", 1, result)
     return result
 }
+CommandPaletteIndexCatalog(catalog) {
+    result := Map()
+    for _, command in catalog
+        result[command["id"]] := command
+    return result
+}
+
 
 
 CommandPaletteFlattenItems(root, items, breadcrumbs, keyPath, stableKeyPath, parentId, depth, result?) {

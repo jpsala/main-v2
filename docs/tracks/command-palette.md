@@ -23,7 +23,7 @@ Unificar búsqueda, navegación jerárquica y memoria muscular keyboard-first en
 - Todas las entradas comparten el mismo ciclo de ventana: `Esc` cierra y devuelve el foco a la ventana previa; pérdida de foco o click fuera cierran sin robarle nuevamente el foco a la ventana elegida.
 - Inicio vacío con secciones acotadas de fijados, sugeridos por frecency y exploración.
 - Personalización persistente del catálogo actual: mostrar/ocultar, eliminar, ordenar, mover de grupo, renombrar, asignar alias y fijar.
-- Vista por menú: Flat, Groups o Mixed; la búsqueda escrita siempre es global y plana.
+- Vista por menú: Flat, Groups o Mixed; la búsqueda escrita siempre es global, muestra primero los grupos coincidentes y luego las acciones coincidentes.
 - Mantener fuera del catálogo canónico los ítems declarados `chordHidden` en la definición previa.
 - Búsqueda local por nombre, alias, categoría, breadcrumb, atajo, `doc` y `command`.
 - Ejecutar mediante un ID único y un `Map(id → closure)`, nunca mediante texto del input o JSON.
@@ -123,7 +123,7 @@ Los IDs son explícitos e independientes de label, orden, chord y posición. El 
 - `CommandPaletteInit(1)`: muestra acciones y grupos directos; Enter/click sobre un grupo abre su página.
 - `CommandPaletteInit(2)`: aplana dos niveles por página y ofrece como grupos los límites más profundos.
 - `groupsFirst=false` mantiene primero todas las acciones y después los submenús; `true` invierte ambos bloques sin alterar el orden interno.
-- Sin consulta se muestran las acciones y grupos de la página actual. Al escribir, la búsqueda ignora la página y filtra globalmente todas las acciones del catálogo; los grupos quedan como navegación, no como resultados de búsqueda.
+- Sin consulta se muestran las acciones y grupos de la página actual. Al escribir, la búsqueda ignora la página, muestra primero los grupos coincidentes y después filtra globalmente todas las acciones del catálogo.
 - Backspace con consulta vacía, `Alt+Left` o el botón atrás suben un grupo; `Esc` siempre cierra.
 - Con la consulta vacía, las primeras diez filas muestran aceleradores directos `1`–`9` y `0` para la décima. Al comenzar a escribir desaparecen: los dígitos vuelven a ser texto de búsqueda y `Enter` ejecuta el resultado activo.
 

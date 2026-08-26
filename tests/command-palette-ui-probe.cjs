@@ -118,6 +118,12 @@ vm.runInContext(`
   });
   assert(filtered.map(command => command.id).join(',') === 'Web:6,Apps:3,Apps:1,Apps:2', 'pinned and suggested precede exploration');
   assert(sections.get(0) === 'Pinned' && sections.get(1) === 'Suggested' && sections.get(2) === 'Explore', 'home sections');
+  document.querySelector('#query').value = 'group';
+  filterCommands('group');
+  assert(filtered[0].id === 'Apps:2' && filtered[0].kind === 'group', 'matching menu precedes matching actions');
+  activate(filtered[0]);
+  assert(currentGroupId === 'Apps:2' && document.querySelector('#query').value === '', 'matching menu opens its page and clears search');
+  assert(goBack() && currentGroupId === null, 'searched menu returns to root');
   filterCommands('video');
   assert(filtered.length === 1 && filtered[0].id === 'Web:6', 'alias search');
   openActions(filtered[0]);
